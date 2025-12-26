@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CLIENT_ID</key>
+	<string>893429270120-9tnop0j8qsun1kp2d7hel9ldr5ju1j3i.apps.googleusercontent.com</string>
+	<key>REVERSED_CLIENT_ID</key>
+	<string>com.googleusercontent.apps.893429270120-9tnop0j8qsun1kp2d7hel9ldr5ju1j3i</string>
+	<key>API_KEY</key>
+	<string>AIzaSyDpWi8Pwd4VnOt-2mcGfikS46hxLjs9Pm4</string>
+	<key>GCM_SENDER_ID</key>
+	<string>893429270120</string>
+	<key>PLIST_VERSION</key>
+	<string>1</string>
+	<key>BUNDLE_ID</key>
+	<string>com.qictrader.app</string>
+	<key>PROJECT_ID</key>
+	<string>qic-trader</string>
+	<key>STORAGE_BUCKET</key>
+	<string>qic-trader.firebasestorage.app</string>
+	<key>IS_ADS_ENABLED</key>
+	<false></false>
+	<key>IS_ANALYTICS_ENABLED</key>
+	<false></false>
+	<key>IS_APPINVITE_ENABLED</key>
+	<true></true>
+	<key>IS_GCM_ENABLED</key>
+	<true></true>
+	<key>IS_SIGNIN_ENABLED</key>
+	<true></true>
+	<key>GOOGLE_APP_ID</key>
+	<string>1:893429270120:ios:69ec01db3f2acd0c5e1ddd</string>
+</dict>
+</plist>

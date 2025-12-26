@@ -1,0 +1,60 @@
+/**
+ * App Providers
+ * Wraps the app with all necessary providers
+ */
+
+import React, { ReactNode } from 'react';
+import { Provider } from 'react-redux';
+import { PersistGate } from 'redux-persist/integration/react';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { ActivityIndicator, View } from 'react-native';
+import { store, persistor } from '@/store';
+
+// Create React Query client
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 1000 * 60 * 5, // 5 minutes
+      retry: 2,
+      refetchOnWindowFocus: false,
+    },
+    mutations: {
+      retry: 1,
+    },
+  },
+});
+
+interface AppProvidersProps {
+  children: ReactNode;
+}
+
+/**
+ * Loading component for PersistGate
+ */
+function LoadingFallback() {
+  return (
+    <View className="flex-1 items-center justify-center bg-slate-900">
+      <ActivityIndicator size="large" color="#00a3f6" />
+    </View>
+  );
+}
+
+/**
+ * AppProviders component
+ * Wraps children with Redux Provider, PersistGate, and React Query
+ */
+export function AppProviders({ children }: AppProvidersProps) {
+  console.log('[AppProviders] Rendering providers');
+
+  return (
+    <Provider store={store}>
+      <PersistGate loading={<LoadingFallback />} persistor={persistor}>
+        <QueryClientProvider client={queryClient}>
+          {children}
+        </QueryClientProvider>
+      </PersistGate>
+    </Provider>
+  );
+}
+
+export default AppProviders;

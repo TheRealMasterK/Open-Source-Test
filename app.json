@@ -1,0 +1,71 @@
+{
+  "expo": {
+    "name": "Qic Trader",
+    "slug": "qic-trader",
+    "version": "1.0.0",
+    "scheme": "qictrader",
+    "web": {
+      "bundler": "metro",
+      "output": "static",
+      "favicon": "./assets/favicon.png"
+    },
+    "plugins": [
+      "expo-router",
+      "expo-web-browser",
+      "expo-font",
+      "expo-secure-store",
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Allow Qic Trader to access your camera for KYC verification."
+        }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Allow Qic Trader to access your photos for document uploads."
+        }
+      ],
+      "sentry-expo"
+    ],
+    "experiments": {
+      "typedRoutes": true,
+      "tsconfigPaths": true
+    },
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "automatic",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#0f172a"
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.qictrader.app",
+      "infoPlist": {
+        "NSCameraUsageDescription": "Qic Trader needs camera access for KYC selfie verification.",
+        "NSPhotoLibraryUsageDescription": "Qic Trader needs photo library access for document uploads."
+      }
+    },
+    "android": {
+      "package": "com.qictrader.app",
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#0f172a"
+      },
+      "permissions": [
+        "android.permission.CAMERA",
+        "android.permission.READ_EXTERNAL_STORAGE"
+      ]
+    },
+    "extra": {
+      "eas": {
+        "projectId": "your-project-id"
+      }
+    }
+  }
+}
