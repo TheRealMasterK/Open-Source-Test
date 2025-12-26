@@ -41,9 +41,7 @@ export const CRYPTOCURRENCIES: Record<CryptoSymbol, CryptoConfig> = {
     color: '#F7931A',
     decimals: 8,
     icon: 'btc',
-    networks: [
-      { id: 'bitcoin', name: 'Bitcoin', chainId: 0, isTestnet: false },
-    ],
+    networks: [{ id: 'bitcoin', name: 'Bitcoin', chainId: 0, isTestnet: false }],
   },
   ETH: {
     symbol: 'ETH',

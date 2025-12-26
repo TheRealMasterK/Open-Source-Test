@@ -75,39 +75,30 @@ export default function ForgotPasswordScreen() {
   if (emailSent) {
     return (
       <SafeAreaView className={`flex-1 ${bgColor}`}>
-        <View className="flex-1 px-6 justify-center items-center">
+        <View className="flex-1 items-center justify-center px-6">
           <View
-            className="w-20 h-20 rounded-full items-center justify-center mb-6"
-            style={{ backgroundColor: `${Colors.success.DEFAULT}20` }}
-          >
-            <Ionicons
-              name="mail-outline"
-              size={40}
-              color={Colors.success.DEFAULT}
-            />
+            className="mb-6 h-20 w-20 items-center justify-center rounded-full"
+            style={{ backgroundColor: `${Colors.success.DEFAULT}20` }}>
+            <Ionicons name="mail-outline" size={40} color={Colors.success.DEFAULT} />
           </View>
 
-          <Text className={`${textColor} text-2xl font-bold text-center mb-4`}>
+          <Text className={`${textColor} mb-4 text-center text-2xl font-bold`}>
             Check Your Email
           </Text>
 
-          <Text className={`${textSecondary} text-center mb-8`}>
+          <Text className={`${textSecondary} mb-8 text-center`}>
             We&apos;ve sent a password reset link to{'\n'}
             <Text className={textColor}>{email}</Text>
           </Text>
 
           <TouchableOpacity
             onPress={() => router.replace('/(auth)/login')}
-            className="py-4 px-8 rounded-xl"
-            style={{ backgroundColor: Colors.primary.DEFAULT }}
-          >
-            <Text className="text-white font-bold">Back to Login</Text>
+            className="rounded-xl px-8 py-4"
+            style={{ backgroundColor: Colors.primary.DEFAULT }}>
+            <Text className="font-bold text-white">Back to Login</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity
-            onPress={() => setEmailSent(false)}
-            className="mt-4"
-          >
+          <TouchableOpacity onPress={() => setEmailSent(false)} className="mt-4">
             <Text style={{ color: Colors.primary.DEFAULT }}>
               Didn&apos;t receive email? Try again
             </Text>
@@ -121,27 +112,19 @@ export default function ForgotPasswordScreen() {
     <SafeAreaView className={`flex-1 ${bgColor}`}>
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        className="flex-1"
-      >
+        className="flex-1">
         <ScrollView
           className="flex-1 px-6"
           showsVerticalScrollIndicator={false}
-          keyboardShouldPersistTaps="handled"
-        >
+          keyboardShouldPersistTaps="handled">
           {/* Back Button */}
-          <TouchableOpacity onPress={() => router.back()} className="mt-4 mb-8">
-            <Ionicons
-              name="arrow-back"
-              size={24}
-              color={isDark ? 'white' : 'black'}
-            />
+          <TouchableOpacity onPress={() => router.back()} className="mb-8 mt-4">
+            <Ionicons name="arrow-back" size={24} color={isDark ? 'white' : 'black'} />
           </TouchableOpacity>
 
           {/* Header */}
           <View className="mb-8">
-            <Text className={`${textColor} text-3xl font-bold mb-2`}>
-              Forgot Password?
-            </Text>
+            <Text className={`${textColor} mb-2 text-3xl font-bold`}>Forgot Password?</Text>
             <Text className={`${textSecondary} text-base`}>
               Enter your email and we&apos;ll send you a link to reset your password
             </Text>
@@ -150,17 +133,11 @@ export default function ForgotPasswordScreen() {
           {/* Form */}
           <View className="mb-6">
             <View className="mb-4">
-              <Text className={`${textColor} font-medium mb-2`}>Email</Text>
-              <View
-                className={`${inputBg} rounded-xl flex-row items-center px-4`}
-              >
-                <Ionicons
-                  name="mail-outline"
-                  size={20}
-                  color={placeholderColor}
-                />
+              <Text className={`${textColor} mb-2 font-medium`}>Email</Text>
+              <View className={`${inputBg} flex-row items-center rounded-xl px-4`}>
+                <Ionicons name="mail-outline" size={20} color={placeholderColor} />
                 <TextInput
-                  className={`flex-1 ${inputText} py-4 px-3 font-medium`}
+                  className={`flex-1 ${inputText} px-3 py-4 font-medium`}
                   placeholder="Enter your email"
                   placeholderTextColor={placeholderColor}
                   value={email}
@@ -177,15 +154,12 @@ export default function ForgotPasswordScreen() {
           <TouchableOpacity
             onPress={handleResetPassword}
             disabled={isLoading}
-            className="py-4 rounded-xl items-center mb-6"
-            style={{ backgroundColor: Colors.primary.DEFAULT }}
-          >
+            className="mb-6 items-center rounded-xl py-4"
+            style={{ backgroundColor: Colors.primary.DEFAULT }}>
             {isLoading ? (
               <ActivityIndicator color="white" />
             ) : (
-              <Text className="text-white font-bold text-lg">
-                Send Reset Link
-              </Text>
+              <Text className="text-lg font-bold text-white">Send Reset Link</Text>
             )}
           </TouchableOpacity>
 

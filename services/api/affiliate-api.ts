@@ -49,10 +49,9 @@ export async function getReferrals(
   console.log('[AffiliateAPI] getReferrals: Fetching referrals', params);
 
   try {
-    const response = await get<PaginatedResponse<Referral>>(
-      API_ENDPOINTS.AFFILIATE.REFERRALS,
-      { params }
-    );
+    const response = await get<PaginatedResponse<Referral>>(API_ENDPOINTS.AFFILIATE.REFERRALS, {
+      params,
+    });
 
     if (response.success && response.data) {
       console.log('[AffiliateAPI] getReferrals: Found', response.data.data.length, 'referrals');
@@ -168,16 +167,11 @@ export async function generateLink(
 /**
  * Request payout
  */
-export async function requestPayout(
-  payload: RequestPayoutPayload
-): Promise<AffiliatePayout> {
+export async function requestPayout(payload: RequestPayoutPayload): Promise<AffiliatePayout> {
   console.log('[AffiliateAPI] requestPayout: Requesting payout', payload.amount);
 
   try {
-    const response = await post<AffiliatePayout>(
-      API_ENDPOINTS.AFFILIATE.REQUEST_PAYOUT,
-      payload
-    );
+    const response = await post<AffiliatePayout>(API_ENDPOINTS.AFFILIATE.REQUEST_PAYOUT, payload);
 
     if (response.success && response.data) {
       console.log('[AffiliateAPI] requestPayout: Success, ID:', response.data.id);

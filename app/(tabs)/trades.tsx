@@ -52,29 +52,19 @@ export default function TradesScreen() {
     return (
       <TouchableOpacity
         onPress={() => setActiveTab(tab)}
-        className={`flex-1 py-3 items-center rounded-lg ${
-          isActive ? '' : ''
-        }`}
-        style={isActive ? { backgroundColor: Colors.primary.DEFAULT } : {}}
-      >
+        className={`flex-1 items-center rounded-lg py-3 ${isActive ? '' : ''}`}
+        style={isActive ? { backgroundColor: Colors.primary.DEFAULT } : {}}>
         <View className="flex-row items-center">
-          <Text
-            className={`font-semibold ${isActive ? 'text-white' : textSecondary}`}
-          >
+          <Text className={`font-semibold ${isActive ? 'text-white' : textSecondary}`}>
             {label}
           </Text>
           {count > 0 && (
             <View
-              className="ml-2 px-2 py-0.5 rounded-full"
+              className="ml-2 rounded-full px-2 py-0.5"
               style={{
                 backgroundColor: isActive ? 'rgba(255,255,255,0.2)' : Colors.primary.DEFAULT,
-              }}
-            >
-              <Text
-                className={`text-xs font-semibold ${
-                  isActive ? 'text-white' : 'text-white'
-                }`}
-              >
+              }}>
+              <Text className={`text-xs font-semibold ${isActive ? 'text-white' : 'text-white'}`}>
                 {count}
               </Text>
             </View>
@@ -117,7 +107,7 @@ export default function TradesScreen() {
       </View>
 
       {/* Tab Selector */}
-      <View className={`mx-4 p-1 rounded-xl mb-4 ${cardBg}`}>
+      <View className={`mx-4 mb-4 rounded-xl p-1 ${cardBg}`}>
         <View className="flex-row">
           <TabButton label="Active" tab="active" count={0} />
           <TabButton label="Completed" tab="completed" />
@@ -128,23 +118,16 @@ export default function TradesScreen() {
       {/* Trades List */}
       <ScrollView
         className="flex-1 px-4"
-        refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-        }
-      >
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}>
         {/* Empty State */}
-        <View className={`${cardBg} rounded-xl p-8 items-center`}>
+        <View className={`${cardBg} items-center rounded-xl p-8`}>
           <Ionicons
             name={emptyState.icon}
             size={64}
             color={isDark ? Colors.dark.textTertiary : Colors.light.textTertiary}
           />
-          <Text className={`${textColor} text-lg font-semibold mt-4`}>
-            {emptyState.title}
-          </Text>
-          <Text className={`${textSecondary} text-center mt-2`}>
-            {emptyState.subtitle}
-          </Text>
+          <Text className={`${textColor} mt-4 text-lg font-semibold`}>{emptyState.title}</Text>
+          <Text className={`${textSecondary} mt-2 text-center`}>{emptyState.subtitle}</Text>
         </View>
 
         {/* Spacer */}

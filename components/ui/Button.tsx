@@ -151,13 +151,9 @@ export function Button({
         fullWidth && styles.fullWidth,
         style,
       ]}
-      {...rest}
-    >
+      {...rest}>
       {loading ? (
-        <ActivityIndicator
-          size="small"
-          color={getTextColor()}
-        />
+        <ActivityIndicator size="small" color={getTextColor()} />
       ) : (
         <>
           {leftIcon && <>{leftIcon}</>}
@@ -171,8 +167,7 @@ export function Button({
                 marginRight: rightIcon ? Spacing.xs : 0,
               },
               textStyle,
-            ]}
-          >
+            ]}>
             {title}
           </Text>
           {rightIcon && <>{rightIcon}</>}

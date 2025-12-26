@@ -52,8 +52,7 @@ export default function TabsLayout() {
           fontFamily: 'Poppins-Medium',
           fontSize: 11,
         },
-      }}
-    >
+      }}>
       <Tabs.Screen
         name="index"
         options={{

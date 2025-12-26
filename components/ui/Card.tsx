@@ -4,13 +4,7 @@
  */
 
 import React from 'react';
-import {
-  View,
-  StyleSheet,
-  ViewStyle,
-  TouchableOpacity,
-  TouchableOpacityProps,
-} from 'react-native';
+import { View, StyleSheet, ViewStyle, TouchableOpacity, TouchableOpacityProps } from 'react-native';
 import { Colors, Spacing, BorderRadius, Shadows } from '@/config/theme';
 import { useTheme } from '@/hooks/common/useTheme';
 
@@ -67,18 +61,13 @@ export function Card({
       <TouchableOpacity
         onPress={onPress}
         activeOpacity={0.7}
-        style={[styles.card, cardStyle, style]}
-      >
+        style={[styles.card, cardStyle, style]}>
         {children}
       </TouchableOpacity>
     );
   }
 
-  return (
-    <View style={[styles.card, cardStyle, style]}>
-      {children}
-    </View>
-  );
+  return <View style={[styles.card, cardStyle, style]}>{children}</View>;
 }
 
 const styles = StyleSheet.create({

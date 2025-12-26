@@ -76,8 +76,7 @@ export function CryptoIcon({
           backgroundColor: showBackground ? color + '20' : 'transparent',
         },
         style,
-      ]}
-    >
+      ]}>
       <Text
         style={[
           styles.symbol,
@@ -85,8 +84,7 @@ export function CryptoIcon({
             fontSize,
             color,
           },
-        ]}
-      >
+        ]}>
         {getCryptoSymbol(currency)}
       </Text>
     </View>
@@ -125,9 +123,7 @@ export function CryptoAmount({
 
   return (
     <View style={[styles.amountContainer, style]}>
-      {showIcon && (
-        <CryptoIcon currency={currency} size={size} style={styles.amountIcon} />
-      )}
+      {showIcon && <CryptoIcon currency={currency} size={size} style={styles.amountIcon} />}
       <Text style={styles.amountText}>
         {formatAmount(amount)} {currency}
       </Text>

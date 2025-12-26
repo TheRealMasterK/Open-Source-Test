@@ -4,11 +4,7 @@
  */
 
 import React from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-} from 'react-native';
+import { View, Text, StyleSheet } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { Colors, Spacing, FontSize, BorderRadius } from '@/config/theme';
@@ -58,20 +54,13 @@ export function OfferCard({ offer, onPress }: OfferCardProps) {
       {/* Header */}
       <View style={styles.header}>
         <View style={styles.userInfo}>
-          <Avatar
-            name={offer.creatorDisplayName || 'User'}
-            size="sm"
-          />
+          <Avatar name={offer.creatorDisplayName || 'User'} size="sm" />
           <View style={styles.userDetails}>
             <Text style={[styles.username, { color: colors.text }]}>
               {offer.creatorDisplayName || 'Anonymous'}
             </Text>
             <View style={styles.ratingContainer}>
-              <Ionicons
-                name="star"
-                size={12}
-                color={Colors.warning.DEFAULT}
-              />
+              <Ionicons name="star" size={12} color={Colors.warning.DEFAULT} />
               <Text style={[styles.rating, { color: colors.textSecondary }]}>
                 {offer.creatorRating?.toFixed(1) || '0.0'} ({offer.creatorTotalTrades || 0})
               </Text>
@@ -79,20 +68,14 @@ export function OfferCard({ offer, onPress }: OfferCardProps) {
           </View>
         </View>
 
-        <Badge
-          text={isBuy ? 'BUY' : 'SELL'}
-          variant={isBuy ? 'success' : 'danger'}
-          size="sm"
-        />
+        <Badge text={isBuy ? 'BUY' : 'SELL'} variant={isBuy ? 'success' : 'danger'} size="sm" />
       </View>
 
       {/* Price Section */}
       <View style={[styles.priceSection, { borderColor: colors.border }]}>
         <View style={styles.cryptoInfo}>
           <CryptoIcon currency={offer.cryptocurrency} size="sm" />
-          <Text style={[styles.cryptoText, { color: colors.text }]}>
-            {offer.cryptocurrency}
-          </Text>
+          <Text style={[styles.cryptoText, { color: colors.text }]}>{offer.cryptocurrency}</Text>
         </View>
 
         <View style={styles.priceInfo}>
@@ -108,23 +91,16 @@ export function OfferCard({ offer, onPress }: OfferCardProps) {
       {/* Footer */}
       <View style={styles.footer}>
         <View style={styles.limitInfo}>
-          <Text style={[styles.limitLabel, { color: colors.textTertiary }]}>
-            Limits
-          </Text>
-          <Text style={[styles.limitValue, { color: colors.textSecondary }]}>
-            {formatLimits()}
-          </Text>
+          <Text style={[styles.limitLabel, { color: colors.textTertiary }]}>Limits</Text>
+          <Text style={[styles.limitValue, { color: colors.textSecondary }]}>{formatLimits()}</Text>
         </View>
 
         <View style={styles.paymentMethods}>
           {offer.paymentMethods?.slice(0, 2).map((method, index) => (
             <View
               key={index}
-              style={[styles.paymentBadge, { backgroundColor: colors.surfaceSecondary }]}
-            >
-              <Text style={[styles.paymentText, { color: colors.textSecondary }]}>
-                {method}
-              </Text>
+              style={[styles.paymentBadge, { backgroundColor: colors.surfaceSecondary }]}>
+              <Text style={[styles.paymentText, { color: colors.textSecondary }]}>{method}</Text>
             </View>
           ))}
           {offer.paymentMethods && offer.paymentMethods.length > 2 && (

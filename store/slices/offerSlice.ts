@@ -100,7 +100,8 @@ export const {
 export const selectCurrentOffer = (state: { offer: OfferState }) => state.offer.currentOffer;
 export const selectDraftOffer = (state: { offer: OfferState }) => state.offer.draftOffer;
 export const selectEscrowFlow = (state: { offer: OfferState }) => state.offer.escrowFlow;
-export const selectSelectedCurrency = (state: { offer: OfferState }) => state.offer.selectedCurrency;
+export const selectSelectedCurrency = (state: { offer: OfferState }) =>
+  state.offer.selectedCurrency;
 export const selectActiveTab = (state: { offer: OfferState }) => state.offer.activeTab;
 
 export default offerSlice.reducer;

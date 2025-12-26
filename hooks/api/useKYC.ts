@@ -5,10 +5,7 @@
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { kycApi } from '@/services/api';
-import {
-  SubmitKYCPayload,
-  UploadDocumentPayload,
-} from '@/types';
+import { SubmitKYCPayload, UploadDocumentPayload } from '@/types';
 
 // Query keys
 export const kycKeys = {
@@ -64,8 +61,7 @@ export function useUploadKYCDocument() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (payload: UploadDocumentPayload) =>
-      kycApi.uploadDocument(payload),
+    mutationFn: (payload: UploadDocumentPayload) => kycApi.uploadDocument(payload),
     onSuccess: () => {
       console.log('[useUploadKYCDocument] Success');
       queryClient.invalidateQueries({ queryKey: kycKeys.documents() });

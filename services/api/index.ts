@@ -2,9 +2,9 @@
  * API Services barrel export
  */
 
-// HTTP Client
-export * from './http-client';
+// HTTP Client (export default API methods and httpClient instance separately)
 export { default as httpClient } from './http-client';
+export { httpClient as httpClientInstance } from './http-client';
 
 // Token Manager
 export * from './token-manager';

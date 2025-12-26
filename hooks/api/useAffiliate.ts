@@ -18,15 +18,12 @@ export const affiliateKeys = {
   all: ['affiliate'] as const,
   stats: () => [...affiliateKeys.all, 'stats'] as const,
   referrals: () => [...affiliateKeys.all, 'referrals'] as const,
-  referralList: (params?: ReferralListParams) =>
-    [...affiliateKeys.referrals(), params] as const,
+  referralList: (params?: ReferralListParams) => [...affiliateKeys.referrals(), params] as const,
   earnings: () => [...affiliateKeys.all, 'earnings'] as const,
-  earningList: (params?: EarningListParams) =>
-    [...affiliateKeys.earnings(), params] as const,
+  earningList: (params?: EarningListParams) => [...affiliateKeys.earnings(), params] as const,
   tiers: () => [...affiliateKeys.all, 'tiers'] as const,
   payouts: () => [...affiliateKeys.all, 'payouts'] as const,
-  payoutList: (params?: PayoutListParams) =>
-    [...affiliateKeys.payouts(), params] as const,
+  payoutList: (params?: PayoutListParams) => [...affiliateKeys.payouts(), params] as const,
 };
 
 /**
@@ -91,8 +88,7 @@ export function useGenerateLink() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (payload?: GenerateLinkPayload) =>
-      affiliateApi.generateLink(payload),
+    mutationFn: (payload?: GenerateLinkPayload) => affiliateApi.generateLink(payload),
     onSuccess: () => {
       console.log('[useGenerateLink] Success');
       queryClient.invalidateQueries({ queryKey: affiliateKeys.stats() });
@@ -110,8 +106,7 @@ export function useRequestPayout() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (payload: RequestPayoutPayload) =>
-      affiliateApi.requestPayout(payload),
+    mutationFn: (payload: RequestPayoutPayload) => affiliateApi.requestPayout(payload),
     onSuccess: () => {
       console.log('[useRequestPayout] Success');
       queryClient.invalidateQueries({ queryKey: affiliateKeys.stats() });

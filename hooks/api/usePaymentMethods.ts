@@ -5,10 +5,7 @@
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { paymentMethodsApi } from '@/services/api';
-import {
-  CreatePaymentMethodPayload,
-  UpdatePaymentMethodPayload,
-} from '@/types';
+import { CreatePaymentMethodPayload, UpdatePaymentMethodPayload } from '@/types';
 
 // Query keys
 export const paymentMethodKeys = {
@@ -77,8 +74,7 @@ export function useDeletePaymentMethod() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (paymentMethodId: string) =>
-      paymentMethodsApi.deletePaymentMethod(paymentMethodId),
+    mutationFn: (paymentMethodId: string) => paymentMethodsApi.deletePaymentMethod(paymentMethodId),
     onSuccess: () => {
       console.log('[useDeletePaymentMethod] Success');
       queryClient.invalidateQueries({ queryKey: paymentMethodKeys.list() });

@@ -167,10 +167,7 @@ function formatError(error: unknown): ApiError {
 /**
  * GET request
  */
-export async function get<T>(
-  url: string,
-  config?: AxiosRequestConfig
-): Promise<ApiResponse<T>> {
+export async function get<T>(url: string, config?: AxiosRequestConfig): Promise<ApiResponse<T>> {
   try {
     const response = await httpClient.get<ApiResponse<T>>(url, config);
     return response.data;
@@ -230,10 +227,7 @@ export async function patch<T>(
 /**
  * DELETE request
  */
-export async function del<T>(
-  url: string,
-  config?: AxiosRequestConfig
-): Promise<ApiResponse<T>> {
+export async function del<T>(url: string, config?: AxiosRequestConfig): Promise<ApiResponse<T>> {
   try {
     const response = await httpClient.delete<ApiResponse<T>>(url, config);
     return response.data;

@@ -16,8 +16,7 @@ export default function SettingsLayout() {
         headerShown: false,
         contentStyle: { backgroundColor: colors.background },
         animation: 'slide_from_right',
-      }}
-    >
+      }}>
       <Stack.Screen name="index" />
     </Stack>
   );

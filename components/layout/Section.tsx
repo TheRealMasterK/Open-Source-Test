@@ -4,13 +4,7 @@
  */
 
 import React from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  ViewStyle,
-  TouchableOpacity,
-} from 'react-native';
+import { View, Text, StyleSheet, ViewStyle, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Colors, Spacing, FontSize } from '@/config/theme';
 import { useTheme } from '@/hooks/common/useTheme';
@@ -41,15 +35,9 @@ export function Section({
       {(title || actionText) && (
         <View style={styles.header}>
           <View style={styles.titleContainer}>
-            {title && (
-              <Text style={[styles.title, { color: colors.text }]}>
-                {title}
-              </Text>
-            )}
+            {title && <Text style={[styles.title, { color: colors.text }]}>{title}</Text>}
             {subtitle && (
-              <Text style={[styles.subtitle, { color: colors.textSecondary }]}>
-                {subtitle}
-              </Text>
+              <Text style={[styles.subtitle, { color: colors.textSecondary }]}>{subtitle}</Text>
             )}
           </View>
 
@@ -57,16 +45,11 @@ export function Section({
             <TouchableOpacity
               onPress={onAction}
               style={styles.actionButton}
-              hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-            >
+              hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
               <Text style={[styles.actionText, { color: Colors.primary.DEFAULT }]}>
                 {actionText}
               </Text>
-              <Ionicons
-                name="chevron-forward"
-                size={14}
-                color={Colors.primary.DEFAULT}
-              />
+              <Ionicons name="chevron-forward" size={14} color={Colors.primary.DEFAULT} />
             </TouchableOpacity>
           )}
         </View>

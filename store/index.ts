@@ -22,6 +22,9 @@ import uiReducer from './slices/uiSlice';
 import offerReducer from './slices/offerSlice';
 import walletReducer from './slices/walletSlice';
 
+// Typed hooks
+import { TypedUseSelectorHook, useDispatch, useSelector } from 'react-redux';
+
 // Root reducer
 const rootReducer = combineReducers({
   auth: authReducer,
@@ -63,9 +66,6 @@ export const persistor = persistStore(store);
 // Types
 export type RootState = ReturnType<typeof store.getState>;
 export type AppDispatch = typeof store.dispatch;
-
-// Typed hooks
-import { TypedUseSelectorHook, useDispatch, useSelector } from 'react-redux';
 
 export const useAppDispatch = () => useDispatch<AppDispatch>();
 export const useAppSelector: TypedUseSelectorHook<RootState> = useSelector;

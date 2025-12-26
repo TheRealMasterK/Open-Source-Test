@@ -24,9 +24,7 @@ export async function getProfile(userId?: string): Promise<UserProfile> {
   console.log('[UsersAPI] getProfile: Fetching profile for', userId || 'current user');
 
   try {
-    const url = userId
-      ? API_ENDPOINTS.USERS.BY_ID(userId)
-      : API_ENDPOINTS.USERS.PROFILE;
+    const url = userId ? API_ENDPOINTS.USERS.BY_ID(userId) : API_ENDPOINTS.USERS.PROFILE;
 
     const response = await get<UserProfile>(url);
 
@@ -45,16 +43,11 @@ export async function getProfile(userId?: string): Promise<UserProfile> {
 /**
  * Update user profile
  */
-export async function updateProfile(
-  payload: UpdateProfilePayload
-): Promise<UserProfile> {
+export async function updateProfile(payload: UpdateProfilePayload): Promise<UserProfile> {
   console.log('[UsersAPI] updateProfile: Updating profile');
 
   try {
-    const response = await put<UserProfile>(
-      API_ENDPOINTS.USERS.PROFILE,
-      payload
-    );
+    const response = await put<UserProfile>(API_ENDPOINTS.USERS.PROFILE, payload);
 
     if (response.success && response.data) {
       console.log('[UsersAPI] updateProfile: Success');
@@ -92,16 +85,11 @@ export async function getSettings(): Promise<UserSettings> {
 /**
  * Update user settings
  */
-export async function updateSettings(
-  payload: UpdateSettingsPayload
-): Promise<UserSettings> {
+export async function updateSettings(payload: UpdateSettingsPayload): Promise<UserSettings> {
   console.log('[UsersAPI] updateSettings: Updating settings');
 
   try {
-    const response = await put<UserSettings>(
-      API_ENDPOINTS.USERS.SETTINGS,
-      payload
-    );
+    const response = await put<UserSettings>(API_ENDPOINTS.USERS.SETTINGS, payload);
 
     if (response.success && response.data) {
       console.log('[UsersAPI] updateSettings: Success');
@@ -118,15 +106,11 @@ export async function updateSettings(
 /**
  * Get user ratings
  */
-export async function getRatings(
-  userId: string
-): Promise<PaginatedResponse<UserRating>> {
+export async function getRatings(userId: string): Promise<PaginatedResponse<UserRating>> {
   console.log('[UsersAPI] getRatings: Fetching ratings for', userId);
 
   try {
-    const response = await get<PaginatedResponse<UserRating>>(
-      API_ENDPOINTS.USERS.RATINGS(userId)
-    );
+    const response = await get<PaginatedResponse<UserRating>>(API_ENDPOINTS.USERS.RATINGS(userId));
 
     if (response.success && response.data) {
       console.log('[UsersAPI] getRatings: Found', response.data.data.length, 'ratings');
@@ -143,17 +127,11 @@ export async function getRatings(
 /**
  * Rate a user
  */
-export async function rateUser(
-  userId: string,
-  payload: RateUserPayload
-): Promise<UserRating> {
+export async function rateUser(userId: string, payload: RateUserPayload): Promise<UserRating> {
   console.log('[UsersAPI] rateUser: Rating user', userId, 'with', payload.rating, 'stars');
 
   try {
-    const response = await post<UserRating>(
-      API_ENDPOINTS.USERS.RATE(userId),
-      payload
-    );
+    const response = await post<UserRating>(API_ENDPOINTS.USERS.RATE(userId), payload);
 
     if (response.success && response.data) {
       console.log('[UsersAPI] rateUser: Success');
@@ -170,16 +148,11 @@ export async function rateUser(
 /**
  * Get top traders
  */
-export async function getTopTraders(
-  params?: TopTradersParams
-): Promise<TopTrader[]> {
+export async function getTopTraders(params?: TopTradersParams): Promise<TopTrader[]> {
   console.log('[UsersAPI] getTopTraders: Fetching top traders', params);
 
   try {
-    const response = await get<TopTrader[]>(
-      API_ENDPOINTS.USERS.TOP_TRADERS,
-      { params }
-    );
+    const response = await get<TopTrader[]>(API_ENDPOINTS.USERS.TOP_TRADERS, { params });
 
     if (response.success && response.data) {
       console.log('[UsersAPI] getTopTraders: Found', response.data.length, 'traders');

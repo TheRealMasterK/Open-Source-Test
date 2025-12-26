@@ -37,16 +37,11 @@ export async function createOffer(payload: CreateOfferPayload): Promise<Offer> {
 /**
  * Get all offers with optional filters
  */
-export async function getOffers(
-  params?: OfferListParams
-): Promise<PaginatedResponse<Offer>> {
+export async function getOffers(params?: OfferListParams): Promise<PaginatedResponse<Offer>> {
   console.log('[OffersAPI] getOffers: Fetching offers with params:', params);
 
   try {
-    const response = await get<PaginatedResponse<Offer>>(
-      API_ENDPOINTS.OFFERS.BASE,
-      { params }
-    );
+    const response = await get<PaginatedResponse<Offer>>(API_ENDPOINTS.OFFERS.BASE, { params });
 
     if (response.success && response.data) {
       console.log('[OffersAPI] getOffers: Found', response.data.data.length, 'offers');
@@ -63,16 +58,11 @@ export async function getOffers(
 /**
  * Get buy offers
  */
-export async function getBuyOffers(
-  params?: OfferListParams
-): Promise<PaginatedResponse<Offer>> {
+export async function getBuyOffers(params?: OfferListParams): Promise<PaginatedResponse<Offer>> {
   console.log('[OffersAPI] getBuyOffers: Fetching buy offers');
 
   try {
-    const response = await get<PaginatedResponse<Offer>>(
-      API_ENDPOINTS.OFFERS.BUY,
-      { params }
-    );
+    const response = await get<PaginatedResponse<Offer>>(API_ENDPOINTS.OFFERS.BUY, { params });
 
     if (response.success && response.data) {
       console.log('[OffersAPI] getBuyOffers: Found', response.data.data.length, 'offers');
@@ -89,16 +79,11 @@ export async function getBuyOffers(
 /**
  * Get sell offers
  */
-export async function getSellOffers(
-  params?: OfferListParams
-): Promise<PaginatedResponse<Offer>> {
+export async function getSellOffers(params?: OfferListParams): Promise<PaginatedResponse<Offer>> {
   console.log('[OffersAPI] getSellOffers: Fetching sell offers');
 
   try {
-    const response = await get<PaginatedResponse<Offer>>(
-      API_ENDPOINTS.OFFERS.SELL,
-      { params }
-    );
+    const response = await get<PaginatedResponse<Offer>>(API_ENDPOINTS.OFFERS.SELL, { params });
 
     if (response.success && response.data) {
       console.log('[OffersAPI] getSellOffers: Found', response.data.data.length, 'offers');
@@ -136,17 +121,11 @@ export async function getOffer(offerId: string): Promise<Offer> {
 /**
  * Update an offer
  */
-export async function updateOffer(
-  offerId: string,
-  payload: UpdateOfferPayload
-): Promise<Offer> {
+export async function updateOffer(offerId: string, payload: UpdateOfferPayload): Promise<Offer> {
   console.log('[OffersAPI] updateOffer: Updating offer', offerId);
 
   try {
-    const response = await put<Offer>(
-      API_ENDPOINTS.OFFERS.BY_ID(offerId),
-      payload
-    );
+    const response = await put<Offer>(API_ENDPOINTS.OFFERS.BY_ID(offerId), payload);
 
     if (response.success && response.data) {
       console.log('[OffersAPI] updateOffer: Success');

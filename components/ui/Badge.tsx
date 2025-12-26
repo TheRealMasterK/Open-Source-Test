@@ -4,13 +4,7 @@
  */
 
 import React from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  ViewStyle,
-  TextStyle,
-} from 'react-native';
+import { View, Text, StyleSheet, ViewStyle, TextStyle } from 'react-native';
 import { Colors, Spacing, FontSize, BorderRadius } from '@/config/theme';
 import { useTheme } from '@/hooks/common/useTheme';
 
@@ -105,8 +99,7 @@ export function Badge({
           borderWidth: outline ? 1 : 0,
         },
         style,
-      ]}
-    >
+      ]}>
       <Text
         style={[
           styles.text,
@@ -115,8 +108,7 @@ export function Badge({
             fontSize: size === 'md' ? FontSize.sm : FontSize.xs,
           },
           textStyle,
-        ]}
-      >
+        ]}>
         {text}
       </Text>
     </View>

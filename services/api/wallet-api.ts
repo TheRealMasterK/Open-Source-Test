@@ -118,10 +118,7 @@ export async function withdraw(payload: WithdrawPayload): Promise<WalletTransact
   console.log('[WalletAPI] withdraw: Withdrawing', payload.amount, payload.currency);
 
   try {
-    const response = await post<WalletTransaction>(
-      API_ENDPOINTS.WALLET.WITHDRAW,
-      payload
-    );
+    const response = await post<WalletTransaction>(API_ENDPOINTS.WALLET.WITHDRAW, payload);
 
     if (response.success && response.data) {
       console.log('[WalletAPI] withdraw: Success, TX ID:', response.data.id);

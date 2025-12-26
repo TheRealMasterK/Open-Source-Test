@@ -5,11 +5,7 @@
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { offersApi } from '@/services/api';
-import {
-  CreateOfferPayload,
-  UpdateOfferPayload,
-  OfferListParams,
-} from '@/types';
+import { CreateOfferPayload, UpdateOfferPayload, OfferListParams } from '@/types';
 
 // Query keys
 export const offerKeys = {
@@ -92,13 +88,8 @@ export function useUpdateOffer() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({
-      offerId,
-      payload,
-    }: {
-      offerId: string;
-      payload: UpdateOfferPayload;
-    }) => offersApi.updateOffer(offerId, payload),
+    mutationFn: ({ offerId, payload }: { offerId: string; payload: UpdateOfferPayload }) =>
+      offersApi.updateOffer(offerId, payload),
     onSuccess: (data, variables) => {
       console.log('[useUpdateOffer] Success, updating cache');
       queryClient.setQueryData(offerKeys.detail(variables.offerId), data);

@@ -16,8 +16,7 @@ export default function OffersLayout() {
         headerShown: false,
         contentStyle: { backgroundColor: colors.background },
         animation: 'slide_from_right',
-      }}
-    >
+      }}>
       <Stack.Screen name="[id]" />
       <Stack.Screen name="create" />
     </Stack>

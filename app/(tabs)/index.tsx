@@ -52,16 +52,14 @@ export default function DashboardScreen() {
   }) => (
     <TouchableOpacity
       onPress={onPress}
-      className={`${cardBg} rounded-xl p-4 items-center flex-1 mx-1`}
-      activeOpacity={0.7}
-    >
+      className={`${cardBg} mx-1 flex-1 items-center rounded-xl p-4`}
+      activeOpacity={0.7}>
       <View
-        className="w-12 h-12 rounded-full items-center justify-center mb-2"
-        style={{ backgroundColor: `${color}20` }}
-      >
+        className="mb-2 h-12 w-12 items-center justify-center rounded-full"
+        style={{ backgroundColor: `${color}20` }}>
         <Ionicons name={icon} size={24} color={color} />
       </View>
-      <Text className={`${textColor} font-medium text-sm`}>{label}</Text>
+      <Text className={`${textColor} text-sm font-medium`}>{label}</Text>
     </TouchableOpacity>
   );
 
@@ -70,46 +68,36 @@ export default function DashboardScreen() {
       <ScrollView
         className="flex-1 px-4"
         showsVerticalScrollIndicator={false}
-        refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-        }
-      >
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}>
         {/* Header */}
         <View className="py-4">
           <Text className={`${textSecondary} text-sm`}>Welcome back,</Text>
-          <Text className={`${textColor} text-2xl font-bold`}>
-            {user?.displayName || 'Trader'}
-          </Text>
+          <Text className={`${textColor} text-2xl font-bold`}>{user?.displayName || 'Trader'}</Text>
         </View>
 
         {/* Balance Card */}
-        <View
-          className="rounded-2xl p-5 mb-6"
-          style={{ backgroundColor: Colors.primary.DEFAULT }}
-        >
-          <Text className="text-white/70 text-sm mb-1">Total Balance</Text>
-          <Text className="text-white text-3xl font-bold mb-4">$0.00</Text>
+        <View className="mb-6 rounded-2xl p-5" style={{ backgroundColor: Colors.primary.DEFAULT }}>
+          <Text className="mb-1 text-sm text-white/70">Total Balance</Text>
+          <Text className="mb-4 text-3xl font-bold text-white">$0.00</Text>
           <View className="flex-row justify-between">
             <View>
-              <Text className="text-white/70 text-xs">USDT</Text>
-              <Text className="text-white font-semibold">0.00</Text>
+              <Text className="text-xs text-white/70">USDT</Text>
+              <Text className="font-semibold text-white">0.00</Text>
             </View>
             <View>
-              <Text className="text-white/70 text-xs">BTC</Text>
-              <Text className="text-white font-semibold">0.00</Text>
+              <Text className="text-xs text-white/70">BTC</Text>
+              <Text className="font-semibold text-white">0.00</Text>
             </View>
             <View>
-              <Text className="text-white/70 text-xs">ETH</Text>
-              <Text className="text-white font-semibold">0.00</Text>
+              <Text className="text-xs text-white/70">ETH</Text>
+              <Text className="font-semibold text-white">0.00</Text>
             </View>
           </View>
         </View>
 
         {/* Quick Actions */}
-        <Text className={`${textColor} text-lg font-semibold mb-3`}>
-          Quick Actions
-        </Text>
-        <View className="flex-row mb-6">
+        <Text className={`${textColor} mb-3 text-lg font-semibold`}>Quick Actions</Text>
+        <View className="mb-6 flex-row">
           <QuickAction
             icon="arrow-down"
             label="Deposit"
@@ -122,33 +110,24 @@ export default function DashboardScreen() {
             onPress={() => console.log('Withdraw')}
             color={Colors.danger.DEFAULT}
           />
-          <QuickAction
-            icon="add"
-            label="Create"
-            onPress={() => console.log('Create Offer')}
-          />
+          <QuickAction icon="add" label="Create" onPress={() => console.log('Create Offer')} />
         </View>
 
         {/* Active Trades */}
-        <View className="flex-row justify-between items-center mb-3">
-          <Text className={`${textColor} text-lg font-semibold`}>
-            Active Trades
-          </Text>
+        <View className="mb-3 flex-row items-center justify-between">
+          <Text className={`${textColor} text-lg font-semibold`}>Active Trades</Text>
           <TouchableOpacity onPress={() => router.push('/(tabs)/trades')}>
             <Text style={{ color: Colors.primary.DEFAULT }}>See All</Text>
           </TouchableOpacity>
         </View>
-        <View className={`${cardBg} rounded-xl p-6 items-center mb-6`}>
+        <View className={`${cardBg} mb-6 items-center rounded-xl p-6`}>
           <Ionicons
             name="swap-horizontal-outline"
             size={48}
             color={isDark ? Colors.dark.textTertiary : Colors.light.textTertiary}
           />
           <Text className={`${textSecondary} mt-2`}>No active trades</Text>
-          <TouchableOpacity
-            onPress={() => router.push('/(tabs)/marketplace')}
-            className="mt-3"
-          >
+          <TouchableOpacity onPress={() => router.push('/(tabs)/marketplace')} className="mt-3">
             <Text style={{ color: Colors.primary.DEFAULT }} className="font-medium">
               Browse Marketplace
             </Text>
@@ -156,10 +135,8 @@ export default function DashboardScreen() {
         </View>
 
         {/* Recent Activity */}
-        <Text className={`${textColor} text-lg font-semibold mb-3`}>
-          Recent Activity
-        </Text>
-        <View className={`${cardBg} rounded-xl p-6 items-center mb-6`}>
+        <Text className={`${textColor} mb-3 text-lg font-semibold`}>Recent Activity</Text>
+        <View className={`${cardBg} mb-6 items-center rounded-xl p-6`}>
           <Ionicons
             name="time-outline"
             size={48}

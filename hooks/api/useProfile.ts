@@ -15,12 +15,10 @@ import {
 // Query keys
 export const profileKeys = {
   all: ['profile'] as const,
-  profile: (userId?: string) =>
-    userId ? [...profileKeys.all, userId] : profileKeys.all,
+  profile: (userId?: string) => (userId ? [...profileKeys.all, userId] : profileKeys.all),
   settings: () => [...profileKeys.all, 'settings'] as const,
   ratings: (userId: string) => [...profileKeys.all, 'ratings', userId] as const,
-  topTraders: (params?: TopTradersParams) =>
-    [...profileKeys.all, 'top-traders', params] as const,
+  topTraders: (params?: TopTradersParams) => [...profileKeys.all, 'top-traders', params] as const,
 };
 
 /**
@@ -75,8 +73,7 @@ export function useUpdateProfile() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (payload: UpdateProfilePayload) =>
-      usersApi.updateProfile(payload),
+    mutationFn: (payload: UpdateProfilePayload) => usersApi.updateProfile(payload),
     onSuccess: (data) => {
       console.log('[useUpdateProfile] Success');
       queryClient.setQueryData(profileKeys.profile(), data);
@@ -94,8 +91,7 @@ export function useUpdateSettings() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (payload: UpdateSettingsPayload) =>
-      usersApi.updateSettings(payload),
+    mutationFn: (payload: UpdateSettingsPayload) => usersApi.updateSettings(payload),
     onSuccess: (data) => {
       console.log('[useUpdateSettings] Success');
       queryClient.setQueryData(profileKeys.settings(), data);

@@ -99,16 +99,11 @@ export function IconButton({
         },
         style,
       ]}
-      {...rest}
-    >
+      {...rest}>
       {loading ? (
         <ActivityIndicator size="small" color={getIconColor()} />
       ) : (
-        <Ionicons
-          name={icon}
-          size={dimensions.icon}
-          color={getIconColor()}
-        />
+        <Ionicons name={icon} size={dimensions.icon} color={getIconColor()} />
       )}
     </TouchableOpacity>
   );

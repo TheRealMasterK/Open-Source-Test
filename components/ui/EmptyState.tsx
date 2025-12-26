@@ -4,12 +4,7 @@
  */
 
 import React from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  ViewStyle,
-} from 'react-native';
+import { View, Text, StyleSheet, ViewStyle } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Spacing, FontSize } from '@/config/theme';
 import { useTheme } from '@/hooks/common/useTheme';
@@ -36,38 +31,13 @@ export function EmptyState({
 
   return (
     <View style={[styles.container, style]}>
-      <View
-        style={[
-          styles.iconContainer,
-          { backgroundColor: colors.surfaceSecondary },
-        ]}
-      >
-        <Ionicons
-          name={icon}
-          size={48}
-          color={colors.textTertiary}
-        />
+      <View style={[styles.iconContainer, { backgroundColor: colors.surfaceSecondary }]}>
+        <Ionicons name={icon} size={48} color={colors.textTertiary} />
       </View>
 
-      <Text
-        style={[
-          styles.title,
-          { color: colors.text },
-        ]}
-      >
-        {title}
-      </Text>
+      <Text style={[styles.title, { color: colors.text }]}>{title}</Text>
 
-      {message && (
-        <Text
-          style={[
-            styles.message,
-            { color: colors.textSecondary },
-          ]}
-        >
-          {message}
-        </Text>
-      )}
+      {message && <Text style={[styles.message, { color: colors.textSecondary }]}>{message}</Text>}
 
       {actionText && onAction && (
         <Button

@@ -4,13 +4,7 @@
  */
 
 import React from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-  ViewStyle,
-} from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ViewStyle } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -60,20 +54,14 @@ export function Header({
           borderBottomColor: transparent ? 'transparent' : colors.border,
         },
         style,
-      ]}
-    >
+      ]}>
       <View style={styles.leftSection}>
         {showBack && (
           <TouchableOpacity
             onPress={handleBack}
             style={styles.backButton}
-            hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-          >
-            <Ionicons
-              name="chevron-back"
-              size={24}
-              color={colors.text}
-            />
+            hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
+            <Ionicons name="chevron-back" size={24} color={colors.text} />
           </TouchableOpacity>
         )}
         {leftComponent}
@@ -81,26 +69,18 @@ export function Header({
 
       <View style={styles.centerSection}>
         {title && (
-          <Text
-            style={[styles.title, { color: colors.text }]}
-            numberOfLines={1}
-          >
+          <Text style={[styles.title, { color: colors.text }]} numberOfLines={1}>
             {title}
           </Text>
         )}
         {subtitle && (
-          <Text
-            style={[styles.subtitle, { color: colors.textSecondary }]}
-            numberOfLines={1}
-          >
+          <Text style={[styles.subtitle, { color: colors.textSecondary }]} numberOfLines={1}>
             {subtitle}
           </Text>
         )}
       </View>
 
-      <View style={styles.rightSection}>
-        {rightComponent}
-      </View>
+      <View style={styles.rightSection}>{rightComponent}</View>
     </View>
   );
 }

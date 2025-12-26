@@ -4,14 +4,7 @@
  */
 
 import React from 'react';
-import {
-  View,
-  Text,
-  ScrollView,
-  TouchableOpacity,
-  useColorScheme,
-  Alert,
-} from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, useColorScheme, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
@@ -72,20 +65,14 @@ export default function ProfileScreen() {
   }) => (
     <TouchableOpacity
       onPress={onPress}
-      className={`${cardBg} rounded-xl p-4 flex-row items-center mb-2`}
-      activeOpacity={0.7}
-    >
+      className={`${cardBg} mb-2 flex-row items-center rounded-xl p-4`}
+      activeOpacity={0.7}>
       <View
-        className="w-10 h-10 rounded-full items-center justify-center mr-3"
+        className="mr-3 h-10 w-10 items-center justify-center rounded-full"
         style={{
           backgroundColor: `${color || Colors.primary.DEFAULT}20`,
-        }}
-      >
-        <Ionicons
-          name={icon}
-          size={20}
-          color={color || Colors.primary.DEFAULT}
-        />
+        }}>
+        <Ionicons name={icon} size={20} color={color || Colors.primary.DEFAULT} />
       </View>
       <Text className={`${textColor} flex-1 font-medium`}>{label}</Text>
       {showChevron && (
@@ -107,13 +94,12 @@ export default function ProfileScreen() {
         </View>
 
         {/* Profile Card */}
-        <View className={`${cardBg} rounded-2xl p-5 mb-6`}>
+        <View className={`${cardBg} mb-6 rounded-2xl p-5`}>
           <View className="flex-row items-center">
             <View
-              className="w-16 h-16 rounded-full items-center justify-center mr-4"
-              style={{ backgroundColor: Colors.primary.DEFAULT }}
-            >
-              <Text className="text-white text-2xl font-bold">
+              className="mr-4 h-16 w-16 items-center justify-center rounded-full"
+              style={{ backgroundColor: Colors.primary.DEFAULT }}>
+              <Text className="text-2xl font-bold text-white">
                 {user?.displayName?.charAt(0)?.toUpperCase() || 'U'}
               </Text>
             </View>
@@ -121,21 +107,15 @@ export default function ProfileScreen() {
               <Text className={`${textColor} text-xl font-bold`}>
                 {user?.displayName || 'User'}
               </Text>
-              <Text className={`${textSecondary} text-sm`}>
-                {user?.email || 'No email'}
-              </Text>
+              <Text className={`${textSecondary} text-sm`}>{user?.email || 'No email'}</Text>
             </View>
             <TouchableOpacity>
-              <Ionicons
-                name="create-outline"
-                size={24}
-                color={Colors.primary.DEFAULT}
-              />
+              <Ionicons name="create-outline" size={24} color={Colors.primary.DEFAULT} />
             </TouchableOpacity>
           </View>
 
           {/* Stats */}
-          <View className="flex-row mt-4 pt-4 border-t border-slate-700/30">
+          <View className="mt-4 flex-row border-t border-slate-700/30 pt-4">
             <View className="flex-1 items-center">
               <Text className={`${textColor} text-xl font-bold`}>0</Text>
               <Text className={`${textSecondary} text-xs`}>Trades</Text>
@@ -152,7 +132,7 @@ export default function ProfileScreen() {
         </View>
 
         {/* Menu Items */}
-        <Text className={`${textSecondary} text-sm mb-2 ml-1`}>ACCOUNT</Text>
+        <Text className={`${textSecondary} mb-2 ml-1 text-sm`}>ACCOUNT</Text>
         <MenuItem
           icon="person-outline"
           label="Edit Profile"
@@ -170,9 +150,7 @@ export default function ProfileScreen() {
           onPress={() => console.log('Payment Methods')}
         />
 
-        <Text className={`${textSecondary} text-sm mb-2 ml-1 mt-4`}>
-          EARNINGS
-        </Text>
+        <Text className={`${textSecondary} mb-2 ml-1 mt-4 text-sm`}>EARNINGS</Text>
         <MenuItem
           icon="people-outline"
           label="Affiliate Program"
@@ -185,9 +163,7 @@ export default function ProfileScreen() {
           onPress={() => console.log('My Offers')}
         />
 
-        <Text className={`${textSecondary} text-sm mb-2 ml-1 mt-4`}>
-          SETTINGS
-        </Text>
+        <Text className={`${textSecondary} mb-2 ml-1 mt-4 text-sm`}>SETTINGS</Text>
         <MenuItem
           icon="settings-outline"
           label="Settings"

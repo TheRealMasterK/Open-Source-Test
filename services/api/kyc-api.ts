@@ -4,8 +4,7 @@
  */
 
 import { API_ENDPOINTS } from '@/config/api.config';
-import { get, post } from './http-client';
-import { httpClient } from './http-client';
+import { get, post, httpClient } from './http-client';
 import {
   KYCProfile,
   KYCDocument,
@@ -38,9 +37,7 @@ export async function getStatus(): Promise<KYCProfile> {
 /**
  * Upload KYC document
  */
-export async function uploadDocument(
-  payload: UploadDocumentPayload
-): Promise<KYCDocument> {
+export async function uploadDocument(payload: UploadDocumentPayload): Promise<KYCDocument> {
   console.log('[KYCAPI] uploadDocument: Uploading', payload.documentType);
 
   try {

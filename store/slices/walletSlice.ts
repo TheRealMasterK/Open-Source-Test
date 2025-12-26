@@ -37,7 +37,10 @@ const walletSlice = createSlice({
 
     updateBalance: (
       state,
-      action: PayloadAction<{ currency: keyof Omit<WalletBalances, 'estimatedValueUSD' | 'estimatedValueZAR'>; amount: number }>
+      action: PayloadAction<{
+        currency: keyof Omit<WalletBalances, 'estimatedValueUSD' | 'estimatedValueZAR'>;
+        amount: number;
+      }>
     ) => {
       console.log('[WalletSlice] updateBalance:', action.payload.currency, action.payload.amount);
       state.balances[action.payload.currency] = action.payload.amount;
@@ -76,8 +79,10 @@ export const {
 
 // Selectors
 export const selectBalances = (state: { wallet: WalletState }) => state.wallet.balances;
-export const selectSelectedNetwork = (state: { wallet: WalletState }) => state.wallet.selectedNetwork;
+export const selectSelectedNetwork = (state: { wallet: WalletState }) =>
+  state.wallet.selectedNetwork;
 export const selectDepositAddress = (state: { wallet: WalletState }) => state.wallet.depositAddress;
-export const selectIsLoadingBalances = (state: { wallet: WalletState }) => state.wallet.isLoadingBalances;
+export const selectIsLoadingBalances = (state: { wallet: WalletState }) =>
+  state.wallet.isLoadingBalances;
 
 export default walletSlice.reducer;

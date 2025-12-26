@@ -5,11 +5,7 @@
 
 import { API_ENDPOINTS } from '@/config/api.config';
 import { get, post, put, del } from './http-client';
-import {
-  PaymentMethod,
-  CreatePaymentMethodPayload,
-  UpdatePaymentMethodPayload,
-} from '@/types';
+import { PaymentMethod, CreatePaymentMethodPayload, UpdatePaymentMethodPayload } from '@/types';
 
 /**
  * Get all payment methods
@@ -18,9 +14,7 @@ export async function getPaymentMethods(): Promise<PaymentMethod[]> {
   console.log('[PaymentMethodsAPI] getPaymentMethods: Fetching payment methods');
 
   try {
-    const response = await get<PaymentMethod[]>(
-      API_ENDPOINTS.PAYMENT_METHODS.BASE
-    );
+    const response = await get<PaymentMethod[]>(API_ENDPOINTS.PAYMENT_METHODS.BASE);
 
     if (response.success && response.data) {
       console.log('[PaymentMethodsAPI] getPaymentMethods: Found', response.data.length, 'methods');
@@ -43,10 +37,7 @@ export async function createPaymentMethod(
   console.log('[PaymentMethodsAPI] createPaymentMethod: Creating', payload.type, 'method');
 
   try {
-    const response = await post<PaymentMethod>(
-      API_ENDPOINTS.PAYMENT_METHODS.BASE,
-      payload
-    );
+    const response = await post<PaymentMethod>(API_ENDPOINTS.PAYMENT_METHODS.BASE, payload);
 
     if (response.success && response.data) {
       console.log('[PaymentMethodsAPI] createPaymentMethod: Success, ID:', response.data.id);
@@ -70,10 +61,7 @@ export async function updatePaymentMethod(
   console.log('[PaymentMethodsAPI] updatePaymentMethod: Updating method', id);
 
   try {
-    const response = await put<PaymentMethod>(
-      API_ENDPOINTS.PAYMENT_METHODS.BY_ID(id),
-      payload
-    );
+    const response = await put<PaymentMethod>(API_ENDPOINTS.PAYMENT_METHODS.BY_ID(id), payload);
 
     if (response.success && response.data) {
       console.log('[PaymentMethodsAPI] updatePaymentMethod: Success');

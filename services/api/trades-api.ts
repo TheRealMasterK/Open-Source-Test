@@ -39,16 +39,11 @@ export async function createTrade(payload: CreateTradePayload): Promise<Trade> {
 /**
  * Get all trades with optional filters
  */
-export async function getTrades(
-  params?: TradeListParams
-): Promise<PaginatedResponse<Trade>> {
+export async function getTrades(params?: TradeListParams): Promise<PaginatedResponse<Trade>> {
   console.log('[TradesAPI] getTrades: Fetching trades with params:', params);
 
   try {
-    const response = await get<PaginatedResponse<Trade>>(
-      API_ENDPOINTS.TRADES.BASE,
-      { params }
-    );
+    const response = await get<PaginatedResponse<Trade>>(API_ENDPOINTS.TRADES.BASE, { params });
 
     if (response.success && response.data) {
       console.log('[TradesAPI] getTrades: Found', response.data.data.length, 'trades');
@@ -128,10 +123,7 @@ export async function getTrade(tradeId: string): Promise<Trade> {
 /**
  * Update trade status
  */
-export async function updateTradeStatus(
-  tradeId: string,
-  status: TradeStatus
-): Promise<Trade> {
+export async function updateTradeStatus(tradeId: string, status: TradeStatus): Promise<Trade> {
   console.log('[TradesAPI] updateTradeStatus: Updating trade', tradeId, 'to', status);
 
   try {
@@ -161,10 +153,7 @@ export async function sendMessage(
   console.log('[TradesAPI] sendMessage: Sending message for trade', tradeId);
 
   try {
-    const response = await post<TradeMessage>(
-      API_ENDPOINTS.TRADES.MESSAGES(tradeId),
-      payload
-    );
+    const response = await post<TradeMessage>(API_ENDPOINTS.TRADES.MESSAGES(tradeId), payload);
 
     if (response.success && response.data) {
       console.log('[TradesAPI] sendMessage: Success');
@@ -185,9 +174,7 @@ export async function getMessages(tradeId: string): Promise<TradeMessage[]> {
   console.log('[TradesAPI] getMessages: Fetching messages for trade', tradeId);
 
   try {
-    const response = await get<TradeMessage[]>(
-      API_ENDPOINTS.TRADES.MESSAGES(tradeId)
-    );
+    const response = await get<TradeMessage[]>(API_ENDPOINTS.TRADES.MESSAGES(tradeId));
 
     if (response.success && response.data) {
       console.log('[TradesAPI] getMessages: Found', response.data.length, 'messages');

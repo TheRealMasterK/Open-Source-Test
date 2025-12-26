@@ -4,13 +4,7 @@
  */
 
 import React from 'react';
-import {
-  View,
-  Image,
-  Text,
-  StyleSheet,
-  ViewStyle,
-} from 'react-native';
+import { View, Image, Text, StyleSheet, ViewStyle } from 'react-native';
 import { Colors, FontSize } from '@/config/theme';
 import { useTheme } from '@/hooks/common/useTheme';
 
@@ -100,14 +94,7 @@ export function Avatar({
           resizeMode="cover"
         />
       ) : (
-        <Text
-          style={[
-            styles.initials,
-            { fontSize },
-          ]}
-        >
-          {getInitials(name)}
-        </Text>
+        <Text style={[styles.initials, { fontSize }]}>{getInitials(name)}</Text>
       )}
 
       {showOnlineStatus && (
@@ -118,8 +105,8 @@ export function Avatar({
               backgroundColor: isOnline
                 ? Colors.success.DEFAULT
                 : isDark
-                ? Colors.dark.textTertiary
-                : Colors.light.textTertiary,
+                  ? Colors.dark.textTertiary
+                  : Colors.light.textTertiary,
               width: dimension * 0.3,
               height: dimension * 0.3,
               borderRadius: dimension * 0.15,

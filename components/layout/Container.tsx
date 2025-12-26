@@ -4,13 +4,7 @@
  */
 
 import React from 'react';
-import {
-  View,
-  ScrollView,
-  StyleSheet,
-  ViewStyle,
-  RefreshControl,
-} from 'react-native';
+import { View, ScrollView, StyleSheet, ViewStyle, RefreshControl } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Colors, Spacing } from '@/config/theme';
 import { useTheme } from '@/hooks/common/useTheme';
@@ -71,8 +65,7 @@ export function Container({
                 tintColor={Colors.primary.DEFAULT}
               />
             ) : undefined
-          }
-        >
+          }>
           {children}
         </ScrollView>
       </View>

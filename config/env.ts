@@ -30,11 +30,9 @@ export const ENV = {
  * Validate required environment variables
  */
 export function validateEnv(): { valid: boolean; missing: string[] } {
-  const required = [
-    'EXPO_PUBLIC_API_BASE_URL',
-  ];
+  const required = ['EXPO_PUBLIC_API_BASE_URL'];
 
-  const missing = required.filter(key => !process.env[key]);
+  const missing = required.filter((key) => !process.env[key]);
 
   if (missing.length > 0) {
     console.warn('[ENV] Missing environment variables:', missing);

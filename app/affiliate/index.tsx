@@ -4,13 +4,7 @@
  */
 
 import React from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  ScrollView,
-  Share,
-} from 'react-native';
+import { View, Text, StyleSheet, ScrollView, Share } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Colors, Spacing, FontSize, BorderRadius } from '@/config/theme';
@@ -66,8 +60,7 @@ export default function AffiliateScreen() {
       <ScrollView
         style={styles.content}
         contentContainerStyle={{ paddingBottom: insets.bottom + Spacing.xl }}
-        showsVerticalScrollIndicator={false}
-      >
+        showsVerticalScrollIndicator={false}>
         {/* Stats Overview */}
         <Card variant="elevated" style={styles.statsCard}>
           <View style={styles.statsGrid}>
@@ -91,9 +84,7 @@ export default function AffiliateScreen() {
               <Text style={[styles.statValue, { color: colors.text }]}>
                 ${stats?.pendingEarnings?.toFixed(2) || '0.00'}
               </Text>
-              <Text style={[styles.statLabel, { color: colors.textSecondary }]}>
-                Pending
-              </Text>
+              <Text style={[styles.statLabel, { color: colors.textSecondary }]}>Pending</Text>
             </View>
           </View>
 
@@ -115,10 +106,7 @@ export default function AffiliateScreen() {
         <Section title="Your Referral Link">
           <Card variant="outlined">
             <View style={styles.linkContainer}>
-              <Text
-                style={[styles.linkText, { color: colors.textSecondary }]}
-                numberOfLines={1}
-              >
+              <Text style={[styles.linkText, { color: colors.textSecondary }]} numberOfLines={1}>
                 {stats?.referralLink || 'https://qictrader.com/ref/...'}
               </Text>
             </View>
@@ -150,7 +138,11 @@ export default function AffiliateScreen() {
             referrals.data.slice(0, 5).map((referral, index) => (
               <Card key={index} variant="outlined" style={styles.referralItem}>
                 <View style={styles.referralInfo}>
-                  <View style={[styles.referralAvatar, { backgroundColor: Colors.primary.DEFAULT + '20' }]}>
+                  <View
+                    style={[
+                      styles.referralAvatar,
+                      { backgroundColor: Colors.primary.DEFAULT + '20' },
+                    ]}>
                     <Text style={[styles.referralInitial, { color: Colors.primary.DEFAULT }]}>
                       {referral.referredUserName?.charAt(0)?.toUpperCase() || '?'}
                     </Text>

@@ -64,16 +64,7 @@ export function Input({
 
   return (
     <View style={[styles.container, containerStyle]}>
-      {label && (
-        <Text
-          style={[
-            styles.label,
-            { color: colors.text },
-          ]}
-        >
-          {label}
-        </Text>
-      )}
+      {label && <Text style={[styles.label, { color: colors.text }]}>{label}</Text>}
 
       <View
         style={[
@@ -82,11 +73,8 @@ export function Input({
             backgroundColor: getBackgroundColor(),
             borderColor: getBorderColor(),
           },
-        ]}
-      >
-        {leftIcon && (
-          <View style={styles.iconLeft}>{leftIcon}</View>
-        )}
+        ]}>
+        {leftIcon && <View style={styles.iconLeft}>{leftIcon}</View>}
 
         <TextInput
           style={[
@@ -107,10 +95,7 @@ export function Input({
         />
 
         {isPassword && (
-          <TouchableOpacity
-            onPress={() => setShowPassword(!showPassword)}
-            style={styles.iconRight}
-          >
+          <TouchableOpacity onPress={() => setShowPassword(!showPassword)} style={styles.iconRight}>
             <Ionicons
               name={showPassword ? 'eye-off-outline' : 'eye-outline'}
               size={20}
@@ -119,25 +104,12 @@ export function Input({
           </TouchableOpacity>
         )}
 
-        {rightIcon && !isPassword && (
-          <View style={styles.iconRight}>{rightIcon}</View>
-        )}
+        {rightIcon && !isPassword && <View style={styles.iconRight}>{rightIcon}</View>}
       </View>
 
-      {error && (
-        <Text style={styles.error}>{error}</Text>
-      )}
+      {error && <Text style={styles.error}>{error}</Text>}
 
-      {hint && !error && (
-        <Text
-          style={[
-            styles.hint,
-            { color: colors.textTertiary },
-          ]}
-        >
-          {hint}
-        </Text>
-      )}
+      {hint && !error && <Text style={[styles.hint, { color: colors.textTertiary }]}>{hint}</Text>}
     </View>
   );
 }

@@ -41,11 +41,7 @@ export function initSentry() {
 /**
  * Set user context for Sentry
  */
-export function setSentryUser(user: {
-  id: string;
-  email?: string;
-  username?: string;
-}) {
+export function setSentryUser(user: { id: string; email?: string; username?: string }) {
   Sentry.setUser({
     id: user.id,
     email: user.email,

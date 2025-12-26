@@ -4,13 +4,7 @@
  */
 
 import React, { useState } from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  ScrollView,
-  Alert,
-} from 'react-native';
+import { View, Text, StyleSheet, ScrollView, Alert } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -76,7 +70,7 @@ export default function OfferDetailScreen() {
       });
 
       Alert.alert('Success', 'Trade created successfully!', [
-        { text: 'OK', onPress: () => router.push('/(tabs)/trades') }
+        { text: 'OK', onPress: () => router.push('/(tabs)/trades') },
       ]);
     } catch (err) {
       console.error('[OfferDetailScreen] Error creating trade:', err);
@@ -94,9 +88,7 @@ export default function OfferDetailScreen() {
         <Header title="Offer Details" showBack />
         <View style={styles.errorContainer}>
           <Ionicons name="alert-circle" size={48} color={Colors.danger.DEFAULT} />
-          <Text style={[styles.errorText, { color: colors.text }]}>
-            Failed to load offer
-          </Text>
+          <Text style={[styles.errorText, { color: colors.text }]}>Failed to load offer</Text>
           <Button title="Go Back" onPress={() => router.back()} variant="outline" />
         </View>
       </View>
@@ -114,8 +106,7 @@ export default function OfferDetailScreen() {
       <ScrollView
         style={styles.content}
         contentContainerStyle={{ paddingBottom: insets.bottom + 100 }}
-        showsVerticalScrollIndicator={false}
-      >
+        showsVerticalScrollIndicator={false}>
         {/* Offer Type Badge */}
         <View style={styles.typeBadgeContainer}>
           <Badge
@@ -175,25 +166,19 @@ export default function OfferDetailScreen() {
 
           <View style={styles.limitsContainer}>
             <View style={styles.limitItem}>
-              <Text style={[styles.limitLabel, { color: colors.textTertiary }]}>
-                Min Amount
-              </Text>
+              <Text style={[styles.limitLabel, { color: colors.textTertiary }]}>Min Amount</Text>
               <Text style={[styles.limitValue, { color: colors.text }]}>
                 {formatPrice(offer.minAmount, offer.fiatCurrency)}
               </Text>
             </View>
             <View style={styles.limitItem}>
-              <Text style={[styles.limitLabel, { color: colors.textTertiary }]}>
-                Max Amount
-              </Text>
+              <Text style={[styles.limitLabel, { color: colors.textTertiary }]}>Max Amount</Text>
               <Text style={[styles.limitValue, { color: colors.text }]}>
                 {formatPrice(offer.maxAmount, offer.fiatCurrency)}
               </Text>
             </View>
             <View style={styles.limitItem}>
-              <Text style={[styles.limitLabel, { color: colors.textTertiary }]}>
-                Available
-              </Text>
+              <Text style={[styles.limitLabel, { color: colors.textTertiary }]}>Available</Text>
               <Text style={[styles.limitValue, { color: colors.text }]}>
                 {offer.amount} {offer.cryptocurrency}
               </Text>
@@ -203,9 +188,7 @@ export default function OfferDetailScreen() {
 
         {/* Payment Methods */}
         <Card variant="outlined" style={styles.paymentCard}>
-          <Text style={[styles.sectionTitle, { color: colors.text }]}>
-            Payment Methods
-          </Text>
+          <Text style={[styles.sectionTitle, { color: colors.text }]}>Payment Methods</Text>
           <View style={styles.paymentMethods}>
             {offer.paymentMethods.map((method, index) => (
               <View
@@ -213,16 +196,14 @@ export default function OfferDetailScreen() {
                 style={[
                   styles.paymentBadge,
                   {
-                    backgroundColor: paymentMethod === method
-                      ? Colors.primary.DEFAULT + '20'
-                      : colors.surfaceSecondary,
-                    borderColor: paymentMethod === method
-                      ? Colors.primary.DEFAULT
-                      : 'transparent',
+                    backgroundColor:
+                      paymentMethod === method
+                        ? Colors.primary.DEFAULT + '20'
+                        : colors.surfaceSecondary,
+                    borderColor: paymentMethod === method ? Colors.primary.DEFAULT : 'transparent',
                   },
                 ]}
-                onTouchEnd={() => setPaymentMethod(method)}
-              >
+                onTouchEnd={() => setPaymentMethod(method)}>
                 <Ionicons
                   name="card-outline"
                   size={16}
@@ -231,9 +212,11 @@ export default function OfferDetailScreen() {
                 <Text
                   style={[
                     styles.paymentText,
-                    { color: paymentMethod === method ? Colors.primary.DEFAULT : colors.textSecondary },
-                  ]}
-                >
+                    {
+                      color:
+                        paymentMethod === method ? Colors.primary.DEFAULT : colors.textSecondary,
+                    },
+                  ]}>
                   {method}
                 </Text>
               </View>
@@ -244,9 +227,7 @@ export default function OfferDetailScreen() {
         {/* Description */}
         {offer.description && (
           <Card variant="outlined" style={styles.descriptionCard}>
-            <Text style={[styles.sectionTitle, { color: colors.text }]}>
-              Terms & Description
-            </Text>
+            <Text style={[styles.sectionTitle, { color: colors.text }]}>Terms & Description</Text>
             <Text style={[styles.descriptionText, { color: colors.textSecondary }]}>
               {offer.description}
             </Text>
@@ -256,9 +237,7 @@ export default function OfferDetailScreen() {
         {/* Trade Input Section */}
         {!isOwnOffer && (
           <Card variant="elevated" style={styles.tradeCard}>
-            <Text style={[styles.sectionTitle, { color: colors.text }]}>
-              Start a Trade
-            </Text>
+            <Text style={[styles.sectionTitle, { color: colors.text }]}>Start a Trade</Text>
 
             <Input
               label={`Amount to ${isBuy ? 'sell' : 'buy'} (${offer.fiatCurrency})`}
@@ -297,8 +276,7 @@ export default function OfferDetailScreen() {
               paddingBottom: insets.bottom + Spacing.md,
               borderTopColor: colors.border,
             },
-          ]}
-        >
+          ]}>
           <Button
             title={isBuy ? 'Sell Now' : 'Buy Now'}
             onPress={handleStartTrade}

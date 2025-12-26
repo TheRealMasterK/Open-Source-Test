@@ -49,30 +49,24 @@ export default function WalletScreen() {
 
     return (
       <TouchableOpacity
-        className={`${cardBg} rounded-xl p-4 flex-row items-center mb-3`}
-        activeOpacity={0.7}
-      >
+        className={`${cardBg} mb-3 flex-row items-center rounded-xl p-4`}
+        activeOpacity={0.7}>
         <View
-          className="w-12 h-12 rounded-full items-center justify-center mr-4"
-          style={{ backgroundColor: `${crypto.color}20` }}
-        >
+          className="mr-4 h-12 w-12 items-center justify-center rounded-full"
+          style={{ backgroundColor: `${crypto.color}20` }}>
           <Text style={{ color: crypto.color, fontWeight: 'bold', fontSize: 16 }}>
             {symbol.charAt(0)}
           </Text>
         </View>
         <View className="flex-1">
-          <Text className={`${textColor} font-semibold text-lg`}>
-            {crypto.name}
-          </Text>
+          <Text className={`${textColor} text-lg font-semibold`}>{crypto.name}</Text>
           <Text className={`${textSecondary} text-sm`}>{symbol}</Text>
         </View>
         <View className="items-end">
           <Text className={`${textColor} font-semibold`}>
             {balance.toFixed(crypto.decimals > 4 ? 4 : crypto.decimals)}
           </Text>
-          <Text className={`${textSecondary} text-sm`}>
-            ${usdValue.toFixed(2)}
-          </Text>
+          <Text className={`${textSecondary} text-sm`}>${usdValue.toFixed(2)}</Text>
         </View>
       </TouchableOpacity>
     );
@@ -83,56 +77,46 @@ export default function WalletScreen() {
       <ScrollView
         className="flex-1 px-4"
         showsVerticalScrollIndicator={false}
-        refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-        }
-      >
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}>
         {/* Header */}
         <View className="py-4">
           <Text className={`${textColor} text-2xl font-bold`}>Wallet</Text>
         </View>
 
         {/* Total Balance Card */}
-        <View
-          className="rounded-2xl p-5 mb-6"
-          style={{ backgroundColor: Colors.primary.DEFAULT }}
-        >
-          <Text className="text-white/70 text-sm mb-1">Total Balance</Text>
-          <Text className="text-white text-4xl font-bold mb-4">$0.00</Text>
+        <View className="mb-6 rounded-2xl p-5" style={{ backgroundColor: Colors.primary.DEFAULT }}>
+          <Text className="mb-1 text-sm text-white/70">Total Balance</Text>
+          <Text className="mb-4 text-4xl font-bold text-white">$0.00</Text>
 
           {/* Action Buttons */}
           <View className="flex-row">
-            <TouchableOpacity className="flex-1 bg-white/20 rounded-xl py-3 mr-2 items-center flex-row justify-center">
+            <TouchableOpacity className="mr-2 flex-1 flex-row items-center justify-center rounded-xl bg-white/20 py-3">
               <Ionicons name="arrow-down" size={20} color="white" />
-              <Text className="text-white font-semibold ml-2">Deposit</Text>
+              <Text className="ml-2 font-semibold text-white">Deposit</Text>
             </TouchableOpacity>
-            <TouchableOpacity className="flex-1 bg-white/20 rounded-xl py-3 ml-2 items-center flex-row justify-center">
+            <TouchableOpacity className="ml-2 flex-1 flex-row items-center justify-center rounded-xl bg-white/20 py-3">
               <Ionicons name="arrow-up" size={20} color="white" />
-              <Text className="text-white font-semibold ml-2">Withdraw</Text>
+              <Text className="ml-2 font-semibold text-white">Withdraw</Text>
             </TouchableOpacity>
           </View>
         </View>
 
         {/* Assets Section */}
-        <Text className={`${textColor} text-lg font-semibold mb-3`}>
-          Your Assets
-        </Text>
+        <Text className={`${textColor} mb-3 text-lg font-semibold`}>Your Assets</Text>
 
         <CryptoCard symbol="USDT" balance={0} usdValue={0} />
         <CryptoCard symbol="BTC" balance={0} usdValue={0} />
         <CryptoCard symbol="ETH" balance={0} usdValue={0} />
 
         {/* Transaction History */}
-        <View className="flex-row justify-between items-center mt-6 mb-3">
-          <Text className={`${textColor} text-lg font-semibold`}>
-            Recent Transactions
-          </Text>
+        <View className="mb-3 mt-6 flex-row items-center justify-between">
+          <Text className={`${textColor} text-lg font-semibold`}>Recent Transactions</Text>
           <TouchableOpacity>
             <Text style={{ color: Colors.primary.DEFAULT }}>See All</Text>
           </TouchableOpacity>
         </View>
 
-        <View className={`${cardBg} rounded-xl p-6 items-center mb-6`}>
+        <View className={`${cardBg} mb-6 items-center rounded-xl p-6`}>
           <Ionicons
             name="receipt-outline"
             size={48}

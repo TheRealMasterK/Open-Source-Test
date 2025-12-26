@@ -22,8 +22,7 @@ export default function AuthLayout() {
           backgroundColor: isDark ? Colors.dark.background : Colors.light.background,
         },
         animation: 'slide_from_right',
-      }}
-    >
+      }}>
       <Stack.Screen name="login" options={{ headerShown: false }} />
       <Stack.Screen name="signup" options={{ headerShown: false }} />
       <Stack.Screen name="forgot-password" options={{ headerShown: false }} />

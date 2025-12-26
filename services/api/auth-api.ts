@@ -5,14 +5,8 @@
 
 import { API_ENDPOINTS } from '@/config/api.config';
 import { post, del } from './http-client';
-import { setToken, setRefreshToken, removeToken } from './token-manager';
-import {
-  AuthResponse,
-  LoginPayload,
-  SignupPayload,
-  SocialLoginPayload,
-  User,
-} from '@/types';
+import { setToken, removeToken } from './token-manager';
+import { AuthResponse, LoginPayload, SignupPayload, SocialLoginPayload } from '@/types';
 
 /**
  * Sign up a new user
@@ -107,16 +101,11 @@ export async function deleteUser(): Promise<void> {
 /**
  * Sync social login with backend
  */
-export async function socialLoginSync(
-  payload: SocialLoginPayload
-): Promise<AuthResponse> {
+export async function socialLoginSync(payload: SocialLoginPayload): Promise<AuthResponse> {
   console.log('[AuthAPI] socialLoginSync: Syncing', payload.provider, 'login');
 
   try {
-    const response = await post<AuthResponse>(
-      API_ENDPOINTS.AUTH.SOCIAL_SYNC,
-      payload
-    );
+    const response = await post<AuthResponse>(API_ENDPOINTS.AUTH.SOCIAL_SYNC, payload);
 
     if (response.success && response.data) {
       console.log('[AuthAPI] socialLoginSync: Success, storing token');

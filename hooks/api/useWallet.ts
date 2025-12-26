@@ -7,11 +7,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { walletApi } from '@/services/api';
 import { useAppDispatch } from '@/store';
 import { setBalances } from '@/store/slices/walletSlice';
-import {
-  DepositPayload,
-  WithdrawPayload,
-  TransactionListParams,
-} from '@/types';
+import { DepositPayload, WithdrawPayload, TransactionListParams } from '@/types';
 
 // Query keys
 export const walletKeys = {

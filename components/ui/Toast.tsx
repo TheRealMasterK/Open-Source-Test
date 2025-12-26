@@ -4,13 +4,7 @@
  */
 
 import React, { useEffect, useRef } from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  Animated,
-  TouchableOpacity,
-} from 'react-native';
+import { View, Text, StyleSheet, Animated, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Colors, Spacing, FontSize, BorderRadius, Shadows } from '@/config/theme';
 import { useTheme } from '@/hooks/common/useTheme';
@@ -105,14 +99,8 @@ function ToastItem({ toast, onDismiss }: ToastItemProps) {
           transform: [{ translateY }],
         },
         isDark ? {} : Shadows.lg,
-      ]}
-    >
-      <Ionicons
-        name={typeStyles.icon}
-        size={20}
-        color={Colors.white}
-        style={styles.icon}
-      />
+      ]}>
+      <Ionicons name={typeStyles.icon} size={20} color={Colors.white} style={styles.icon} />
       <Text style={styles.message} numberOfLines={2}>
         {toast.message}
       </Text>
@@ -136,11 +124,7 @@ export function ToastContainer() {
   return (
     <View style={styles.container} pointerEvents="box-none">
       {toasts.map((toast) => (
-        <ToastItem
-          key={toast.id}
-          toast={toast}
-          onDismiss={() => handleDismiss(toast.id)}
-        />
+        <ToastItem key={toast.id} toast={toast} onDismiss={() => handleDismiss(toast.id)} />
       ))}
     </View>
   );

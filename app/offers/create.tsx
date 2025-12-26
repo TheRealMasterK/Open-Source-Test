@@ -105,7 +105,7 @@ export default function CreateOfferScreen() {
       });
 
       Alert.alert('Success', 'Offer created successfully!', [
-        { text: 'OK', onPress: () => router.push('/(tabs)/marketplace') }
+        { text: 'OK', onPress: () => router.push('/(tabs)/marketplace') },
       ]);
     } catch (error) {
       console.error('[CreateOfferScreen] Error:', error);
@@ -153,9 +153,12 @@ export default function CreateOfferScreen() {
                     borderWidth: offerType === 'buy' ? 2 : 1,
                   },
                 ]}
-                onPress={() => setOfferType('buy')}
-              >
-                <View style={[styles.typeIconContainer, { backgroundColor: Colors.success.DEFAULT + '20' }]}>
+                onPress={() => setOfferType('buy')}>
+                <View
+                  style={[
+                    styles.typeIconContainer,
+                    { backgroundColor: Colors.success.DEFAULT + '20' },
+                  ]}>
                   <Ionicons name="arrow-down" size={32} color={Colors.success.DEFAULT} />
                 </View>
                 <Text style={[styles.typeName, { color: colors.text }]}>Buy Crypto</Text>
@@ -173,9 +176,12 @@ export default function CreateOfferScreen() {
                     borderWidth: offerType === 'sell' ? 2 : 1,
                   },
                 ]}
-                onPress={() => setOfferType('sell')}
-              >
-                <View style={[styles.typeIconContainer, { backgroundColor: Colors.danger.DEFAULT + '20' }]}>
+                onPress={() => setOfferType('sell')}>
+                <View
+                  style={[
+                    styles.typeIconContainer,
+                    { backgroundColor: Colors.danger.DEFAULT + '20' },
+                  ]}>
                   <Ionicons name="arrow-up" size={32} color={Colors.danger.DEFAULT} />
                 </View>
                 <Text style={[styles.typeName, { color: colors.text }]}>Sell Crypto</Text>
@@ -190,9 +196,7 @@ export default function CreateOfferScreen() {
       case 'crypto':
         return (
           <View style={styles.stepContent}>
-            <Text style={[styles.stepTitle, { color: colors.text }]}>
-              Select Cryptocurrency
-            </Text>
+            <Text style={[styles.stepTitle, { color: colors.text }]}>Select Cryptocurrency</Text>
 
             <View style={styles.cryptoOptions}>
               {CRYPTO_SYMBOLS.map((crypto) => (
@@ -202,12 +206,12 @@ export default function CreateOfferScreen() {
                     styles.cryptoOption,
                     {
                       backgroundColor: colors.surface,
-                      borderColor: cryptocurrency === crypto ? Colors.primary.DEFAULT : colors.border,
+                      borderColor:
+                        cryptocurrency === crypto ? Colors.primary.DEFAULT : colors.border,
                       borderWidth: cryptocurrency === crypto ? 2 : 1,
                     },
                   ]}
-                  onPress={() => setCryptocurrency(crypto)}
-                >
+                  onPress={() => setCryptocurrency(crypto)}>
                   <CryptoIcon currency={crypto} size="lg" />
                   <Text style={[styles.cryptoName, { color: colors.text }]}>{crypto}</Text>
                 </TouchableOpacity>
@@ -225,18 +229,17 @@ export default function CreateOfferScreen() {
                   style={[
                     styles.fiatOption,
                     {
-                      backgroundColor: fiatCurrency === fiat ? Colors.primary.DEFAULT : colors.surface,
+                      backgroundColor:
+                        fiatCurrency === fiat ? Colors.primary.DEFAULT : colors.surface,
                       borderColor: fiatCurrency === fiat ? Colors.primary.DEFAULT : colors.border,
                     },
                   ]}
-                  onPress={() => setFiatCurrency(fiat)}
-                >
+                  onPress={() => setFiatCurrency(fiat)}>
                   <Text
                     style={[
                       styles.fiatText,
                       { color: fiatCurrency === fiat ? Colors.white : colors.text },
-                    ]}
-                  >
+                    ]}>
                     {fiat}
                   </Text>
                 </TouchableOpacity>
@@ -248,9 +251,7 @@ export default function CreateOfferScreen() {
       case 'pricing':
         return (
           <View style={styles.stepContent}>
-            <Text style={[styles.stepTitle, { color: colors.text }]}>
-              Set Your Pricing
-            </Text>
+            <Text style={[styles.stepTitle, { color: colors.text }]}>Set Your Pricing</Text>
 
             <Input
               label={`Amount of ${cryptocurrency}`}
@@ -299,14 +300,12 @@ export default function CreateOfferScreen() {
                     borderColor: colors.border,
                   },
                 ]}
-                onPress={() => setRateType('fixed')}
-              >
+                onPress={() => setRateType('fixed')}>
                 <Text
                   style={[
                     styles.rateText,
                     { color: rateType === 'fixed' ? Colors.white : colors.text },
-                  ]}
-                >
+                  ]}>
                   Fixed Price
                 </Text>
               </TouchableOpacity>
@@ -314,18 +313,17 @@ export default function CreateOfferScreen() {
                 style={[
                   styles.rateOption,
                   {
-                    backgroundColor: rateType === 'floating' ? Colors.primary.DEFAULT : colors.surface,
+                    backgroundColor:
+                      rateType === 'floating' ? Colors.primary.DEFAULT : colors.surface,
                     borderColor: colors.border,
                   },
                 ]}
-                onPress={() => setRateType('floating')}
-              >
+                onPress={() => setRateType('floating')}>
                 <Text
                   style={[
                     styles.rateText,
                     { color: rateType === 'floating' ? Colors.white : colors.text },
-                  ]}
-                >
+                  ]}>
                   Floating (Market)
                 </Text>
               </TouchableOpacity>
@@ -336,9 +334,7 @@ export default function CreateOfferScreen() {
       case 'payment':
         return (
           <View style={styles.stepContent}>
-            <Text style={[styles.stepTitle, { color: colors.text }]}>
-              Payment Methods
-            </Text>
+            <Text style={[styles.stepTitle, { color: colors.text }]}>Payment Methods</Text>
             <Text style={[styles.stepSubtitle, { color: colors.textSecondary }]}>
               Select the payment methods you accept
             </Text>
@@ -358,12 +354,19 @@ export default function CreateOfferScreen() {
                         : colors.border,
                     },
                   ]}
-                  onPress={() => togglePaymentMethod(method)}
-                >
+                  onPress={() => togglePaymentMethod(method)}>
                   <Ionicons
-                    name={selectedPaymentMethods.includes(method) ? 'checkmark-circle' : 'ellipse-outline'}
+                    name={
+                      selectedPaymentMethods.includes(method)
+                        ? 'checkmark-circle'
+                        : 'ellipse-outline'
+                    }
                     size={20}
-                    color={selectedPaymentMethods.includes(method) ? Colors.primary.DEFAULT : colors.textSecondary}
+                    color={
+                      selectedPaymentMethods.includes(method)
+                        ? Colors.primary.DEFAULT
+                        : colors.textSecondary
+                    }
                   />
                   <Text
                     style={[
@@ -373,8 +376,7 @@ export default function CreateOfferScreen() {
                           ? Colors.primary.DEFAULT
                           : colors.text,
                       },
-                    ]}
-                  >
+                    ]}>
                     {method}
                   </Text>
                 </TouchableOpacity>
@@ -396,9 +398,7 @@ export default function CreateOfferScreen() {
       case 'review':
         return (
           <View style={styles.stepContent}>
-            <Text style={[styles.stepTitle, { color: colors.text }]}>
-              Review Your Offer
-            </Text>
+            <Text style={[styles.stepTitle, { color: colors.text }]}>Review Your Offer</Text>
 
             <Card variant="outlined" style={styles.reviewCard}>
               <View style={styles.reviewRow}>
@@ -452,9 +452,10 @@ export default function CreateOfferScreen() {
             style={[
               styles.progressDot,
               {
-                backgroundColor: ['type', 'crypto', 'pricing', 'payment', 'review'].indexOf(step) >= index
-                  ? Colors.primary.DEFAULT
-                  : colors.border,
+                backgroundColor:
+                  ['type', 'crypto', 'pricing', 'payment', 'review'].indexOf(step) >= index
+                    ? Colors.primary.DEFAULT
+                    : colors.border,
               },
             ]}
           />
@@ -463,13 +464,11 @@ export default function CreateOfferScreen() {
 
       <KeyboardAvoidingView
         style={styles.keyboardView}
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      >
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
         <ScrollView
           style={styles.content}
           contentContainerStyle={{ paddingBottom: 100 }}
-          showsVerticalScrollIndicator={false}
-        >
+          showsVerticalScrollIndicator={false}>
           {renderStepContent()}
         </ScrollView>
       </KeyboardAvoidingView>
@@ -483,8 +482,7 @@ export default function CreateOfferScreen() {
             paddingBottom: insets.bottom + Spacing.md,
             borderTopColor: colors.border,
           },
-        ]}
-      >
+        ]}>
         {step === 'review' ? (
           <Button
             title="Create Offer"

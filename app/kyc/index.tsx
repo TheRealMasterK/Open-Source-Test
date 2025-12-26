@@ -4,14 +4,7 @@
  */
 
 import React, { useState } from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  ScrollView,
-  TouchableOpacity,
-  Alert,
-} from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -57,49 +50,45 @@ export default function KYCScreen() {
       return;
     }
 
-    Alert.alert(
-      'Select Photo',
-      'Choose how to provide your document',
-      [
-        {
-          text: 'Camera',
-          onPress: async () => {
-            const result = await ImagePicker.launchCameraAsync({
-              mediaTypes: ImagePicker.MediaTypeOptions.Images,
-              quality: 0.8,
-              allowsEditing: true,
-            });
+    Alert.alert('Select Photo', 'Choose how to provide your document', [
+      {
+        text: 'Camera',
+        onPress: async () => {
+          const result = await ImagePicker.launchCameraAsync({
+            mediaTypes: ImagePicker.MediaTypeOptions.Images,
+            quality: 0.8,
+            allowsEditing: true,
+          });
 
-            if (!result.canceled && result.assets[0]) {
-              const asset = result.assets[0];
-              setUploadedDocs((prev) => [
-                ...prev.filter((d) => d.type !== docType),
-                { type: docType, uri: asset.uri, name: `${docType}.jpg` },
-              ]);
-            }
-          },
+          if (!result.canceled && result.assets[0]) {
+            const asset = result.assets[0];
+            setUploadedDocs((prev) => [
+              ...prev.filter((d) => d.type !== docType),
+              { type: docType, uri: asset.uri, name: `${docType}.jpg` },
+            ]);
+          }
         },
-        {
-          text: 'Gallery',
-          onPress: async () => {
-            const result = await ImagePicker.launchImageLibraryAsync({
-              mediaTypes: ImagePicker.MediaTypeOptions.Images,
-              quality: 0.8,
-              allowsEditing: true,
-            });
+      },
+      {
+        text: 'Gallery',
+        onPress: async () => {
+          const result = await ImagePicker.launchImageLibraryAsync({
+            mediaTypes: ImagePicker.MediaTypeOptions.Images,
+            quality: 0.8,
+            allowsEditing: true,
+          });
 
-            if (!result.canceled && result.assets[0]) {
-              const asset = result.assets[0];
-              setUploadedDocs((prev) => [
-                ...prev.filter((d) => d.type !== docType),
-                { type: docType, uri: asset.uri, name: `${docType}.jpg` },
-              ]);
-            }
-          },
+          if (!result.canceled && result.assets[0]) {
+            const asset = result.assets[0];
+            setUploadedDocs((prev) => [
+              ...prev.filter((d) => d.type !== docType),
+              { type: docType, uri: asset.uri, name: `${docType}.jpg` },
+            ]);
+          }
         },
-        { text: 'Cancel', style: 'cancel' },
-      ]
-    );
+      },
+      { text: 'Cancel', style: 'cancel' },
+    ]);
   };
 
   const handleSubmit = async () => {
@@ -129,7 +118,7 @@ export default function KYCScreen() {
       });
 
       Alert.alert('Success', 'Your KYC has been submitted for review', [
-        { text: 'OK', onPress: () => router.back() }
+        { text: 'OK', onPress: () => router.back() },
       ]);
     } catch (error) {
       console.error('[KYCScreen] Error submitting:', error);
@@ -152,9 +141,7 @@ export default function KYCScreen() {
           <View style={[styles.verifiedIcon, { backgroundColor: Colors.success.DEFAULT + '20' }]}>
             <Ionicons name="checkmark-circle" size={64} color={Colors.success.DEFAULT} />
           </View>
-          <Text style={[styles.verifiedTitle, { color: colors.text }]}>
-            Identity Verified
-          </Text>
+          <Text style={[styles.verifiedTitle, { color: colors.text }]}>Identity Verified</Text>
           <Text style={[styles.verifiedText, { color: colors.textSecondary }]}>
             Your identity has been verified. You have full access to all features.
           </Text>
@@ -173,9 +160,7 @@ export default function KYCScreen() {
           <View style={[styles.verifiedIcon, { backgroundColor: Colors.warning.DEFAULT + '20' }]}>
             <Ionicons name="time" size={64} color={Colors.warning.DEFAULT} />
           </View>
-          <Text style={[styles.verifiedTitle, { color: colors.text }]}>
-            Verification Pending
-          </Text>
+          <Text style={[styles.verifiedTitle, { color: colors.text }]}>Verification Pending</Text>
           <Text style={[styles.verifiedText, { color: colors.textSecondary }]}>
             Your documents are being reviewed. This usually takes 24-48 hours.
           </Text>
@@ -197,12 +182,12 @@ export default function KYCScreen() {
               style={[
                 styles.progressDot,
                 {
-                  backgroundColor: ['info', 'documents', 'review'].indexOf(step) >= index
-                    ? Colors.primary.DEFAULT
-                    : colors.border,
+                  backgroundColor:
+                    ['info', 'documents', 'review'].indexOf(step) >= index
+                      ? Colors.primary.DEFAULT
+                      : colors.border,
                 },
-              ]}
-            >
+              ]}>
               <Text style={styles.progressNumber}>{index + 1}</Text>
             </View>
             <Text style={[styles.progressLabel, { color: colors.textSecondary }]}>
@@ -214,13 +199,10 @@ export default function KYCScreen() {
 
       <ScrollView
         style={styles.content}
-        contentContainerStyle={{ paddingBottom: insets.bottom + 100 }}
-      >
+        contentContainerStyle={{ paddingBottom: insets.bottom + 100 }}>
         {step === 'info' && (
           <>
-            <Text style={[styles.stepTitle, { color: colors.text }]}>
-              Personal Information
-            </Text>
+            <Text style={[styles.stepTitle, { color: colors.text }]}>Personal Information</Text>
             <Text style={[styles.stepSubtitle, { color: colors.textSecondary }]}>
               Please enter your details as they appear on your ID
             </Text>
@@ -256,9 +238,7 @@ export default function KYCScreen() {
 
         {step === 'documents' && (
           <>
-            <Text style={[styles.stepTitle, { color: colors.text }]}>
-              Upload Documents
-            </Text>
+            <Text style={[styles.stepTitle, { color: colors.text }]}>Upload Documents</Text>
             <Text style={[styles.stepSubtitle, { color: colors.textSecondary }]}>
               Take clear photos of your documents
             </Text>
@@ -277,8 +257,7 @@ export default function KYCScreen() {
                     borderColor: isDocUploaded(doc.type) ? Colors.success.DEFAULT : colors.border,
                   },
                 ]}
-                onPress={() => handlePickDocument(doc.type)}
-              >
+                onPress={() => handlePickDocument(doc.type)}>
                 <View style={styles.uploadContent}>
                   <Ionicons
                     name={doc.icon as any}
@@ -286,9 +265,7 @@ export default function KYCScreen() {
                     color={isDocUploaded(doc.type) ? Colors.success.DEFAULT : colors.textSecondary}
                   />
                   <View style={styles.uploadInfo}>
-                    <Text style={[styles.uploadLabel, { color: colors.text }]}>
-                      {doc.label}
-                    </Text>
+                    <Text style={[styles.uploadLabel, { color: colors.text }]}>{doc.label}</Text>
                     <Text style={[styles.uploadStatus, { color: colors.textTertiary }]}>
                       {isDocUploaded(doc.type) ? 'Uploaded' : 'Tap to upload'}
                     </Text>
@@ -306,9 +283,7 @@ export default function KYCScreen() {
 
         {step === 'review' && (
           <>
-            <Text style={[styles.stepTitle, { color: colors.text }]}>
-              Review & Submit
-            </Text>
+            <Text style={[styles.stepTitle, { color: colors.text }]}>Review & Submit</Text>
             <Text style={[styles.stepSubtitle, { color: colors.textSecondary }]}>
               Please verify your information is correct
             </Text>
@@ -316,7 +291,9 @@ export default function KYCScreen() {
             <Card variant="outlined" style={styles.reviewCard}>
               <View style={styles.reviewRow}>
                 <Text style={[styles.reviewLabel, { color: colors.textSecondary }]}>Name</Text>
-                <Text style={[styles.reviewValue, { color: colors.text }]}>{firstName} {lastName}</Text>
+                <Text style={[styles.reviewValue, { color: colors.text }]}>
+                  {firstName} {lastName}
+                </Text>
               </View>
               <View style={styles.reviewRow}>
                 <Text style={[styles.reviewLabel, { color: colors.textSecondary }]}>DOB</Text>
@@ -328,7 +305,9 @@ export default function KYCScreen() {
               </View>
               <View style={styles.reviewRow}>
                 <Text style={[styles.reviewLabel, { color: colors.textSecondary }]}>Documents</Text>
-                <Text style={[styles.reviewValue, { color: colors.text }]}>{uploadedDocs.length}/3 uploaded</Text>
+                <Text style={[styles.reviewValue, { color: colors.text }]}>
+                  {uploadedDocs.length}/3 uploaded
+                </Text>
               </View>
             </Card>
           </>
@@ -344,8 +323,7 @@ export default function KYCScreen() {
             paddingBottom: insets.bottom + Spacing.md,
             borderTopColor: colors.border,
           },
-        ]}
-      >
+        ]}>
         {step === 'info' && (
           <Button
             title="Continue"
@@ -357,7 +335,12 @@ export default function KYCScreen() {
         )}
         {step === 'documents' && (
           <View style={styles.buttonRow}>
-            <Button title="Back" onPress={() => setStep('info')} variant="outline" style={{ flex: 1 }} />
+            <Button
+              title="Back"
+              onPress={() => setStep('info')}
+              variant="outline"
+              style={{ flex: 1 }}
+            />
             <Button
               title="Continue"
               onPress={() => setStep('review')}
@@ -368,7 +351,12 @@ export default function KYCScreen() {
         )}
         {step === 'review' && (
           <View style={styles.buttonRow}>
-            <Button title="Back" onPress={() => setStep('documents')} variant="outline" style={{ flex: 1 }} />
+            <Button
+              title="Back"
+              onPress={() => setStep('documents')}
+              variant="outline"
+              style={{ flex: 1 }}
+            />
             <Button
               title="Submit"
               onPress={handleSubmit}

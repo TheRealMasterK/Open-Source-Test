@@ -10,6 +10,7 @@ import {
   SendMessagePayload,
   TradeListParams,
   TradeStatus,
+  TradeMessage,
 } from '@/types';
 
 // Query keys
@@ -109,13 +110,8 @@ export function useUpdateTradeStatus() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({
-      tradeId,
-      status,
-    }: {
-      tradeId: string;
-      status: TradeStatus;
-    }) => tradesApi.updateTradeStatus(tradeId, status),
+    mutationFn: ({ tradeId, status }: { tradeId: string; status: TradeStatus }) =>
+      tradesApi.updateTradeStatus(tradeId, status),
     onSuccess: (data, variables) => {
       console.log('[useUpdateTradeStatus] Success');
       queryClient.setQueryData(tradeKeys.detail(variables.tradeId), data);
@@ -135,19 +131,13 @@ export function useSendMessage() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({
-      tradeId,
-      payload,
-    }: {
-      tradeId: string;
-      payload: SendMessagePayload;
-    }) => tradesApi.sendMessage(tradeId, payload),
+    mutationFn: ({ tradeId, payload }: { tradeId: string; payload: SendMessagePayload }) =>
+      tradesApi.sendMessage(tradeId, payload),
     onSuccess: (data, variables) => {
       console.log('[useSendMessage] Success');
       // Add new message to cache
-      queryClient.setQueryData<TradeMessage[]>(
-        tradeKeys.messages(variables.tradeId),
-        (old) => (old ? [...old, data] : [data])
+      queryClient.setQueryData<TradeMessage[]>(tradeKeys.messages(variables.tradeId), (old) =>
+        old ? [...old, data] : [data]
       );
     },
     onError: (error) => {

@@ -50,16 +50,9 @@ export default function MarketplaceScreen() {
   }) => (
     <TouchableOpacity
       onPress={onPress}
-      className={`flex-1 py-3 items-center rounded-lg ${
-        isActive ? 'bg-primary' : ''
-      }`}
-      style={isActive ? { backgroundColor: Colors.primary.DEFAULT } : {}}
-    >
-      <Text
-        className={`font-semibold ${isActive ? 'text-white' : textSecondary}`}
-      >
-        {label}
-      </Text>
+      className={`flex-1 items-center rounded-lg py-3 ${isActive ? 'bg-primary' : ''}`}
+      style={isActive ? { backgroundColor: Colors.primary.DEFAULT } : {}}>
+      <Text className={`font-semibold ${isActive ? 'text-white' : textSecondary}`}>{label}</Text>
     </TouchableOpacity>
   );
 
@@ -73,14 +66,9 @@ export default function MarketplaceScreen() {
     isSelected: boolean;
   }) => (
     <TouchableOpacity
-      className={`px-4 py-2 rounded-full mr-2 ${
-        isSelected ? '' : cardBg
-      }`}
-      style={isSelected ? { backgroundColor: color } : {}}
-    >
-      <Text className={isSelected ? 'text-white font-medium' : textSecondary}>
-        {symbol}
-      </Text>
+      className={`mr-2 rounded-full px-4 py-2 ${isSelected ? '' : cardBg}`}
+      style={isSelected ? { backgroundColor: color } : {}}>
+      <Text className={isSelected ? 'font-medium text-white' : textSecondary}>{symbol}</Text>
     </TouchableOpacity>
   );
 
@@ -89,13 +77,11 @@ export default function MarketplaceScreen() {
       {/* Header */}
       <View className="px-4 py-4">
         <Text className={`${textColor} text-2xl font-bold`}>Marketplace</Text>
-        <Text className={`${textSecondary} text-sm`}>
-          Find the best crypto deals
-        </Text>
+        <Text className={`${textSecondary} text-sm`}>Find the best crypto deals</Text>
       </View>
 
       {/* Tab Selector */}
-      <View className={`mx-4 p-1 rounded-xl mb-4 ${cardBg}`}>
+      <View className={`mx-4 mb-4 rounded-xl p-1 ${cardBg}`}>
         <View className="flex-row">
           <TabButton
             label="Buy Crypto"
@@ -114,9 +100,8 @@ export default function MarketplaceScreen() {
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
-        className="px-4 mb-4"
-        contentContainerStyle={{ paddingRight: 16 }}
-      >
+        className="mb-4 px-4"
+        contentContainerStyle={{ paddingRight: 16 }}>
         <CryptoFilter symbol="All" color={Colors.primary.DEFAULT} isSelected />
         <CryptoFilter symbol="USDT" color={Colors.crypto.USDT} isSelected={false} />
         <CryptoFilter symbol="BTC" color={Colors.crypto.BTC} isSelected={false} />
@@ -124,10 +109,8 @@ export default function MarketplaceScreen() {
       </ScrollView>
 
       {/* Filter Bar */}
-      <View className="flex-row px-4 mb-4 justify-between">
-        <TouchableOpacity
-          className={`flex-row items-center px-4 py-2 rounded-lg ${cardBg}`}
-        >
+      <View className="mb-4 flex-row justify-between px-4">
+        <TouchableOpacity className={`flex-row items-center rounded-lg px-4 py-2 ${cardBg}`}>
           <Ionicons
             name="funnel-outline"
             size={16}
@@ -135,9 +118,7 @@ export default function MarketplaceScreen() {
           />
           <Text className={`${textSecondary} ml-2`}>Filter</Text>
         </TouchableOpacity>
-        <TouchableOpacity
-          className={`flex-row items-center px-4 py-2 rounded-lg ${cardBg}`}
-        >
+        <TouchableOpacity className={`flex-row items-center rounded-lg px-4 py-2 ${cardBg}`}>
           <Ionicons
             name="swap-vertical-outline"
             size={16}
@@ -150,28 +131,22 @@ export default function MarketplaceScreen() {
       {/* Offers List */}
       <ScrollView
         className="flex-1 px-4"
-        refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-        }
-      >
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}>
         {/* Empty State */}
-        <View className={`${cardBg} rounded-xl p-8 items-center`}>
+        <View className={`${cardBg} items-center rounded-xl p-8`}>
           <Ionicons
             name="storefront-outline"
             size={64}
             color={isDark ? Colors.dark.textTertiary : Colors.light.textTertiary}
           />
-          <Text className={`${textColor} text-lg font-semibold mt-4`}>
-            No offers found
-          </Text>
-          <Text className={`${textSecondary} text-center mt-2`}>
+          <Text className={`${textColor} mt-4 text-lg font-semibold`}>No offers found</Text>
+          <Text className={`${textSecondary} mt-2 text-center`}>
             Be the first to create an offer!
           </Text>
           <TouchableOpacity
-            className="mt-4 px-6 py-3 rounded-xl"
-            style={{ backgroundColor: Colors.primary.DEFAULT }}
-          >
-            <Text className="text-white font-semibold">Create Offer</Text>
+            className="mt-4 rounded-xl px-6 py-3"
+            style={{ backgroundColor: Colors.primary.DEFAULT }}>
+            <Text className="font-semibold text-white">Create Offer</Text>
           </TouchableOpacity>
         </View>
 

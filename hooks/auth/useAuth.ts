@@ -9,8 +9,6 @@ import {
   createUserWithEmailAndPassword,
   signOut,
   updateProfile,
-  GoogleAuthProvider,
-  signInWithCredential,
 } from 'firebase/auth';
 import { auth } from '@/config/firebase';
 import { useAppDispatch, useAppSelector } from '@/store';

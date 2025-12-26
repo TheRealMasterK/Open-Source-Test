@@ -49,9 +49,7 @@ export function AppProviders({ children }: AppProvidersProps) {
   return (
     <Provider store={store}>
       <PersistGate loading={<LoadingFallback />} persistor={persistor}>
-        <QueryClientProvider client={queryClient}>
-          {children}
-        </QueryClientProvider>
+        <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
       </PersistGate>
     </Provider>
   );

@@ -34,9 +34,7 @@ export function useRefresh(options: UseRefreshOptions): UseRefreshReturn {
     // Ensure minimum refresh time for better UX
     const elapsed = Date.now() - startTime;
     if (elapsed < minRefreshTime) {
-      await new Promise((resolve) =>
-        setTimeout(resolve, minRefreshTime - elapsed)
-      );
+      await new Promise((resolve) => setTimeout(resolve, minRefreshTime - elapsed));
     }
 
     setRefreshing(false);
@@ -53,7 +51,7 @@ export function useRefresh(options: UseRefreshOptions): UseRefreshReturn {
  * Hook for combining multiple refresh callbacks
  */
 export function useMultiRefresh(
-  refreshCallbacks: Array<() => Promise<void> | void>,
+  refreshCallbacks: (() => Promise<void> | void)[],
   options?: { minRefreshTime?: number }
 ): UseRefreshReturn {
   const { minRefreshTime = 500 } = options || {};

@@ -127,8 +127,8 @@ export default function TradeDetailScreen() {
       newStatus === 'completed'
         ? 'Are you sure you want to mark this trade as completed?'
         : newStatus === 'cancelled'
-        ? 'Are you sure you want to cancel this trade?'
-        : 'Are you sure you want to update this trade?';
+          ? 'Are you sure you want to cancel this trade?'
+          : 'Are you sure you want to update this trade?';
 
     Alert.alert('Confirm', confirmMessage, [
       { text: 'Cancel', style: 'cancel' },
@@ -173,9 +173,7 @@ export default function TradeDetailScreen() {
         <Header title="Trade Details" showBack />
         <View style={styles.errorContainer}>
           <Ionicons name="alert-circle" size={48} color={Colors.danger.DEFAULT} />
-          <Text style={[styles.errorText, { color: colors.text }]}>
-            Failed to load trade
-          </Text>
+          <Text style={[styles.errorText, { color: colors.text }]}>Failed to load trade</Text>
           <Button title="Go Back" onPress={() => router.back()} variant="outline" />
         </View>
       </View>
@@ -209,30 +207,23 @@ export default function TradeDetailScreen() {
             backgroundColor: isOwnMessage
               ? Colors.primary.DEFAULT
               : isDark
-              ? colors.surface
-              : colors.surfaceSecondary,
+                ? colors.surface
+                : colors.surfaceSecondary,
           },
-        ]}
-      >
+        ]}>
         {!isOwnMessage && (
           <Text style={[styles.messageSender, { color: colors.textSecondary }]}>
             {item.senderName}
           </Text>
         )}
-        <Text
-          style={[
-            styles.messageText,
-            { color: isOwnMessage ? Colors.white : colors.text },
-          ]}
-        >
+        <Text style={[styles.messageText, { color: isOwnMessage ? Colors.white : colors.text }]}>
           {item.content}
         </Text>
         <Text
           style={[
             styles.messageTime,
             { color: isOwnMessage ? 'rgba(255,255,255,0.7)' : colors.textTertiary },
-          ]}
-        >
+          ]}>
           {new Date(item.createdAt).toLocaleTimeString([], {
             hour: '2-digit',
             minute: '2-digit',
@@ -248,10 +239,7 @@ export default function TradeDetailScreen() {
         title={`Trade #${trade.tradeId?.slice(0, 8) || id?.slice(0, 8)}`}
         showBack
         rightComponent={
-          <Badge
-            text={getStatusLabel(trade.status)}
-            variant={getStatusVariant(trade.status)}
-          />
+          <Badge text={getStatusLabel(trade.status)} variant={getStatusVariant(trade.status)} />
         }
       />
 
@@ -263,14 +251,12 @@ export default function TradeDetailScreen() {
             activeTab === 'details' && styles.activeTab,
             activeTab === 'details' && { borderBottomColor: Colors.primary.DEFAULT },
           ]}
-          onPress={() => setActiveTab('details')}
-        >
+          onPress={() => setActiveTab('details')}>
           <Text
             style={[
               styles.tabText,
               { color: activeTab === 'details' ? Colors.primary.DEFAULT : colors.textSecondary },
-            ]}
-          >
+            ]}>
             Details
           </Text>
         </TouchableOpacity>
@@ -280,14 +266,12 @@ export default function TradeDetailScreen() {
             activeTab === 'chat' && styles.activeTab,
             activeTab === 'chat' && { borderBottomColor: Colors.primary.DEFAULT },
           ]}
-          onPress={() => setActiveTab('chat')}
-        >
+          onPress={() => setActiveTab('chat')}>
           <Text
             style={[
               styles.tabText,
               { color: activeTab === 'chat' ? Colors.primary.DEFAULT : colors.textSecondary },
-            ]}
-          >
+            ]}>
             Chat
           </Text>
         </TouchableOpacity>
@@ -296,8 +280,7 @@ export default function TradeDetailScreen() {
       {activeTab === 'details' ? (
         <ScrollView
           style={styles.content}
-          contentContainerStyle={{ paddingBottom: insets.bottom + 100 }}
-        >
+          contentContainerStyle={{ paddingBottom: insets.bottom + 100 }}>
           {/* Trade Summary Card */}
           <Card variant="outlined" style={styles.summaryCard}>
             <View style={styles.summaryHeader}>
@@ -315,9 +298,12 @@ export default function TradeDetailScreen() {
               <View
                 style={[
                   styles.directionBadge,
-                  { backgroundColor: isBuyer ? Colors.success.DEFAULT + '20' : Colors.danger.DEFAULT + '20' },
-                ]}
-              >
+                  {
+                    backgroundColor: isBuyer
+                      ? Colors.success.DEFAULT + '20'
+                      : Colors.danger.DEFAULT + '20',
+                  },
+                ]}>
                 <Ionicons
                   name={isBuyer ? 'arrow-down' : 'arrow-up'}
                   size={16}
@@ -327,8 +313,7 @@ export default function TradeDetailScreen() {
                   style={[
                     styles.directionText,
                     { color: isBuyer ? Colors.success.DEFAULT : Colors.danger.DEFAULT },
-                  ]}
-                >
+                  ]}>
                   {isBuyer ? 'Buying' : 'Selling'}
                 </Text>
               </View>
@@ -337,9 +322,7 @@ export default function TradeDetailScreen() {
 
           {/* Counterparty Info */}
           <Card variant="outlined" style={styles.partyCard}>
-            <Text style={[styles.sectionTitle, { color: colors.text }]}>
-              Trading with
-            </Text>
+            <Text style={[styles.sectionTitle, { color: colors.text }]}>Trading with</Text>
             <View style={styles.partyInfo}>
               <Avatar name={counterpartyName || 'User'} size="md" />
               <View style={styles.partyDetails}>
@@ -352,9 +335,7 @@ export default function TradeDetailScreen() {
 
           {/* Payment Method */}
           <Card variant="outlined" style={styles.paymentCard}>
-            <Text style={[styles.sectionTitle, { color: colors.text }]}>
-              Payment Method
-            </Text>
+            <Text style={[styles.sectionTitle, { color: colors.text }]}>Payment Method</Text>
             <View style={[styles.paymentBadge, { backgroundColor: colors.surfaceSecondary }]}>
               <Ionicons name="card-outline" size={20} color={colors.text} />
               <Text style={[styles.paymentText, { color: colors.text }]}>
@@ -405,8 +386,7 @@ export default function TradeDetailScreen() {
         <KeyboardAvoidingView
           style={styles.chatContainer}
           behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-          keyboardVerticalOffset={100}
-        >
+          keyboardVerticalOffset={100}>
           <FlatList
             ref={flatListRef}
             data={messages}
@@ -426,8 +406,7 @@ export default function TradeDetailScreen() {
                 borderTopColor: colors.border,
                 paddingBottom: insets.bottom + Spacing.sm,
               },
-            ]}
-          >
+            ]}>
             <TextInput
               style={[
                 styles.input,
@@ -450,8 +429,7 @@ export default function TradeDetailScreen() {
                 (!message.trim() || sendMessage.isPending) && { opacity: 0.5 },
               ]}
               onPress={handleSendMessage}
-              disabled={!message.trim() || sendMessage.isPending}
-            >
+              disabled={!message.trim() || sendMessage.isPending}>
               <Ionicons name="send" size={20} color={Colors.white} />
             </TouchableOpacity>
           </View>

@@ -4,15 +4,7 @@
  */
 
 import React from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  ScrollView,
-  TouchableOpacity,
-  Switch,
-  Alert,
-} from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Switch, Alert } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -38,27 +30,31 @@ function SettingItem({ icon, title, subtitle, onPress, rightComponent, danger }:
   const { colors } = useTheme();
 
   return (
-    <TouchableOpacity
-      style={styles.settingItem}
-      onPress={onPress}
-      disabled={!onPress}
-    >
-      <View style={[styles.iconContainer, { backgroundColor: danger ? Colors.danger.DEFAULT + '20' : Colors.primary.DEFAULT + '20' }]}>
-        <Ionicons name={icon} size={20} color={danger ? Colors.danger.DEFAULT : Colors.primary.DEFAULT} />
+    <TouchableOpacity style={styles.settingItem} onPress={onPress} disabled={!onPress}>
+      <View
+        style={[
+          styles.iconContainer,
+          {
+            backgroundColor: danger ? Colors.danger.DEFAULT + '20' : Colors.primary.DEFAULT + '20',
+          },
+        ]}>
+        <Ionicons
+          name={icon}
+          size={20}
+          color={danger ? Colors.danger.DEFAULT : Colors.primary.DEFAULT}
+        />
       </View>
       <View style={styles.settingContent}>
-        <Text style={[styles.settingTitle, { color: danger ? Colors.danger.DEFAULT : colors.text }]}>
+        <Text
+          style={[styles.settingTitle, { color: danger ? Colors.danger.DEFAULT : colors.text }]}>
           {title}
         </Text>
         {subtitle && (
-          <Text style={[styles.settingSubtitle, { color: colors.textSecondary }]}>
-            {subtitle}
-          </Text>
+          <Text style={[styles.settingSubtitle, { color: colors.textSecondary }]}>{subtitle}</Text>
         )}
       </View>
-      {rightComponent || (onPress && (
-        <Ionicons name="chevron-forward" size={20} color={colors.textTertiary} />
-      ))}
+      {rightComponent ||
+        (onPress && <Ionicons name="chevron-forward" size={20} color={colors.textTertiary} />)}
     </TouchableOpacity>
   );
 }
@@ -73,22 +69,18 @@ export default function SettingsScreen() {
   console.log('[SettingsScreen] Rendering');
 
   const handleLogout = () => {
-    Alert.alert(
-      'Sign Out',
-      'Are you sure you want to sign out?',
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Sign Out',
-          style: 'destructive',
-          onPress: async () => {
-            console.log('[SettingsScreen] Logging out...');
-            await logout();
-            router.replace('/(auth)/login');
-          },
+    Alert.alert('Sign Out', 'Are you sure you want to sign out?', [
+      { text: 'Cancel', style: 'cancel' },
+      {
+        text: 'Sign Out',
+        style: 'destructive',
+        onPress: async () => {
+          console.log('[SettingsScreen] Logging out...');
+          await logout();
+          router.replace('/(auth)/login');
         },
-      ]
-    );
+      },
+    ]);
   };
 
   const handleDeleteAccount = () => {
@@ -101,7 +93,10 @@ export default function SettingsScreen() {
           text: 'Delete',
           style: 'destructive',
           onPress: () => {
-            Alert.alert('Contact Support', 'Please contact support@qictrader.com to delete your account.');
+            Alert.alert(
+              'Contact Support',
+              'Please contact support@qictrader.com to delete your account.'
+            );
           },
         },
       ]
@@ -115,8 +110,7 @@ export default function SettingsScreen() {
       <ScrollView
         style={styles.content}
         contentContainerStyle={{ paddingBottom: insets.bottom + Spacing.xl }}
-        showsVerticalScrollIndicator={false}
-      >
+        showsVerticalScrollIndicator={false}>
         {/* Profile Section */}
         <Card variant="outlined" style={styles.profileCard}>
           <View style={styles.profileContent}>
@@ -132,8 +126,7 @@ export default function SettingsScreen() {
           </View>
           <TouchableOpacity
             style={[styles.editButton, { backgroundColor: colors.surfaceSecondary }]}
-            onPress={() => console.log('Edit profile')}
-          >
+            onPress={() => console.log('Edit profile')}>
             <Ionicons name="pencil" size={16} color={Colors.primary.DEFAULT} />
             <Text style={[styles.editText, { color: Colors.primary.DEFAULT }]}>Edit</Text>
           </TouchableOpacity>
@@ -237,12 +230,7 @@ export default function SettingsScreen() {
         {/* Danger Zone */}
         <Section title="Account Actions">
           <Card variant="outlined" noPadding>
-            <SettingItem
-              icon="log-out-outline"
-              title="Sign Out"
-              onPress={handleLogout}
-              danger
-            />
+            <SettingItem icon="log-out-outline" title="Sign Out" onPress={handleLogout} danger />
             <SettingItem
               icon="trash-outline"
               title="Delete Account"
@@ -254,9 +242,7 @@ export default function SettingsScreen() {
         </Section>
 
         {/* App Version */}
-        <Text style={[styles.versionText, { color: colors.textTertiary }]}>
-          QIC Trader v1.0.0
-        </Text>
+        <Text style={[styles.versionText, { color: colors.textTertiary }]}>QIC Trader v1.0.0</Text>
       </ScrollView>
     </View>
   );

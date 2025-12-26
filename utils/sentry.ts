@@ -128,8 +128,4 @@ export function startPerformanceSpan(name: string, operation: string) {
   );
 }
 
-export {
-  captureException,
-  captureMessage,
-  addBreadcrumb,
-};
+export { captureException, captureMessage, addBreadcrumb };

@@ -4,13 +4,7 @@
  */
 
 import React from 'react';
-import {
-  View,
-  ActivityIndicator,
-  Text,
-  StyleSheet,
-  ViewStyle,
-} from 'react-native';
+import { View, ActivityIndicator, Text, StyleSheet, ViewStyle } from 'react-native';
 import { Colors, Spacing, FontSize } from '@/config/theme';
 import { useTheme } from '@/hooks/common/useTheme';
 
@@ -39,24 +33,9 @@ export function LoadingSpinner({
 
   if (fullScreen) {
     return (
-      <View
-        style={[
-          styles.fullScreen,
-          { backgroundColor: colors.background },
-          style,
-        ]}
-      >
+      <View style={[styles.fullScreen, { backgroundColor: colors.background }, style]}>
         <ActivityIndicator size={size} color={spinnerColor} />
-        {text && (
-          <Text
-            style={[
-              styles.text,
-              { color: colors.textSecondary },
-            ]}
-          >
-            {text}
-          </Text>
-        )}
+        {text && <Text style={[styles.text, { color: colors.textSecondary }]}>{text}</Text>}
       </View>
     );
   }
@@ -68,25 +47,10 @@ export function LoadingSpinner({
           styles.overlay,
           { backgroundColor: isDark ? 'rgba(0,0,0,0.7)' : 'rgba(255,255,255,0.9)' },
           style,
-        ]}
-      >
-        <View
-          style={[
-            styles.overlayContent,
-            { backgroundColor: colors.surface },
-          ]}
-        >
+        ]}>
+        <View style={[styles.overlayContent, { backgroundColor: colors.surface }]}>
           <ActivityIndicator size={size} color={spinnerColor} />
-          {text && (
-            <Text
-              style={[
-                styles.text,
-                { color: colors.textSecondary },
-              ]}
-            >
-              {text}
-            </Text>
-          )}
+          {text && <Text style={[styles.text, { color: colors.textSecondary }]}>{text}</Text>}
         </View>
       </View>
     );
@@ -95,16 +59,7 @@ export function LoadingSpinner({
   return (
     <View style={[styles.container, style]}>
       <ActivityIndicator size={size} color={spinnerColor} />
-      {text && (
-        <Text
-          style={[
-            styles.text,
-            { color: colors.textSecondary },
-          ]}
-        >
-          {text}
-        </Text>
-      )}
+      {text && <Text style={[styles.text, { color: colors.textSecondary }]}>{text}</Text>}
     </View>
   );
 }

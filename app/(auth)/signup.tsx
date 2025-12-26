@@ -120,48 +120,31 @@ export default function SignupScreen() {
     <SafeAreaView className={`flex-1 ${bgColor}`}>
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        className="flex-1"
-      >
+        className="flex-1">
         <ScrollView
           className="flex-1 px-6"
           showsVerticalScrollIndicator={false}
-          keyboardShouldPersistTaps="handled"
-        >
+          keyboardShouldPersistTaps="handled">
           {/* Back Button */}
-          <TouchableOpacity
-            onPress={() => router.back()}
-            className="mt-4 mb-4"
-          >
-            <Ionicons
-              name="arrow-back"
-              size={24}
-              color={isDark ? 'white' : 'black'}
-            />
+          <TouchableOpacity onPress={() => router.back()} className="mb-4 mt-4">
+            <Ionicons name="arrow-back" size={24} color={isDark ? 'white' : 'black'} />
           </TouchableOpacity>
 
           {/* Header */}
           <View className="mb-8">
-            <Text className={`${textColor} text-3xl font-bold mb-2`}>
-              Create Account
-            </Text>
-            <Text className={`${textSecondary} text-base`}>
-              Start your crypto trading journey
-            </Text>
+            <Text className={`${textColor} mb-2 text-3xl font-bold`}>Create Account</Text>
+            <Text className={`${textSecondary} text-base`}>Start your crypto trading journey</Text>
           </View>
 
           {/* Form */}
           <View className="mb-6">
             {/* Username Input */}
             <View className="mb-4">
-              <Text className={`${textColor} font-medium mb-2`}>Username</Text>
-              <View className={`${inputBg} rounded-xl flex-row items-center px-4`}>
-                <Ionicons
-                  name="person-outline"
-                  size={20}
-                  color={placeholderColor}
-                />
+              <Text className={`${textColor} mb-2 font-medium`}>Username</Text>
+              <View className={`${inputBg} flex-row items-center rounded-xl px-4`}>
+                <Ionicons name="person-outline" size={20} color={placeholderColor} />
                 <TextInput
-                  className={`flex-1 ${inputText} py-4 px-3 font-medium`}
+                  className={`flex-1 ${inputText} px-3 py-4 font-medium`}
                   placeholder="Choose a username"
                   placeholderTextColor={placeholderColor}
                   value={username}
@@ -174,15 +157,11 @@ export default function SignupScreen() {
 
             {/* Email Input */}
             <View className="mb-4">
-              <Text className={`${textColor} font-medium mb-2`}>Email</Text>
-              <View className={`${inputBg} rounded-xl flex-row items-center px-4`}>
-                <Ionicons
-                  name="mail-outline"
-                  size={20}
-                  color={placeholderColor}
-                />
+              <Text className={`${textColor} mb-2 font-medium`}>Email</Text>
+              <View className={`${inputBg} flex-row items-center rounded-xl px-4`}>
+                <Ionicons name="mail-outline" size={20} color={placeholderColor} />
                 <TextInput
-                  className={`flex-1 ${inputText} py-4 px-3 font-medium`}
+                  className={`flex-1 ${inputText} px-3 py-4 font-medium`}
                   placeholder="Enter your email"
                   placeholderTextColor={placeholderColor}
                   value={email}
@@ -196,15 +175,11 @@ export default function SignupScreen() {
 
             {/* Password Input */}
             <View className="mb-4">
-              <Text className={`${textColor} font-medium mb-2`}>Password</Text>
-              <View className={`${inputBg} rounded-xl flex-row items-center px-4`}>
-                <Ionicons
-                  name="lock-closed-outline"
-                  size={20}
-                  color={placeholderColor}
-                />
+              <Text className={`${textColor} mb-2 font-medium`}>Password</Text>
+              <View className={`${inputBg} flex-row items-center rounded-xl px-4`}>
+                <Ionicons name="lock-closed-outline" size={20} color={placeholderColor} />
                 <TextInput
-                  className={`flex-1 ${inputText} py-4 px-3 font-medium`}
+                  className={`flex-1 ${inputText} px-3 py-4 font-medium`}
                   placeholder="Create a password"
                   placeholderTextColor={placeholderColor}
                   value={password}
@@ -224,17 +199,11 @@ export default function SignupScreen() {
 
             {/* Confirm Password Input */}
             <View className="mb-4">
-              <Text className={`${textColor} font-medium mb-2`}>
-                Confirm Password
-              </Text>
-              <View className={`${inputBg} rounded-xl flex-row items-center px-4`}>
-                <Ionicons
-                  name="lock-closed-outline"
-                  size={20}
-                  color={placeholderColor}
-                />
+              <Text className={`${textColor} mb-2 font-medium`}>Confirm Password</Text>
+              <View className={`${inputBg} flex-row items-center rounded-xl px-4`}>
+                <Ionicons name="lock-closed-outline" size={20} color={placeholderColor} />
                 <TextInput
-                  className={`flex-1 ${inputText} py-4 px-3 font-medium`}
+                  className={`flex-1 ${inputText} px-3 py-4 font-medium`}
                   placeholder="Confirm your password"
                   placeholderTextColor={placeholderColor}
                   value={confirmPassword}
@@ -248,28 +217,28 @@ export default function SignupScreen() {
             {/* Terms Checkbox */}
             <TouchableOpacity
               onPress={() => setAcceptedTerms(!acceptedTerms)}
-              className="flex-row items-center"
-            >
+              className="flex-row items-center">
               <View
-                className={`w-6 h-6 rounded-md border-2 items-center justify-center mr-3 ${
+                className={`mr-3 h-6 w-6 items-center justify-center rounded-md border-2 ${
                   acceptedTerms
                     ? 'bg-primary border-primary'
                     : isDark
-                    ? 'border-slate-600'
-                    : 'border-slate-300'
+                      ? 'border-slate-600'
+                      : 'border-slate-300'
                 }`}
-                style={acceptedTerms ? { backgroundColor: Colors.primary.DEFAULT, borderColor: Colors.primary.DEFAULT } : {}}
-              >
-                {acceptedTerms && (
-                  <Ionicons name="checkmark" size={16} color="white" />
-                )}
+                style={
+                  acceptedTerms
+                    ? {
+                        backgroundColor: Colors.primary.DEFAULT,
+                        borderColor: Colors.primary.DEFAULT,
+                      }
+                    : {}
+                }>
+                {acceptedTerms && <Ionicons name="checkmark" size={16} color="white" />}
               </View>
               <Text className={`${textSecondary} flex-1`}>
                 I agree to the{' '}
-                <Text style={{ color: Colors.primary.DEFAULT }}>
-                  Terms & Conditions
-                </Text>{' '}
-                and{' '}
+                <Text style={{ color: Colors.primary.DEFAULT }}>Terms & Conditions</Text> and{' '}
                 <Text style={{ color: Colors.primary.DEFAULT }}>Privacy Policy</Text>
               </Text>
             </TouchableOpacity>
@@ -279,18 +248,17 @@ export default function SignupScreen() {
           <TouchableOpacity
             onPress={handleSignup}
             disabled={isLoading}
-            className="py-4 rounded-xl items-center mb-6"
-            style={{ backgroundColor: Colors.primary.DEFAULT }}
-          >
+            className="mb-6 items-center rounded-xl py-4"
+            style={{ backgroundColor: Colors.primary.DEFAULT }}>
             {isLoading ? (
               <ActivityIndicator color="white" />
             ) : (
-              <Text className="text-white font-bold text-lg">Create Account</Text>
+              <Text className="text-lg font-bold text-white">Create Account</Text>
             )}
           </TouchableOpacity>
 
           {/* Sign In Link */}
-          <View className="flex-row justify-center mb-8">
+          <View className="mb-8 flex-row justify-center">
             <Text className={textSecondary}>Already have an account? </Text>
             <TouchableOpacity onPress={() => router.push('/(auth)/login')}>
               <Text style={{ color: Colors.primary.DEFAULT }} className="font-bold">

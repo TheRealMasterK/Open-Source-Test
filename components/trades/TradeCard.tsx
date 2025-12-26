@@ -4,11 +4,7 @@
  */
 
 import React from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-} from 'react-native';
+import { View, Text, StyleSheet } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { Colors, Spacing, FontSize, BorderRadius } from '@/config/theme';
@@ -93,10 +89,7 @@ export function TradeCard({ trade, onPress }: TradeCardProps) {
       {/* Header */}
       <View style={styles.header}>
         <View style={styles.userInfo}>
-          <Avatar
-            name={counterpartyName || 'User'}
-            size="sm"
-          />
+          <Avatar name={counterpartyName || 'User'} size="sm" />
           <View style={styles.userDetails}>
             <Text style={[styles.username, { color: colors.text }]}>
               {counterpartyName || 'Anonymous'}
@@ -134,17 +127,14 @@ export function TradeCard({ trade, onPress }: TradeCardProps) {
               style={[
                 styles.directionText,
                 { color: isBuyer ? Colors.success.DEFAULT : Colors.danger.DEFAULT },
-              ]}
-            >
+              ]}>
               {isBuyer ? 'Buying' : 'Selling'}
             </Text>
           </View>
         </View>
 
         <View style={styles.fiatRow}>
-          <Text style={[styles.fiatLabel, { color: colors.textSecondary }]}>
-            Total Amount
-          </Text>
+          <Text style={[styles.fiatLabel, { color: colors.textSecondary }]}>Total Amount</Text>
           <Text style={[styles.fiatValue, { color: colors.text }]}>
             {formatAmount(trade.fiatAmount, trade.fiatCurrency)}
           </Text>
@@ -153,14 +143,8 @@ export function TradeCard({ trade, onPress }: TradeCardProps) {
 
       {/* Footer - Payment Method */}
       <View style={styles.footer}>
-        <View
-          style={[styles.paymentBadge, { backgroundColor: colors.surfaceSecondary }]}
-        >
-          <Ionicons
-            name="card-outline"
-            size={12}
-            color={colors.textSecondary}
-          />
+        <View style={[styles.paymentBadge, { backgroundColor: colors.surfaceSecondary }]}>
+          <Ionicons name="card-outline" size={12} color={colors.textSecondary} />
           <Text style={[styles.paymentText, { color: colors.textSecondary }]}>
             {trade.paymentMethod || 'Unknown'}
           </Text>

@@ -99,36 +99,26 @@ export default function LoginScreen() {
     <SafeAreaView className={`flex-1 ${bgColor}`}>
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        className="flex-1"
-      >
+        className="flex-1">
         <ScrollView
           className="flex-1 px-6"
           showsVerticalScrollIndicator={false}
-          keyboardShouldPersistTaps="handled"
-        >
+          keyboardShouldPersistTaps="handled">
           {/* Header */}
-          <View className="mt-12 mb-8">
-            <Text className={`${textColor} text-3xl font-bold mb-2`}>
-              Welcome Back
-            </Text>
-            <Text className={`${textSecondary} text-base`}>
-              Sign in to continue trading
-            </Text>
+          <View className="mb-8 mt-12">
+            <Text className={`${textColor} mb-2 text-3xl font-bold`}>Welcome Back</Text>
+            <Text className={`${textSecondary} text-base`}>Sign in to continue trading</Text>
           </View>
 
           {/* Form */}
           <View className="mb-6">
             {/* Email Input */}
             <View className="mb-4">
-              <Text className={`${textColor} font-medium mb-2`}>Email</Text>
-              <View className={`${inputBg} rounded-xl flex-row items-center px-4`}>
-                <Ionicons
-                  name="mail-outline"
-                  size={20}
-                  color={placeholderColor}
-                />
+              <Text className={`${textColor} mb-2 font-medium`}>Email</Text>
+              <View className={`${inputBg} flex-row items-center rounded-xl px-4`}>
+                <Ionicons name="mail-outline" size={20} color={placeholderColor} />
                 <TextInput
-                  className={`flex-1 ${inputText} py-4 px-3 font-medium`}
+                  className={`flex-1 ${inputText} px-3 py-4 font-medium`}
                   placeholder="Enter your email"
                   placeholderTextColor={placeholderColor}
                   value={email}
@@ -142,15 +132,11 @@ export default function LoginScreen() {
 
             {/* Password Input */}
             <View className="mb-4">
-              <Text className={`${textColor} font-medium mb-2`}>Password</Text>
-              <View className={`${inputBg} rounded-xl flex-row items-center px-4`}>
-                <Ionicons
-                  name="lock-closed-outline"
-                  size={20}
-                  color={placeholderColor}
-                />
+              <Text className={`${textColor} mb-2 font-medium`}>Password</Text>
+              <View className={`${inputBg} flex-row items-center rounded-xl px-4`}>
+                <Ionicons name="lock-closed-outline" size={20} color={placeholderColor} />
                 <TextInput
-                  className={`flex-1 ${inputText} py-4 px-3 font-medium`}
+                  className={`flex-1 ${inputText} px-3 py-4 font-medium`}
                   placeholder="Enter your password"
                   placeholderTextColor={placeholderColor}
                   value={password}
@@ -171,8 +157,7 @@ export default function LoginScreen() {
             {/* Forgot Password */}
             <TouchableOpacity
               onPress={() => router.push('/(auth)/forgot-password')}
-              className="self-end"
-            >
+              className="self-end">
               <Text style={{ color: Colors.primary.DEFAULT }} className="font-medium">
                 Forgot Password?
               </Text>
@@ -183,44 +168,37 @@ export default function LoginScreen() {
           <TouchableOpacity
             onPress={handleLogin}
             disabled={isLoading}
-            className="py-4 rounded-xl items-center mb-6"
-            style={{ backgroundColor: Colors.primary.DEFAULT }}
-          >
+            className="mb-6 items-center rounded-xl py-4"
+            style={{ backgroundColor: Colors.primary.DEFAULT }}>
             {isLoading ? (
               <ActivityIndicator color="white" />
             ) : (
-              <Text className="text-white font-bold text-lg">Sign In</Text>
+              <Text className="text-lg font-bold text-white">Sign In</Text>
             )}
           </TouchableOpacity>
 
           {/* Divider */}
-          <View className="flex-row items-center mb-6">
-            <View className={`flex-1 h-px ${isDark ? 'bg-slate-700' : 'bg-slate-200'}`} />
+          <View className="mb-6 flex-row items-center">
+            <View className={`h-px flex-1 ${isDark ? 'bg-slate-700' : 'bg-slate-200'}`} />
             <Text className={`${textSecondary} mx-4`}>or</Text>
-            <View className={`flex-1 h-px ${isDark ? 'bg-slate-700' : 'bg-slate-200'}`} />
+            <View className={`h-px flex-1 ${isDark ? 'bg-slate-700' : 'bg-slate-200'}`} />
           </View>
 
           {/* Social Login */}
           <TouchableOpacity
-            className={`${inputBg} py-4 rounded-xl flex-row items-center justify-center mb-4`}
-          >
+            className={`${inputBg} mb-4 flex-row items-center justify-center rounded-xl py-4`}>
             <Ionicons name="logo-google" size={20} color="#DB4437" />
-            <Text className={`${textColor} font-semibold ml-3`}>
-              Continue with Google
-            </Text>
+            <Text className={`${textColor} ml-3 font-semibold`}>Continue with Google</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
-            className={`${inputBg} py-4 rounded-xl flex-row items-center justify-center mb-6`}
-          >
+            className={`${inputBg} mb-6 flex-row items-center justify-center rounded-xl py-4`}>
             <Ionicons name="logo-apple" size={20} color={isDark ? 'white' : 'black'} />
-            <Text className={`${textColor} font-semibold ml-3`}>
-              Continue with Apple
-            </Text>
+            <Text className={`${textColor} ml-3 font-semibold`}>Continue with Apple</Text>
           </TouchableOpacity>
 
           {/* Sign Up Link */}
-          <View className="flex-row justify-center mb-8">
+          <View className="mb-8 flex-row justify-center">
             <Text className={textSecondary}>Don&apos;t have an account? </Text>
             <TouchableOpacity onPress={() => router.push('/(auth)/signup')}>
               <Text style={{ color: Colors.primary.DEFAULT }} className="font-bold">

@@ -4,12 +4,7 @@
  */
 
 import React from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-} from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Colors, Spacing, FontSize, BorderRadius, Shadows } from '@/config/theme';
 import { useTheme } from '@/hooks/common/useTheme';
@@ -67,16 +62,13 @@ export function BalanceCard({
           borderColor: colors.border,
         },
         isDark ? {} : Shadows.md,
-      ]}
-    >
+      ]}>
       {/* Header */}
       <View style={styles.header}>
         <View style={styles.currencyInfo}>
           <CryptoIcon currency={currency} size="md" />
           <View style={styles.currencyDetails}>
-            <Text style={[styles.currencyName, { color: colors.text }]}>
-              {currency}
-            </Text>
+            <Text style={[styles.currencyName, { color: colors.text }]}>{currency}</Text>
             <Text style={[styles.networkLabel, { color: colors.textTertiary }]}>
               {currency === 'USDT' ? 'BEP-20' : currency === 'BTC' ? 'Bitcoin' : 'Ethereum'}
             </Text>
@@ -102,32 +94,18 @@ export function BalanceCard({
           {onDeposit && (
             <TouchableOpacity
               onPress={onDeposit}
-              style={[styles.actionButton, { backgroundColor: Colors.success.DEFAULT + '15' }]}
-            >
-              <Ionicons
-                name="arrow-down"
-                size={18}
-                color={Colors.success.DEFAULT}
-              />
-              <Text style={[styles.actionText, { color: Colors.success.DEFAULT }]}>
-                Deposit
-              </Text>
+              style={[styles.actionButton, { backgroundColor: Colors.success.DEFAULT + '15' }]}>
+              <Ionicons name="arrow-down" size={18} color={Colors.success.DEFAULT} />
+              <Text style={[styles.actionText, { color: Colors.success.DEFAULT }]}>Deposit</Text>
             </TouchableOpacity>
           )}
 
           {onWithdraw && (
             <TouchableOpacity
               onPress={onWithdraw}
-              style={[styles.actionButton, { backgroundColor: Colors.primary.DEFAULT + '15' }]}
-            >
-              <Ionicons
-                name="arrow-up"
-                size={18}
-                color={Colors.primary.DEFAULT}
-              />
-              <Text style={[styles.actionText, { color: Colors.primary.DEFAULT }]}>
-                Withdraw
-              </Text>
+              style={[styles.actionButton, { backgroundColor: Colors.primary.DEFAULT + '15' }]}>
+              <Ionicons name="arrow-up" size={18} color={Colors.primary.DEFAULT} />
+              <Text style={[styles.actionText, { color: Colors.primary.DEFAULT }]}>Withdraw</Text>
             </TouchableOpacity>
           )}
         </View>
