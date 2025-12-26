@@ -6,9 +6,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { tradesApi } from '@/services/api';
 import {
-  Trade,
   CreateTradePayload,
-  TradeMessage,
   SendMessagePayload,
   TradeListParams,
   TradeStatus,

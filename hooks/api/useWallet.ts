@@ -8,9 +8,6 @@ import { walletApi } from '@/services/api';
 import { useAppDispatch } from '@/store';
 import { setBalances } from '@/store/slices/walletSlice';
 import {
-  Wallet,
-  WalletBalances,
-  WalletTransaction,
   DepositPayload,
   WithdrawPayload,
   TransactionListParams,

@@ -18,10 +18,9 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import * as ImagePicker from 'expo-image-picker';
 import { Colors, Spacing, FontSize, BorderRadius } from '@/config/theme';
 import { useTheme } from '@/hooks/common/useTheme';
-import { useKYCStatus, useUploadKYCDocument, useSubmitKYC } from '@/hooks/api';
+import { useKYCStatus, useSubmitKYC } from '@/hooks/api';
 import { Header } from '@/components/layout/Header';
 import { Card } from '@/components/ui/Card';
-import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
 import { Input } from '@/components/ui/Input';
@@ -47,7 +46,6 @@ export default function KYCScreen() {
   const [uploadedDocs, setUploadedDocs] = useState<UploadedDoc[]>([]);
 
   const { data: kycStatus, isLoading } = useKYCStatus();
-  const uploadDocument = useUploadKYCDocument();
   const submitKYC = useSubmitKYC();
 
   console.log('[KYCScreen] Status:', kycStatus?.status);

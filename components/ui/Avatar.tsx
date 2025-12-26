@@ -11,7 +11,7 @@ import {
   StyleSheet,
   ViewStyle,
 } from 'react-native';
-import { Colors, FontSize, BorderRadius } from '@/config/theme';
+import { Colors, FontSize } from '@/config/theme';
 import { useTheme } from '@/hooks/common/useTheme';
 
 type AvatarSize = 'xs' | 'sm' | 'md' | 'lg' | 'xl';

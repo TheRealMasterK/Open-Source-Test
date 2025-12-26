@@ -6,7 +6,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { paymentMethodsApi } from '@/services/api';
 import {
-  PaymentMethod,
   CreatePaymentMethodPayload,
   UpdatePaymentMethodPayload,
 } from '@/types';

@@ -11,7 +11,7 @@ import {
   ViewStyle,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { Colors, Spacing, FontSize } from '@/config/theme';
+import { Spacing, FontSize } from '@/config/theme';
 import { useTheme } from '@/hooks/common/useTheme';
 import { Button } from './Button';
 

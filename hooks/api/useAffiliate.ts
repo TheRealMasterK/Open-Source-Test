@@ -6,11 +6,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { affiliateApi } from '@/services/api';
 import {
-  AffiliateStats,
-  Referral,
-  AffiliateEarning,
-  AffiliatePayout,
-  AffiliateTier,
   RequestPayoutPayload,
   GenerateLinkPayload,
   ReferralListParams,

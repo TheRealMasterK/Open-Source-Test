@@ -12,7 +12,7 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { Colors, Spacing, BorderRadius } from '@/config/theme';
+import { Colors } from '@/config/theme';
 import { useTheme } from '@/hooks/common/useTheme';
 
 type IconButtonSize = 'sm' | 'md' | 'lg';

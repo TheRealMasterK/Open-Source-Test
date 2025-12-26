@@ -14,7 +14,7 @@ import {
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Colors, Spacing, FontSize } from '@/config/theme';
+import { Spacing, FontSize } from '@/config/theme';
 import { useTheme } from '@/hooks/common/useTheme';
 
 interface HeaderProps {
@@ -40,7 +40,7 @@ export function Header({
 }: HeaderProps) {
   const router = useRouter();
   const insets = useSafeAreaInsets();
-  const { colors, isDark } = useTheme();
+  const { colors } = useTheme();
 
   const handleBack = () => {
     if (onBack) {

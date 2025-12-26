@@ -66,7 +66,7 @@ function SettingItem({ icon, title, subtitle, onPress, rightComponent, danger }:
 export default function SettingsScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
-  const { colors, isDark, toggleTheme, themeMode, setTheme } = useTheme();
+  const { colors, isDark, toggleTheme } = useTheme();
   const { logout } = useAuth();
   const { user } = useAppSelector((state) => state.auth);
 

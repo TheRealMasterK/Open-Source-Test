@@ -6,7 +6,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { offersApi } from '@/services/api';
 import {
-  Offer,
   CreateOfferPayload,
   UpdateOfferPayload,
   OfferListParams,

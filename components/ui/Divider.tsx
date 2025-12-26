@@ -5,7 +5,7 @@
 
 import React from 'react';
 import { View, StyleSheet, ViewStyle } from 'react-native';
-import { Colors, Spacing } from '@/config/theme';
+import { Spacing } from '@/config/theme';
 import { useTheme } from '@/hooks/common/useTheme';
 
 interface DividerProps {

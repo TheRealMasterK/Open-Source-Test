@@ -34,7 +34,7 @@ export function Badge({
   textStyle,
   outline = false,
 }: BadgeProps) {
-  const { isDark, colors } = useTheme();
+  const { colors } = useTheme();
 
   const getColors = (): { bg: string; text: string; border: string } => {
     switch (variant) {

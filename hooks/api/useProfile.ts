@@ -6,13 +6,9 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { usersApi } from '@/services/api';
 import {
-  UserProfile,
-  UserSettings,
-  UserRating,
   UpdateProfilePayload,
   UpdateSettingsPayload,
   RateUserPayload,
-  TopTrader,
   TopTradersParams,
 } from '@/types';
 

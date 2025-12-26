@@ -6,8 +6,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { kycApi } from '@/services/api';
 import {
-  KYCProfile,
-  KYCDocument,
   SubmitKYCPayload,
   UploadDocumentPayload,
 } from '@/types';

@@ -30,7 +30,6 @@ import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
 import { CryptoIcon } from '@/components/ui/CryptoIcon';
-import { Divider } from '@/components/ui/Divider';
 import { useAppSelector } from '@/store';
 import { TradeMessage, TradeStatus } from '@/types';
 
