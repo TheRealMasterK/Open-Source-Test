@@ -9,7 +9,6 @@ import {
   Text,
   TextInput,
   TouchableOpacity,
-  useColorScheme,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
@@ -22,12 +21,12 @@ import { router } from 'expo-router';
 import { createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
 import { auth } from '@/config/firebase';
 import { Colors } from '@/config/theme';
+import { useTheme } from '@/hooks/common/useTheme';
 import { useAppDispatch } from '@/store';
 import { setUser, setError, setFirebaseUser } from '@/store/slices/authSlice';
 
 export default function SignupScreen() {
-  const colorScheme = useColorScheme();
-  const isDark = colorScheme === 'dark';
+  const { colors, isDark } = useTheme();
   const dispatch = useAppDispatch();
 
   const [username, setUsername] = useState('');
@@ -38,12 +37,8 @@ export default function SignupScreen() {
   const [isLoading, setIsLoading] = useState(false);
   const [acceptedTerms, setAcceptedTerms] = useState(false);
 
-  const bgColor = isDark ? 'bg-slate-900' : 'bg-white';
-  const textColor = isDark ? 'text-white' : 'text-slate-900';
-  const textSecondary = isDark ? 'text-slate-400' : 'text-slate-600';
-  const inputBg = isDark ? 'bg-slate-800' : 'bg-slate-100';
-  const inputText = isDark ? 'text-white' : 'text-slate-900';
-  const placeholderColor = isDark ? '#64748b' : '#94a3b8';
+  // Theme colors
+  const placeholderColor = colors.textPlaceholder;
 
   console.log('[Signup] Rendering');
 
@@ -220,11 +215,7 @@ export default function SignupScreen() {
               className="flex-row items-center">
               <View
                 className={`mr-3 h-6 w-6 items-center justify-center rounded-md border-2 ${
-                  acceptedTerms
-                    ? 'bg-primary border-primary'
-                    : isDark
-                      ? 'border-slate-600'
-                      : 'border-slate-300'
+                  acceptedTerms ? 'bg-primary border-primary' : 'border-border'
                 }`}
                 style={
                   acceptedTerms

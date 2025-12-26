@@ -17,6 +17,7 @@ import {
   setFirebaseUser,
   setLoading,
   setError,
+  setBackendToken,
   logout as logoutAction,
   selectUser,
   selectIsAuthenticated,
@@ -26,6 +27,7 @@ import {
 import { authApi } from '@/services/api';
 import { LoginPayload, SignupPayload } from '@/types';
 import { setSentryUser, clearSentryUser } from '@/config/sentry.config';
+import { restoreTokens, setToken, getToken } from '@/services/api/token-manager';
 
 export function useAuth() {
   const dispatch = useAppDispatch();
@@ -186,6 +188,50 @@ export function useAuth() {
     dispatch(setError(null));
   }, [dispatch]);
 
+  /**
+   * Sync backend token on app start
+   * Tries to restore from storage first, then refreshes if needed
+   */
+  const syncBackendToken = useCallback(async (): Promise<boolean> => {
+    console.log('[useAuth] syncBackendToken: Starting token sync...');
+
+    try {
+      // First try to restore token from secure storage
+      const existingToken = await getToken();
+      if (existingToken) {
+        console.log('[useAuth] syncBackendToken: Token restored from storage');
+        return true;
+      }
+
+      // No stored token - need to get a fresh one from backend
+      const firebaseUser = auth.currentUser;
+      if (!firebaseUser) {
+        console.log('[useAuth] syncBackendToken: No Firebase user, skipping');
+        return false;
+      }
+
+      // Get Firebase ID token
+      console.log('[useAuth] syncBackendToken: Getting Firebase ID token...');
+      const idToken = await firebaseUser.getIdToken(true);
+
+      // Sync with backend using the refresh endpoint
+      console.log('[useAuth] syncBackendToken: Syncing with backend...');
+      const response = await authApi.refreshToken(idToken);
+
+      if (response.token && response.expiresAt) {
+        console.log('[useAuth] syncBackendToken: Backend sync success');
+        dispatch(setBackendToken({ token: response.token, expiresAt: response.expiresAt }));
+        return true;
+      }
+
+      console.warn('[useAuth] syncBackendToken: No token in response');
+      return false;
+    } catch (error) {
+      console.error('[useAuth] syncBackendToken: Error', error);
+      return false;
+    }
+  }, [dispatch]);
+
   return {
     user,
     isAuthenticated,
@@ -195,6 +241,7 @@ export function useAuth() {
     signup,
     logout,
     clearError,
+    syncBackendToken,
   };
 }
 

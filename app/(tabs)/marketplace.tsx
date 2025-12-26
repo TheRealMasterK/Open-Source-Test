@@ -1,158 +1,191 @@
 /**
- * Marketplace Screen
- * Browse and search crypto offers
+ * Marketplace Screen - Enterprise Grade
+ * Premium P2P trading marketplace with crypto offers
  */
 
-import React, { useState } from 'react';
-import {
-  View,
-  Text,
-  ScrollView,
-  TouchableOpacity,
-  useColorScheme,
-  RefreshControl,
-} from 'react-native';
+import React, { useState, useCallback, useMemo } from 'react';
+import { View, Text, ScrollView, TouchableOpacity, RefreshControl, TextInput, StyleSheet, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
-import { Colors } from '@/config/theme';
+import { router } from 'expo-router';
+import { Colors, Spacing, FontSize, FontFamily, BorderRadius, Gradients } from '@/config/theme';
+import { useTheme } from '@/hooks/common/useTheme';
 import { useAppSelector, useAppDispatch } from '@/store';
 import { selectActiveTab, setActiveTab } from '@/store/slices/offerSlice';
+import { useBuyOffers, useSellOffers } from '@/hooks/api/useOffers';
+import { usePriceTickers } from '@/hooks/api/usePrices';
+import { Offer } from '@/types/offer.types';
+import OfferCard from '@/components/marketplace/OfferCard';
+import { CryptoTicker } from '@/components/marketplace/CryptoTicker';
+import { GlassCard, GradientButton, Badge } from '@/components/ui';
 
 export default function MarketplaceScreen() {
-  const colorScheme = useColorScheme();
-  const isDark = colorScheme === 'dark';
+  const { colors, shadows, isDark } = useTheme();
   const dispatch = useAppDispatch();
   const activeTab = useAppSelector(selectActiveTab);
   const [refreshing, setRefreshing] = useState(false);
-
-  const bgColor = isDark ? 'bg-slate-900' : 'bg-white';
-  const textColor = isDark ? 'text-white' : 'text-slate-900';
-  const textSecondary = isDark ? 'text-slate-400' : 'text-slate-600';
-  const cardBg = isDark ? 'bg-slate-800' : 'bg-slate-50';
+  const [searchQuery, setSearchQuery] = useState('');
 
   console.log('[Marketplace] Rendering, activeTab:', activeTab);
 
-  const onRefresh = React.useCallback(async () => {
+  const { data: buyOffersData, isLoading: buyLoading, error: buyError, refetch: refetchBuy } = useBuyOffers();
+  const { data: sellOffersData, isLoading: sellLoading, error: sellError, refetch: refetchSell } = useSellOffers();
+  const { tickers, isLoading: tickersLoading, refetch: refetchTickers } = usePriceTickers();
+
+  const { offers, isLoading, error } = useMemo(() => {
+    const rawOffers = activeTab === 'buy' ? buyOffersData?.data || [] : sellOffersData?.data || [];
+    let filtered = rawOffers;
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase();
+      filtered = rawOffers.filter((o: Offer) => o.creatorDisplayName?.toLowerCase().includes(query) || o.cryptocurrency.toLowerCase().includes(query) || o.paymentMethods.some((pm: string) => pm.toLowerCase().includes(query)));
+    }
+    return { offers: filtered, isLoading: activeTab === 'buy' ? buyLoading : sellLoading, error: activeTab === 'buy' ? buyError : sellError };
+  }, [activeTab, buyOffersData, sellOffersData, searchQuery, buyLoading, sellLoading, buyError, sellError]);
+
+  const onRefresh = useCallback(async () => {
     console.log('[Marketplace] Refreshing...');
     setRefreshing(true);
-    // TODO: Fetch fresh data
-    setTimeout(() => setRefreshing(false), 1000);
-  }, []);
+    try { await Promise.all([refetchBuy(), refetchSell(), refetchTickers()]); } catch (err) { console.error('[Marketplace] Refresh error:', err); } finally { setRefreshing(false); }
+  }, [refetchBuy, refetchSell, refetchTickers]);
 
-  const TabButton = ({
-    label,
-    isActive,
-    onPress,
-  }: {
-    label: string;
-    isActive: boolean;
-    onPress: () => void;
-  }) => (
-    <TouchableOpacity
-      onPress={onPress}
-      className={`flex-1 items-center rounded-lg py-3 ${isActive ? 'bg-primary' : ''}`}
-      style={isActive ? { backgroundColor: Colors.primary.DEFAULT } : {}}>
-      <Text className={`font-semibold ${isActive ? 'text-white' : textSecondary}`}>{label}</Text>
-    </TouchableOpacity>
-  );
-
-  const CryptoFilter = ({
-    symbol,
-    color,
-    isSelected,
-  }: {
-    symbol: string;
-    color: string;
-    isSelected: boolean;
-  }) => (
-    <TouchableOpacity
-      className={`mr-2 rounded-full px-4 py-2 ${isSelected ? '' : cardBg}`}
-      style={isSelected ? { backgroundColor: color } : {}}>
-      <Text className={isSelected ? 'font-medium text-white' : textSecondary}>{symbol}</Text>
-    </TouchableOpacity>
-  );
+  const transformOfferToCardProps = (offer: Offer) => ({
+    id: offer.id, traderName: offer.creatorDisplayName || 'Anonymous', traderInitials: (offer.creatorDisplayName || 'A').slice(0, 2).toUpperCase(), isVerified: offer.creatorVerified || false, rating: offer.creatorRating || 0, tradeCount: offer.creatorTotalTrades || 0, cryptoType: offer.cryptocurrency as 'BTC' | 'ETH' | 'USDT', price: offer.pricePerUnit.toLocaleString(), currency: offer.fiatCurrency, available: `${offer.amount} ${offer.cryptocurrency}`, minLimit: offer.minAmount.toLocaleString(), maxLimit: offer.maxAmount.toLocaleString(), paymentMethods: offer.paymentMethods, lastSeen: formatLastSeen(offer.updatedAt), offerType: offer.offerType,
+  });
 
   return (
-    <SafeAreaView className={`flex-1 ${bgColor}`}>
-      {/* Header */}
-      <View className="px-4 py-4">
-        <Text className={`${textColor} text-2xl font-bold`}>Marketplace</Text>
-        <Text className={`${textSecondary} text-sm`}>Find the best crypto deals</Text>
-      </View>
-
-      {/* Tab Selector */}
-      <View className={`mx-4 mb-4 rounded-xl p-1 ${cardBg}`}>
-        <View className="flex-row">
-          <TabButton
-            label="Buy Crypto"
-            isActive={activeTab === 'buy'}
-            onPress={() => dispatch(setActiveTab('buy'))}
-          />
-          <TabButton
-            label="Sell Crypto"
-            isActive={activeTab === 'sell'}
-            onPress={() => dispatch(setActiveTab('sell'))}
-          />
-        </View>
-      </View>
-
-      {/* Crypto Filters */}
-      <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        className="mb-4 px-4"
-        contentContainerStyle={{ paddingRight: 16 }}>
-        <CryptoFilter symbol="All" color={Colors.primary.DEFAULT} isSelected />
-        <CryptoFilter symbol="USDT" color={Colors.crypto.USDT} isSelected={false} />
-        <CryptoFilter symbol="BTC" color={Colors.crypto.BTC} isSelected={false} />
-        <CryptoFilter symbol="ETH" color={Colors.crypto.ETH} isSelected={false} />
-      </ScrollView>
-
-      {/* Filter Bar */}
-      <View className="mb-4 flex-row justify-between px-4">
-        <TouchableOpacity className={`flex-row items-center rounded-lg px-4 py-2 ${cardBg}`}>
-          <Ionicons
-            name="funnel-outline"
-            size={16}
-            color={isDark ? Colors.dark.textSecondary : Colors.light.textSecondary}
-          />
-          <Text className={`${textSecondary} ml-2`}>Filter</Text>
-        </TouchableOpacity>
-        <TouchableOpacity className={`flex-row items-center rounded-lg px-4 py-2 ${cardBg}`}>
-          <Ionicons
-            name="swap-vertical-outline"
-            size={16}
-            color={isDark ? Colors.dark.textSecondary : Colors.light.textSecondary}
-          />
-          <Text className={`${textSecondary} ml-2`}>Sort</Text>
-        </TouchableOpacity>
-      </View>
-
-      {/* Offers List */}
-      <ScrollView
-        className="flex-1 px-4"
-        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}>
-        {/* Empty State */}
-        <View className={`${cardBg} items-center rounded-xl p-8`}>
-          <Ionicons
-            name="storefront-outline"
-            size={64}
-            color={isDark ? Colors.dark.textTertiary : Colors.light.textTertiary}
-          />
-          <Text className={`${textColor} mt-4 text-lg font-semibold`}>No offers found</Text>
-          <Text className={`${textSecondary} mt-2 text-center`}>
-            Be the first to create an offer!
-          </Text>
-          <TouchableOpacity
-            className="mt-4 rounded-xl px-6 py-3"
-            style={{ backgroundColor: Colors.primary.DEFAULT }}>
-            <Text className="font-semibold text-white">Create Offer</Text>
-          </TouchableOpacity>
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]} edges={['top']}>
+      <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={Colors.primary.DEFAULT} />}>
+        {/* Header */}
+        <View style={styles.header}>
+          <Text style={[styles.title, { color: colors.text }]}>Marketplace</Text>
+          <Text style={[styles.subtitle, { color: colors.textSecondary }]}>Trade crypto securely with escrow protection</Text>
         </View>
 
-        {/* Spacer */}
-        <View className="h-8" />
+        {/* Crypto Tickers */}
+        {!tickersLoading && tickers.length > 0 && (
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.tickersContainer}>
+            {tickers.map((t) => <CryptoTicker key={t.id} symbol={t.symbol} name={t.name} price={`$${t.price.toLocaleString(undefined, { minimumFractionDigits: 2 })}`} change={`${t.changePercent.toFixed(2)}%`} isPositive={t.isPositive} trades={0} color={t.color} />)}
+          </ScrollView>
+        )}
+
+        {/* Buy/Sell Toggle */}
+        <View style={styles.toggleSection}>
+          <View style={[styles.toggleContainer, { backgroundColor: isDark ? colors.surface : colors.surfaceSecondary }]}>
+            {(['buy', 'sell'] as const).map((tab) => {
+              const isActive = activeTab === tab;
+              const gradient = tab === 'buy' ? Gradients.buy : Gradients.sell;
+              return isActive ? (
+                <LinearGradient key={tab} colors={gradient as unknown as readonly [string, string, ...string[]]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={styles.activeTab}>
+                  <TouchableOpacity onPress={() => dispatch(setActiveTab(tab))} style={styles.tabInner}>
+                    <Ionicons name={tab === 'buy' ? 'arrow-down-circle' : 'arrow-up-circle'} size={18} color={Colors.white} />
+                    <Text style={styles.activeTabText}>{tab === 'buy' ? 'Buy' : 'Sell'}</Text>
+                  </TouchableOpacity>
+                </LinearGradient>
+              ) : (
+                <TouchableOpacity key={tab} onPress={() => dispatch(setActiveTab(tab))} style={styles.inactiveTab}>
+                  <Ionicons name={tab === 'buy' ? 'arrow-down-circle-outline' : 'arrow-up-circle-outline'} size={18} color={colors.textSecondary} />
+                  <Text style={[styles.inactiveTabText, { color: colors.textSecondary }]}>{tab === 'buy' ? 'Buy' : 'Sell'}</Text>
+                </TouchableOpacity>
+              );
+            })}
+          </View>
+        </View>
+
+        {/* Search */}
+        <View style={[styles.searchContainer, { backgroundColor: isDark ? colors.inputBg : colors.surfaceSecondary, borderColor: colors.border }]}>
+          <Ionicons name="search-outline" size={20} color={colors.textPlaceholder} />
+          <TextInput style={[styles.searchInput, { color: colors.text }]} placeholder="Search offers..." placeholderTextColor={colors.textPlaceholder} value={searchQuery} onChangeText={setSearchQuery} />
+          {searchQuery.length > 0 && <TouchableOpacity onPress={() => setSearchQuery('')}><Ionicons name="close-circle" size={18} color={colors.textTertiary} /></TouchableOpacity>}
+        </View>
+
+        {/* Offers Header */}
+        <View style={styles.offersHeader}>
+          <View style={styles.offersCountRow}><Text style={[styles.offersLabel, { color: colors.textSecondary }]}>Offers</Text><Badge variant="info" size="sm">{offers.length}</Badge></View>
+          <TouchableOpacity style={[styles.filterBtn, { backgroundColor: isDark ? colors.surface : colors.surfaceSecondary }]}><Ionicons name="filter" size={16} color={colors.textSecondary} /><Text style={[styles.filterText, { color: colors.textSecondary }]}>Filter</Text></TouchableOpacity>
+        </View>
+
+        {/* Error */}
+        {error && <GlassCard variant="danger" style={styles.errorBanner}><Ionicons name="alert-circle" size={20} color={Colors.danger.DEFAULT} /><Text style={[styles.errorText, { color: Colors.danger.DEFAULT }]}>Failed to load offers</Text></GlassCard>}
+
+        {/* Offers List */}
+        {isLoading ? (
+          <View style={styles.loadingContainer}><ActivityIndicator size="large" color={Colors.primary.DEFAULT} /></View>
+        ) : offers.length > 0 ? (
+          offers.map((o: Offer) => <OfferCard key={o.id} {...transformOfferToCardProps(o)} onPress={() => router.push(`/offers/${o.id}`)} onResell={o.offerType === 'sell' ? () => router.push(`/offers/resell/${o.id}`) : undefined} />)
+        ) : (
+          <GlassCard variant="default" style={styles.emptyCard}>
+            <View style={styles.emptyState}>
+              <View style={[styles.emptyIconBg, { backgroundColor: isDark ? colors.surface : colors.surfaceSecondary }]}><Ionicons name="storefront-outline" size={48} color={colors.textTertiary} /></View>
+              <Text style={[styles.emptyTitle, { color: colors.text }]}>No Offers Found</Text>
+              <Text style={[styles.emptySubtitle, { color: colors.textSecondary }]}>{searchQuery ? 'Try a different search' : 'Be the first to create an offer'}</Text>
+              <GradientButton title="Create Offer" variant="primary" size="md" leftIcon={<Ionicons name="add" size={20} color={Colors.white} />} onPress={() => router.push('/offers/create')} style={styles.createBtn} />
+            </View>
+          </GlassCard>
+        )}
+
+        {/* Affiliate Banner */}
+        <LinearGradient colors={Gradients.success as unknown as readonly [string, string, ...string[]]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={[styles.affiliateBanner, shadows.lg]}>
+          <View style={styles.affiliateIcon}><Ionicons name="gift" size={24} color={Colors.white} /></View>
+          <View style={styles.affiliateContent}><Text style={styles.affiliateTitle}>Earn 10% Commission</Text><Text style={styles.affiliateSubtitle}>Join our affiliate program</Text></View>
+          <TouchableOpacity style={styles.affiliateBtn} onPress={() => router.push('/affiliate')}><Text style={styles.affiliateBtnText}>Join</Text></TouchableOpacity>
+        </LinearGradient>
+
+        <View style={{ height: Spacing['2xl'] }} />
       </ScrollView>
     </SafeAreaView>
   );
 }
+
+function formatLastSeen(dateString: string): string {
+  try {
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffMs = now.getTime() - date.getTime();
+    const diffMins = Math.floor(diffMs / 60000);
+    if (diffMins < 5) return 'Just now';
+    if (diffMins < 60) return `${diffMins}m ago`;
+    const diffHours = Math.floor(diffMins / 60);
+    if (diffHours < 24) return `${diffHours}h ago`;
+    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  } catch { return 'Recently'; }
+}
+
+const styles = StyleSheet.create({
+  container: { flex: 1 },
+  scrollView: { flex: 1 },
+  header: { paddingHorizontal: Spacing.md, paddingTop: Spacing.lg, paddingBottom: Spacing.sm },
+  title: { fontSize: FontSize['2xl'], fontFamily: FontFamily.bold },
+  subtitle: { fontSize: FontSize.sm, fontFamily: FontFamily.regular, marginTop: 4 },
+  tickersContainer: { paddingHorizontal: Spacing.md, marginBottom: Spacing.md },
+  toggleSection: { paddingHorizontal: Spacing.md, marginBottom: Spacing.md },
+  toggleContainer: { flexDirection: 'row', padding: 4, borderRadius: BorderRadius.xl },
+  activeTab: { flex: 1, borderRadius: BorderRadius.lg, overflow: 'hidden' },
+  tabInner: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingVertical: Spacing.sm, gap: Spacing.xs },
+  activeTabText: { color: Colors.white, fontFamily: FontFamily.semiBold, fontSize: FontSize.sm },
+  inactiveTab: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingVertical: Spacing.sm, gap: Spacing.xs },
+  inactiveTabText: { fontFamily: FontFamily.medium, fontSize: FontSize.sm },
+  searchContainer: { flexDirection: 'row', alignItems: 'center', marginHorizontal: Spacing.md, paddingHorizontal: Spacing.md, borderRadius: BorderRadius.xl, borderWidth: 1, height: 48, marginBottom: Spacing.md },
+  searchInput: { flex: 1, marginLeft: Spacing.sm, fontFamily: FontFamily.regular, fontSize: FontSize.base },
+  offersHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: Spacing.md, marginBottom: Spacing.md },
+  offersCountRow: { flexDirection: 'row', alignItems: 'center', gap: Spacing.sm },
+  offersLabel: { fontFamily: FontFamily.medium, fontSize: FontSize.sm },
+  filterBtn: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: Spacing.md, paddingVertical: Spacing.sm, borderRadius: BorderRadius.lg, gap: Spacing.xs },
+  filterText: { fontFamily: FontFamily.medium, fontSize: FontSize.sm },
+  errorBanner: { flexDirection: 'row', alignItems: 'center', gap: Spacing.sm, marginHorizontal: Spacing.md, marginBottom: Spacing.md },
+  errorText: { flex: 1, fontSize: FontSize.sm, fontFamily: FontFamily.medium },
+  loadingContainer: { padding: Spacing.xl, alignItems: 'center' },
+  emptyCard: { marginHorizontal: Spacing.md, marginBottom: Spacing.lg },
+  emptyState: { alignItems: 'center', paddingVertical: Spacing.xl },
+  emptyIconBg: { width: 88, height: 88, borderRadius: 44, alignItems: 'center', justifyContent: 'center', marginBottom: Spacing.md },
+  emptyTitle: { fontFamily: FontFamily.semiBold, fontSize: FontSize.lg, marginBottom: Spacing.xs },
+  emptySubtitle: { fontFamily: FontFamily.regular, fontSize: FontSize.sm, textAlign: 'center', marginBottom: Spacing.lg },
+  createBtn: { minWidth: 160 },
+  affiliateBanner: { marginHorizontal: Spacing.md, marginTop: Spacing.md, marginBottom: Spacing.lg, padding: Spacing.md, borderRadius: BorderRadius.xl, flexDirection: 'row', alignItems: 'center' },
+  affiliateIcon: { width: 44, height: 44, borderRadius: 22, backgroundColor: 'rgba(255,255,255,0.2)', alignItems: 'center', justifyContent: 'center', marginRight: Spacing.md },
+  affiliateContent: { flex: 1 },
+  affiliateTitle: { color: Colors.white, fontFamily: FontFamily.semiBold, fontSize: FontSize.base },
+  affiliateSubtitle: { color: 'rgba(255,255,255,0.8)', fontFamily: FontFamily.regular, fontSize: FontSize.xs },
+  affiliateBtn: { backgroundColor: Colors.white, paddingHorizontal: Spacing.md, paddingVertical: Spacing.sm, borderRadius: BorderRadius.lg },
+  affiliateBtnText: { color: Colors.success.DEFAULT, fontFamily: FontFamily.semiBold, fontSize: FontSize.sm },
+});

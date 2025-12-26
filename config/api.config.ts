@@ -15,47 +15,59 @@ export const API_CONFIG = {
 
 /**
  * API Endpoints
+ * Matches backend routes at /api/v1/*
  */
 export const API_ENDPOINTS = {
-  // Auth
+  // Auth - matches /api/v1/auth/*
   AUTH: {
     SIGNUP: '/auth/signup',
     LOGIN: '/auth/login',
-    REFRESH: '/auth/refresh',
-    DELETE: '/auth/delete',
-    SOCIAL_SYNC: '/auth/social-sync',
+    REFRESH: '/auth/refresh-token',
+    DELETE: (userId: string) => `/auth/delete/${userId}`,
+    OAUTH_SYNC: '/auth/oauth-sync',
+    VERIFY: '/auth/verify',
   },
 
-  // Offers
+  // Dashboard - matches /api/v1/dashboard/*
+  DASHBOARD: {
+    BASE: '/dashboard',
+    SUMMARY: '/dashboard/summary',
+  },
+
+  // Offers - matches /api/v1/offers/*
   OFFERS: {
     BASE: '/offers',
     BUY: '/offers/buy',
     SELL: '/offers/sell',
+    BY_USER: (userId: string) => `/offers/user/${userId}`,
     BY_ID: (id: string) => `/offers/${id}`,
     PAUSE: (id: string) => `/offers/${id}/pause`,
     RESUME: (id: string) => `/offers/${id}/resume`,
   },
 
-  // Trades
+  // Trades - matches /api/v1/trades/*
   TRADES: {
     BASE: '/trades',
     ACTIVE: '/trades/active',
     COMPLETED: '/trades/completed',
     BY_ID: (id: string) => `/trades/${id}`,
     STATUS: (id: string) => `/trades/${id}/status`,
+    CANCEL: (id: string) => `/trades/${id}/cancel`,
+    COMPLETE: (id: string) => `/trades/${id}/complete`,
     MESSAGES: (id: string) => `/trades/${id}/messages`,
   },
 
-  // Wallet
+  // Wallet - matches /api/v1/wallet/*
   WALLET: {
     BASE: '/wallet',
     BALANCE: '/wallet/balance',
     TRANSACTIONS: '/wallet/transactions',
+    PENDING: '/wallet/pending',
     DEPOSIT: '/wallet/deposit',
     WITHDRAW: '/wallet/withdraw',
   },
 
-  // Escrow
+  // Escrow - matches /api/v1/escrow/*
   ESCROW: {
     BASE: '/escrow',
     BY_ID: (id: string) => `/escrow/${id}`,
@@ -64,7 +76,7 @@ export const API_ENDPOINTS = {
     STATS: '/escrow/stats',
   },
 
-  // Affiliate
+  // Affiliate - matches /api/v1/affiliate/*
   AFFILIATE: {
     STATS: '/affiliate/stats',
     REFERRALS: '/affiliate/referrals',
@@ -75,7 +87,7 @@ export const API_ENDPOINTS = {
     REQUEST_PAYOUT: '/affiliate/request-payout',
   },
 
-  // Reseller
+  // Reseller - matches /api/v1/reseller/*
   RESELLER: {
     STATS: '/reseller/stats',
     ACTIVE: '/reseller/active',
@@ -83,17 +95,31 @@ export const API_ENDPOINTS = {
     CREATE: '/reseller/create',
   },
 
-  // Users
+  // Users - matches /api/v1/users/*
   USERS: {
+    ME: '/users/me',
+    ME_STATS: '/users/me/stats',
+    ME_NOTIFICATIONS: '/users/me/notifications',
     PROFILE: '/users/profile',
     BY_ID: (id: string) => `/users/${id}`,
+    PUBLIC_PROFILE: (id: string) => `/users/${id}/public`,
     SETTINGS: '/users/settings',
     RATINGS: (id: string) => `/users/${id}/ratings`,
-    RATE: (id: string) => `/users/${id}/rate`,
-    TOP_TRADERS: '/users/top-traders',
+    TOP_TRADERS: '/users/top',
+    CHECK_USERNAME: (username: string) => `/users/check-username/${username}`,
+    WALLET: '/users/wallet',
+    WALLET_LINK: '/users/wallet/link',
+    WALLET_UNLINK: '/users/wallet/unlink',
+    TWO_FA_STATUS: '/users/2fa/status',
+    TWO_FA_SETUP: '/users/2fa/setup',
+    TWO_FA_VERIFY: '/users/2fa/verify',
+    TWO_FA_DISABLE: '/users/2fa/disable',
+    REPORT: (id: string) => `/users/${id}/report`,
+    BLOCK: (id: string) => `/users/${id}/block`,
+    UNTRUST: (id: string) => `/users/${id}/untrust`,
   },
 
-  // KYC
+  // KYC - matches /api/v1/kyc/*
   KYC: {
     STATUS: '/kyc/status',
     UPLOAD: '/kyc/upload',
@@ -101,24 +127,38 @@ export const API_ENDPOINTS = {
     DOCUMENTS: '/kyc/documents',
   },
 
-  // Payment Methods
+  // Payment Methods - matches /api/v1/payment-methods/*
   PAYMENT_METHODS: {
     BASE: '/payment-methods',
     BY_ID: (id: string) => `/payment-methods/${id}`,
   },
 
-  // Prices
+  // Prices - matches /api/v1/prices/*
   PRICES: {
     BASE: '/prices',
+    BY_COIN: (coinId: string) => `/prices/${coinId}`,
+    CONVERT_TO_USD: '/prices/convert/to-usd',
+    CONVERT_FROM_USD: '/prices/convert/from-usd',
   },
 
-  // System
-  SYSTEM: {
-    STATUS: '/system/status',
-    CONTACT: '/system/contact',
-    PRIVACY: '/system/privacy',
-    TERMS: '/system/terms',
+  // Notifications - matches /api/v1/notifications/*
+  NOTIFICATIONS: {
+    BASE: '/notifications',
+    BY_ID: (id: string) => `/notifications/${id}`,
+    MARK_READ: (id: string) => `/notifications/${id}/read`,
+    MARK_ALL_READ: '/notifications/read-all',
   },
+
+  // Support - matches /api/v1/support/*
+  SUPPORT: {
+    BASE: '/support',
+    BY_ID: (id: string) => `/support/${id}`,
+    MESSAGES: (id: string) => `/support/${id}/messages`,
+  },
+
+  // Health - matches /api/v1/health
+  HEALTH: '/health',
+  VERSION: '/version',
 } as const;
 
 export default API_CONFIG;

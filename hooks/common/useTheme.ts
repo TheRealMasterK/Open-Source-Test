@@ -1,13 +1,33 @@
 /**
- * useTheme Hook
+ * useTheme Hook - Enterprise Grade
  * Custom hook for managing app theme (light/dark mode)
+ * Provides access to all design tokens
  */
 
 import { useCallback, useMemo } from 'react';
 import { useColorScheme } from 'react-native';
 import { useAppSelector, useAppDispatch } from '@/store';
 import { setTheme, ThemeMode } from '@/store/slices/uiSlice';
-import { Colors, Spacing, FontSize, FontFamily, Shadows, BorderRadius } from '@/config/theme';
+import {
+  Colors,
+  Gradients,
+  Spacing,
+  FontSize,
+  FontFamily,
+  FontWeight,
+  LineHeight,
+  Shadows,
+  ShadowsDark,
+  BorderRadius,
+  Animation,
+  Blur,
+  IconSize,
+  AvatarSize,
+  ButtonHeight,
+  InputHeight,
+  ZIndex,
+  Opacity,
+} from '@/config/theme';
 
 export function useTheme() {
   const dispatch = useAppDispatch();
@@ -19,7 +39,7 @@ export function useTheme() {
    */
   const effectiveTheme = useMemo(() => {
     if (themeMode === 'system') {
-      return systemColorScheme || 'light';
+      return systemColorScheme || 'dark';
     }
     return themeMode;
   }, [themeMode, systemColorScheme]);
@@ -36,6 +56,25 @@ export function useTheme() {
     return {
       ...Colors,
       ...(isDark ? Colors.dark : Colors.light),
+    };
+  }, [isDark]);
+
+  /**
+   * Get theme-aware shadows
+   */
+  const currentShadows = useMemo(() => {
+    return isDark ? ShadowsDark : Shadows;
+  }, [isDark]);
+
+  /**
+   * Get theme-aware gradients
+   */
+  const currentGradients = useMemo(() => {
+    return {
+      ...Gradients,
+      glass: isDark ? Gradients.glassDark : Gradients.glassLight,
+      card: isDark ? Gradients.darkCard : ['#FFFFFF', '#F8FAFC'],
+      elevated: isDark ? Gradients.darkElevated : ['#FFFFFF', '#FFFFFF'],
     };
   }, [isDark]);
 
@@ -80,19 +119,40 @@ export function useTheme() {
   );
 
   /**
+   * Get gradient by name
+   */
+  const getGradient = useCallback(
+    (gradientKey: keyof typeof Gradients) => {
+      return Gradients[gradientKey];
+    },
+    []
+  );
+
+  /**
    * Full theme object for convenience
    */
   const theme = useMemo(
     () => ({
       colors: currentColors,
+      gradients: currentGradients,
       spacing: Spacing,
       fontSize: FontSize,
       fontFamily: FontFamily,
-      shadows: Shadows,
+      fontWeight: FontWeight,
+      lineHeight: LineHeight,
+      shadows: currentShadows,
       borderRadius: BorderRadius,
+      animation: Animation,
+      blur: Blur,
+      iconSize: IconSize,
+      avatarSize: AvatarSize,
+      buttonHeight: ButtonHeight,
+      inputHeight: InputHeight,
+      zIndex: ZIndex,
+      opacity: Opacity,
       isDark,
     }),
-    [currentColors, isDark]
+    [currentColors, currentGradients, currentShadows, isDark]
   );
 
   return {
@@ -103,11 +163,22 @@ export function useTheme() {
 
     // Colors and styles
     colors: currentColors,
+    gradients: currentGradients,
     spacing: Spacing,
     fontSize: FontSize,
     fontFamily: FontFamily,
-    shadows: Shadows,
+    fontWeight: FontWeight,
+    lineHeight: LineHeight,
+    shadows: currentShadows,
     borderRadius: BorderRadius,
+    animation: Animation,
+    blur: Blur,
+    iconSize: IconSize,
+    avatarSize: AvatarSize,
+    buttonHeight: ButtonHeight,
+    inputHeight: InputHeight,
+    zIndex: ZIndex,
+    opacity: Opacity,
 
     // Full theme object
     theme,
@@ -119,6 +190,7 @@ export function useTheme() {
     // Helpers
     getThemedStyle,
     getColor,
+    getGradient,
   };
 }
 

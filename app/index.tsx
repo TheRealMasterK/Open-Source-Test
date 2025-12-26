@@ -3,7 +3,7 @@
  * Handles initial navigation based on auth state
  */
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, ActivityIndicator } from 'react-native';
 import { Redirect } from 'expo-router';
 import { onAuthStateChanged } from 'firebase/auth';
@@ -17,18 +17,22 @@ import {
   setFirebaseUser,
 } from '@/store/slices/authSlice';
 import { Colors } from '@/config/theme';
+import { useAuth } from '@/hooks/auth/useAuth';
 
 export default function Index() {
   const dispatch = useAppDispatch();
   const isAuthenticated = useAppSelector(selectIsAuthenticated);
   const isLoading = useAppSelector(selectIsLoading);
+  const { syncBackendToken } = useAuth();
+  const [isTokenSyncing, setIsTokenSyncing] = useState(false);
+  const [tokenSynced, setTokenSynced] = useState(false);
 
-  console.log('[Index] Rendering, isAuthenticated:', isAuthenticated, 'isLoading:', isLoading);
+  console.log('[Index] Rendering, isAuthenticated:', isAuthenticated, 'isLoading:', isLoading, 'tokenSynced:', tokenSynced);
 
   useEffect(() => {
     console.log('[Index] Setting up auth listener');
 
-    const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
+    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
       console.log('[Index] Auth state changed:', firebaseUser?.uid || 'null');
 
       if (firebaseUser) {
@@ -42,9 +46,25 @@ export default function Index() {
           })
         );
         dispatch(setFirebaseUser(firebaseUser));
+
+        // Sync backend token before completing auth flow
+        console.log('[Index] Firebase user found, syncing backend token...');
+        setIsTokenSyncing(true);
+        try {
+          const tokenResult = await syncBackendToken();
+          console.log('[Index] Token sync result:', tokenResult);
+          setTokenSynced(true);
+        } catch (error) {
+          console.error('[Index] Token sync error:', error);
+          // Still proceed even if token sync fails - user can retry
+          setTokenSynced(true);
+        } finally {
+          setIsTokenSyncing(false);
+        }
       } else {
         dispatch(setUser(null));
         dispatch(setFirebaseUser(null));
+        setTokenSynced(false);
       }
 
       dispatch(setLoading(false));
@@ -54,22 +74,32 @@ export default function Index() {
       console.log('[Index] Cleaning up auth listener');
       unsubscribe();
     };
-  }, [dispatch]);
+  }, [dispatch, syncBackendToken]);
 
-  // Show loading spinner while checking auth
-  if (isLoading) {
-    console.log('[Index] Showing loading spinner');
+  // Show loading spinner while checking auth or syncing token
+  if (isLoading || isTokenSyncing) {
+    console.log('[Index] Showing loading spinner, isLoading:', isLoading, 'isTokenSyncing:', isTokenSyncing);
     return (
-      <View className="flex-1 items-center justify-center bg-slate-900">
+      <View className="flex-1 items-center justify-center bg-background">
         <ActivityIndicator size="large" color={Colors.primary.DEFAULT} />
       </View>
     );
   }
 
-  // Redirect based on auth state
-  if (isAuthenticated) {
-    console.log('[Index] Redirecting to tabs');
+  // Redirect based on auth state - wait for token sync before going to tabs
+  if (isAuthenticated && tokenSynced) {
+    console.log('[Index] Redirecting to tabs (token synced)');
     return <Redirect href="/(tabs)" />;
+  }
+
+  // If authenticated but token not synced yet, keep waiting
+  if (isAuthenticated && !tokenSynced) {
+    console.log('[Index] Waiting for token sync...');
+    return (
+      <View className="flex-1 items-center justify-center bg-background">
+        <ActivityIndicator size="large" color={Colors.primary.DEFAULT} />
+      </View>
+    );
   }
 
   console.log('[Index] Redirecting to login');

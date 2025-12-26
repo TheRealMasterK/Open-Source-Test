@@ -77,7 +77,7 @@ export default function RootLayout() {
   if (!fontsLoaded && !fontError) {
     console.log('[App] Loading fonts...');
     return (
-      <View className="flex-1 items-center justify-center bg-slate-900">
+      <View className="flex-1 items-center justify-center bg-background">
         <ActivityIndicator size="large" color={Colors.primary.DEFAULT} />
       </View>
     );

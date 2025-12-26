@@ -35,3 +35,9 @@ export * from './payment-method.types';
 
 // API Types
 export * from './api.types';
+
+// Price Types
+export * from './price.types';
+
+// Dashboard Types
+export * from './dashboard.types';

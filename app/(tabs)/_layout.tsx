@@ -6,8 +6,9 @@
 import React from 'react';
 import { Tabs } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import { useColorScheme, Platform } from 'react-native';
+import { Platform } from 'react-native';
 import { Colors } from '@/config/theme';
+import { useTheme } from '@/hooks/common/useTheme';
 
 type IconName = keyof typeof Ionicons.glyphMap;
 
@@ -24,12 +25,11 @@ function TabIcon({ name, color, size, focused }: TabIconProps) {
 }
 
 export default function TabsLayout() {
-  const colorScheme = useColorScheme();
-  const isDark = colorScheme === 'dark';
+  const { colors, isDark } = useTheme();
 
   const tabBarStyle = {
-    backgroundColor: isDark ? Colors.dark.surface : Colors.light.surface,
-    borderTopColor: isDark ? Colors.dark.border : Colors.light.border,
+    backgroundColor: colors.surface,
+    borderTopColor: colors.border,
     borderTopWidth: 1,
     height: Platform.OS === 'ios' ? 88 : 64,
     paddingBottom: Platform.OS === 'ios' ? 28 : 8,
@@ -37,7 +37,7 @@ export default function TabsLayout() {
   };
 
   const activeColor = Colors.primary.DEFAULT;
-  const inactiveColor = isDark ? Colors.dark.textSecondary : Colors.light.textSecondary;
+  const inactiveColor = colors.textSecondary;
 
   console.log('[TabsLayout] Rendering tabs, isDark:', isDark);
 
@@ -56,18 +56,9 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="index"
         options={{
-          title: 'Dashboard',
+          title: 'Home',
           tabBarIcon: ({ color, size, focused }) => (
             <TabIcon name="home" color={color} size={size} focused={focused} />
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="marketplace"
-        options={{
-          title: 'Market',
-          tabBarIcon: ({ color, size, focused }) => (
-            <TabIcon name="storefront" color={color} size={size} focused={focused} />
           ),
         }}
       />
@@ -77,6 +68,15 @@ export default function TabsLayout() {
           title: 'Wallet',
           tabBarIcon: ({ color, size, focused }) => (
             <TabIcon name="wallet" color={color} size={size} focused={focused} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="marketplace"
+        options={{
+          title: 'Market',
+          tabBarIcon: ({ color, size, focused }) => (
+            <TabIcon name="storefront" color={color} size={size} focused={focused} />
           ),
         }}
       />

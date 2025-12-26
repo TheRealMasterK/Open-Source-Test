@@ -23,7 +23,7 @@ export interface UIState {
 }
 
 const initialState: UIState = {
-  theme: 'system',
+  theme: 'dark', // Default to dark theme
   isOnline: true,
   toasts: [],
   isRefreshing: false,

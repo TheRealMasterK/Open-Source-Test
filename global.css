@@ -1,3 +1,203 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/**
+ * QIC Trader Mobile App - Global Styles
+ * Matches QicTrader Design System from mockups
+ */
+
+/* Light mode (default) */
+:root {
+  /* Base colors */
+  --background: #FFFFFF;
+  --background-secondary: #F8FAFC;
+  --background-gray: #F1F5F9;
+  --background-gray-light: #F8FAFC;
+  --foreground: #0F172A;
+
+  /* Card */
+  --card: #FFFFFF;
+  --card-foreground: #0F172A;
+  --card-elevated: #FFFFFF;
+
+  /* Primary - Cyan Blue */
+  --primary: #00A3F6;
+  --primary-foreground: #FFFFFF;
+  --primary-dark: #0284C7;
+  --primary-light: #38BDF8;
+
+  /* Secondary - Orange (Sell) */
+  --secondary: #F97316;
+  --secondary-foreground: #FFFFFF;
+
+  /* Muted */
+  --muted: #F1F5F9;
+  --muted-foreground: #64748B;
+
+  /* Accent */
+  --accent: #F1F5F9;
+  --accent-foreground: #0F172A;
+
+  /* Destructive */
+  --destructive: #EF4444;
+
+  /* Borders & Inputs */
+  --border: #E2E8F0;
+  --border-subtle: rgba(0, 0, 0, 0.08);
+  --input: #F1F5F9;
+  --input-bg: #F8FAFC;
+  --input-border: #E2E8F0;
+  --ring: #00A3F6;
+
+  /* Surfaces */
+  --surface: #FFFFFF;
+  --surface-hover: #F1F5F9;
+  --surface-dark: #E2E8F0;
+
+  /* Text */
+  --text-secondary: #64748B;
+  --text-tertiary: #94A3B8;
+  --text-placeholder: #9CA3AF;
+
+  /* Semantic */
+  --success: #10B981;
+  --success-bg: rgba(16, 185, 129, 0.15);
+  --warning: #F59E0B;
+  --warning-bg: rgba(245, 158, 11, 0.15);
+  --error: #EF4444;
+  --error-bg: rgba(239, 68, 68, 0.15);
+  --info: #3B82F6;
+  --info-bg: rgba(59, 130, 246, 0.15);
+
+  /* Trade Colors */
+  --buy: #00A3F6;
+  --buy-bg: rgba(0, 163, 246, 0.15);
+  --sell: #F97316;
+  --sell-bg: rgba(249, 115, 22, 0.15);
+
+  /* Chart Colors */
+  --chart-1: #00A3F6;
+  --chart-2: #10B981;
+  --chart-3: #F59E0B;
+  --chart-4: #8B5CF6;
+  --chart-5: #EC4899;
+
+  /* Crypto Colors */
+  --crypto-btc: #F7931A;
+  --crypto-usdt: #26A17B;
+  --crypto-eth: #627EEA;
+  --crypto-zar: #007A4D;
+
+  /* Component Specific */
+  --avatar-bg: #DBEAFE;
+  --avatar-text: #2563EB;
+  --badge-bg: #F1F5F9;
+  --badge-text: #475569;
+  --table-header: #F8FAFC;
+  --table-row-hover: #F1F5F9;
+  --overlay: rgba(0, 0, 0, 0.5);
+  --nav-bg: #FFFFFF;
+  --tab-bar-bg: #FFFFFF;
+}
+
+/* Dark mode - QicTrader Navy Blue Theme */
+.dark {
+  /* Base colors */
+  --background: #0A0E17;
+  --background-secondary: #0F1419;
+  --background-gray: #111827;
+  --background-gray-light: #1F2937;
+  --foreground: #F8FAFC;
+
+  /* Card */
+  --card: #151B28;
+  --card-foreground: #F8FAFC;
+  --card-elevated: #1E293B;
+
+  /* Primary - Cyan Blue */
+  --primary: #00A3F6;
+  --primary-foreground: #FFFFFF;
+  --primary-dark: #0284C7;
+  --primary-light: #38BDF8;
+
+  /* Secondary - Orange (Sell) */
+  --secondary: #F97316;
+  --secondary-foreground: #FFFFFF;
+
+  /* Muted */
+  --muted: #1E293B;
+  --muted-foreground: #94A3B8;
+
+  /* Accent */
+  --accent: #1E293B;
+  --accent-foreground: #F8FAFC;
+
+  /* Destructive */
+  --destructive: #EF4444;
+
+  /* Borders & Inputs */
+  --border: rgba(255, 255, 255, 0.1);
+  --border-subtle: rgba(255, 255, 255, 0.05);
+  --input: #1E293B;
+  --input-bg: #151B28;
+  --input-border: rgba(255, 255, 255, 0.1);
+  --ring: #00A3F6;
+
+  /* Surfaces */
+  --surface: #151B28;
+  --surface-hover: #1E293B;
+  --surface-dark: #0F1419;
+
+  /* Text */
+  --text-secondary: #94A3B8;
+  --text-tertiary: #64748B;
+  --text-placeholder: #4B5563;
+
+  /* Semantic - Dark mode adjusted */
+  --success: #34D399;
+  --success-bg: rgba(52, 211, 153, 0.15);
+  --warning: #FBBF24;
+  --warning-bg: rgba(251, 191, 36, 0.15);
+  --error: #F87171;
+  --error-bg: rgba(248, 113, 113, 0.15);
+  --info: #60A5FA;
+  --info-bg: rgba(96, 165, 250, 0.15);
+
+  /* Trade Colors */
+  --buy: #00A3F6;
+  --buy-bg: rgba(0, 163, 246, 0.2);
+  --sell: #F97316;
+  --sell-bg: rgba(249, 115, 22, 0.2);
+
+  /* Chart Colors - Dark mode */
+  --chart-1: #00A3F6;
+  --chart-2: #34D399;
+  --chart-3: #FBBF24;
+  --chart-4: #A78BFA;
+  --chart-5: #F472B6;
+
+  /* Crypto Colors */
+  --crypto-btc: #F7931A;
+  --crypto-usdt: #26A17B;
+  --crypto-eth: #627EEA;
+  --crypto-zar: #007A4D;
+
+  /* Component Specific */
+  --avatar-bg: rgba(0, 163, 246, 0.2);
+  --avatar-text: #00A3F6;
+  --badge-bg: #1E293B;
+  --badge-text: #94A3B8;
+  --table-header: #151B28;
+  --table-row-hover: #1E293B;
+  --overlay: rgba(0, 0, 0, 0.8);
+  --nav-bg: #0A0E17;
+  --tab-bar-bg: #0F1419;
+}
+
+/* Base layer styles */
+@layer base {
+  * {
+    border-color: var(--border);
+  }
+}

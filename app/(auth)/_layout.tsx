@@ -5,21 +5,19 @@
 
 import React from 'react';
 import { Stack } from 'expo-router';
-import { useColorScheme } from 'react-native';
-import { Colors } from '@/config/theme';
+import { useTheme } from '@/hooks/common/useTheme';
 
 export default function AuthLayout() {
-  const colorScheme = useColorScheme();
-  const isDark = colorScheme === 'dark';
+  const { colors, isDark } = useTheme();
 
-  console.log('[AuthLayout] Rendering');
+  console.log('[AuthLayout] Rendering, isDark:', isDark);
 
   return (
     <Stack
       screenOptions={{
         headerShown: false,
         contentStyle: {
-          backgroundColor: isDark ? Colors.dark.background : Colors.light.background,
+          backgroundColor: colors.background,
         },
         animation: 'slide_from_right',
       }}>

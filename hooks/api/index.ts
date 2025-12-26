@@ -81,3 +81,25 @@ export {
   useDeletePaymentMethod,
   paymentMethodKeys,
 } from './usePaymentMethods';
+
+// Prices
+export {
+  usePrices,
+  usePriceTickers,
+  useSinglePrice,
+  useConvertToUSD,
+  useConvertFromUSD,
+  useRefreshPrices,
+  pricesKeys,
+} from './usePrices';
+
+// Dashboard
+export {
+  useDashboard,
+  useTradingSummary,
+  useDashboardStats,
+  useRecentActivity,
+  useUserPerformance,
+  useRefreshDashboard,
+  dashboardKeys,
+} from './useDashboard';

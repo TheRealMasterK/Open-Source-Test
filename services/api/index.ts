@@ -41,3 +41,11 @@ export { default as usersApi } from './users-api';
 // Payment Methods API
 export * from './payment-methods-api';
 export { default as paymentMethodsApi } from './payment-methods-api';
+
+// Prices API
+export * from './prices-api';
+export { default as pricesApi } from './prices-api';
+
+// Dashboard API
+export * from './dashboard-api';
+export { default as dashboardApi } from './dashboard-api';

@@ -67,8 +67,8 @@ export function Avatar({
       Colors.success.DEFAULT,
       Colors.warning.DEFAULT,
       Colors.info.DEFAULT,
-      '#8b5cf6', // purple
-      '#ec4899', // pink
+      Colors.chart.light[4], // purple
+      Colors.chart.light[5], // pink
     ];
 
     const index = name.charCodeAt(0) % colors.length;

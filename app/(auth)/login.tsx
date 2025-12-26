@@ -1,213 +1,258 @@
 /**
  * Login Screen
- * User authentication with email/password
+ * QicTrader design with inline validation
  */
 
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import {
   View,
   Text,
   TextInput,
   TouchableOpacity,
-  useColorScheme,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
-  Alert,
   ActivityIndicator,
+  StyleSheet,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '@/config/firebase';
-import { Colors } from '@/config/theme';
+import { Colors, Spacing, FontSize, BorderRadius } from '@/config/theme';
+import { useTheme } from '@/hooks/common/useTheme';
 import { useAppDispatch } from '@/store';
 import { setUser, setError, setFirebaseUser } from '@/store/slices/authSlice';
+import { useFormValidation, ValidationRules } from '@/hooks/common/useFormValidation';
+import { FormError } from '@/components/ui/FormError';
 
 export default function LoginScreen() {
-  const colorScheme = useColorScheme();
-  const isDark = colorScheme === 'dark';
+  const { colors, isDark } = useTheme();
   const dispatch = useAppDispatch();
-
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-
-  const bgColor = isDark ? 'bg-slate-900' : 'bg-white';
-  const textColor = isDark ? 'text-white' : 'text-slate-900';
-  const textSecondary = isDark ? 'text-slate-400' : 'text-slate-600';
-  const inputBg = isDark ? 'bg-slate-800' : 'bg-slate-100';
-  const inputText = isDark ? 'text-white' : 'text-slate-900';
-  const placeholderColor = isDark ? '#64748b' : '#94a3b8';
+  const [loginError, setLoginError] = useState<string | null>(null);
 
   console.log('[Login] Rendering');
 
-  const handleLogin = async () => {
-    console.log('[Login] handleLogin: Starting login for', email);
+  // Form validation setup
+  const { values, validation, handleChange, handleBlur, validateAll } = useFormValidation(
+    { email: '', password: '' },
+    {
+      email: [ValidationRules.required('Email is required'), ValidationRules.email()],
+      password: [ValidationRules.required('Password is required'), ValidationRules.minLength(6, 'Password must be at least 6 characters')],
+    }
+  );
 
-    if (!email || !password) {
-      Alert.alert('Error', 'Please enter email and password');
+  const handleLogin = useCallback(async () => {
+    console.log('[Login] Starting login for', values.email);
+    setLoginError(null);
+
+    if (!validateAll()) {
+      console.log('[Login] Validation failed');
       return;
     }
 
     setIsLoading(true);
-
     try {
-      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      const userCredential = await signInWithEmailAndPassword(auth, values.email, values.password);
       const firebaseUser = userCredential.user;
+      console.log('[Login] Success, UID:', firebaseUser.uid);
 
-      console.log('[Login] handleLogin: Success, UID:', firebaseUser.uid);
-
-      dispatch(
-        setUser({
-          id: firebaseUser.uid,
-          email: firebaseUser.email || '',
-          displayName: firebaseUser.displayName,
-          photoURL: firebaseUser.photoURL,
-          emailVerified: firebaseUser.emailVerified,
-        })
-      );
-      dispatch(setFirebaseUser(firebaseUser));
+      dispatch(setUser({
+        id: firebaseUser.uid,
+        email: firebaseUser.email || '',
+        displayName: firebaseUser.displayName,
+        photoURL: firebaseUser.photoURL,
+        emailVerified: firebaseUser.emailVerified,
+      }));
+      dispatch(setFirebaseUser({
+        uid: firebaseUser.uid,
+        email: firebaseUser.email,
+        displayName: firebaseUser.displayName,
+        photoURL: firebaseUser.photoURL,
+        emailVerified: firebaseUser.emailVerified,
+      } as any));
 
       router.replace('/(tabs)');
     } catch (error: unknown) {
-      console.error('[Login] handleLogin: Error', error);
-
+      console.error('[Login] Error', error);
       let message = 'Login failed. Please try again.';
       if (error instanceof Error) {
-        if (error.message.includes('user-not-found')) {
-          message = 'No account found with this email.';
-        } else if (error.message.includes('wrong-password')) {
-          message = 'Incorrect password.';
-        } else if (error.message.includes('invalid-email')) {
-          message = 'Invalid email address.';
-        } else if (error.message.includes('too-many-requests')) {
-          message = 'Too many attempts. Please try again later.';
-        }
+        if (error.message.includes('user-not-found')) message = 'No account found with this email.';
+        else if (error.message.includes('wrong-password')) message = 'Incorrect password.';
+        else if (error.message.includes('invalid-email')) message = 'Invalid email address.';
+        else if (error.message.includes('too-many-requests')) message = 'Too many attempts. Please try again later.';
+        else if (error.message.includes('invalid-credential')) message = 'Invalid email or password.';
       }
-
       dispatch(setError(message));
-      Alert.alert('Login Failed', message);
+      setLoginError(message);
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [values, validateAll, dispatch]);
+
+  const getInputStyle = (field: 'email' | 'password') => [
+    styles.inputContainer,
+    { backgroundColor: colors.input, borderColor: validation[field]?.error && validation[field]?.touched ? Colors.danger.DEFAULT : colors.inputBorder },
+  ];
 
   return (
-    <SafeAreaView className={`flex-1 ${bgColor}`}>
-      <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        className="flex-1">
-        <ScrollView
-          className="flex-1 px-6"
-          showsVerticalScrollIndicator={false}
-          keyboardShouldPersistTaps="handled">
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
+      <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={styles.flex}>
+        <ScrollView style={styles.flex} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled" contentContainerStyle={styles.scrollContent}>
           {/* Header */}
-          <View className="mb-8 mt-12">
-            <Text className={`${textColor} mb-2 text-3xl font-bold`}>Welcome Back</Text>
-            <Text className={`${textSecondary} text-base`}>Sign in to continue trading</Text>
+          <View style={styles.header}>
+            <View style={styles.logoRow}>
+              <View style={[styles.logoIcon, { backgroundColor: Colors.primary.DEFAULT }]}>
+                <Text style={styles.logoText}>Q</Text>
+              </View>
+              <Text style={[styles.logoTitle, { color: Colors.primary.DEFAULT }]}>QicTrader</Text>
+            </View>
           </View>
 
-          {/* Form */}
-          <View className="mb-6">
-            {/* Email Input */}
-            <View className="mb-4">
-              <Text className={`${textColor} mb-2 font-medium`}>Email</Text>
-              <View className={`${inputBg} flex-row items-center rounded-xl px-4`}>
-                <Ionicons name="mail-outline" size={20} color={placeholderColor} />
-                <TextInput
-                  className={`flex-1 ${inputText} px-3 py-4 font-medium`}
-                  placeholder="Enter your email"
-                  placeholderTextColor={placeholderColor}
-                  value={email}
-                  onChangeText={setEmail}
-                  keyboardType="email-address"
-                  autoCapitalize="none"
-                  autoCorrect={false}
-                />
-              </View>
+          {/* Main Content */}
+          <View style={styles.content}>
+            <View style={styles.welcomeSection}>
+              <Text style={[styles.title, { color: colors.text }]}>Welcome to QicTrader</Text>
+              <Text style={[styles.subtitle, { color: colors.textSecondary }]}>Sign in to your account</Text>
             </View>
 
-            {/* Password Input */}
-            <View className="mb-4">
-              <Text className={`${textColor} mb-2 font-medium`}>Password</Text>
-              <View className={`${inputBg} flex-row items-center rounded-xl px-4`}>
-                <Ionicons name="lock-closed-outline" size={20} color={placeholderColor} />
-                <TextInput
-                  className={`flex-1 ${inputText} px-3 py-4 font-medium`}
-                  placeholder="Enter your password"
-                  placeholderTextColor={placeholderColor}
-                  value={password}
-                  onChangeText={setPassword}
-                  secureTextEntry={!showPassword}
-                  autoCapitalize="none"
-                />
-                <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
-                  <Ionicons
-                    name={showPassword ? 'eye-off-outline' : 'eye-outline'}
-                    size={20}
-                    color={placeholderColor}
-                  />
-                </TouchableOpacity>
+            {/* Login Error Banner */}
+            {loginError && (
+              <View style={[styles.errorBanner, { backgroundColor: Colors.danger.bg }]}>
+                <Ionicons name="alert-circle" size={20} color={Colors.danger.DEFAULT} />
+                <Text style={styles.errorBannerText}>{loginError}</Text>
               </View>
-            </View>
-
-            {/* Forgot Password */}
-            <TouchableOpacity
-              onPress={() => router.push('/(auth)/forgot-password')}
-              className="self-end">
-              <Text style={{ color: Colors.primary.DEFAULT }} className="font-medium">
-                Forgot Password?
-              </Text>
-            </TouchableOpacity>
-          </View>
-
-          {/* Login Button */}
-          <TouchableOpacity
-            onPress={handleLogin}
-            disabled={isLoading}
-            className="mb-6 items-center rounded-xl py-4"
-            style={{ backgroundColor: Colors.primary.DEFAULT }}>
-            {isLoading ? (
-              <ActivityIndicator color="white" />
-            ) : (
-              <Text className="text-lg font-bold text-white">Sign In</Text>
             )}
-          </TouchableOpacity>
 
-          {/* Divider */}
-          <View className="mb-6 flex-row items-center">
-            <View className={`h-px flex-1 ${isDark ? 'bg-slate-700' : 'bg-slate-200'}`} />
-            <Text className={`${textSecondary} mx-4`}>or</Text>
-            <View className={`h-px flex-1 ${isDark ? 'bg-slate-700' : 'bg-slate-200'}`} />
+            {/* Form */}
+            <View style={styles.form}>
+              {/* Email */}
+              <View style={styles.inputGroup}>
+                <Text style={[styles.label, { color: colors.text }]}>Email Address</Text>
+                <View style={getInputStyle('email')}>
+                  <Ionicons name="mail-outline" size={20} color={colors.textPlaceholder} />
+                  <TextInput
+                    style={[styles.input, { color: colors.text }]}
+                    placeholder="Enter your email"
+                    placeholderTextColor={colors.textPlaceholder}
+                    value={values.email}
+                    onChangeText={handleChange('email')}
+                    onBlur={handleBlur('email')}
+                    keyboardType="email-address"
+                    autoCapitalize="none"
+                    autoCorrect={false}
+                    accessibilityLabel="Email address input"
+                  />
+                </View>
+                <FormError error={validation.email?.error} visible={validation.email?.touched} />
+              </View>
+
+              {/* Password */}
+              <View style={styles.inputGroup}>
+                <Text style={[styles.label, { color: colors.text }]}>Password</Text>
+                <View style={getInputStyle('password')}>
+                  <Ionicons name="lock-closed-outline" size={20} color={colors.textPlaceholder} />
+                  <TextInput
+                    style={[styles.input, { color: colors.text }]}
+                    placeholder="Enter your password"
+                    placeholderTextColor={colors.textPlaceholder}
+                    value={values.password}
+                    onChangeText={handleChange('password')}
+                    onBlur={handleBlur('password')}
+                    secureTextEntry={!showPassword}
+                    autoCapitalize="none"
+                    accessibilityLabel="Password input"
+                  />
+                  <TouchableOpacity onPress={() => setShowPassword(!showPassword)} accessibilityLabel={showPassword ? 'Hide password' : 'Show password'}>
+                    <Ionicons name={showPassword ? 'eye-off-outline' : 'eye-outline'} size={20} color={colors.textPlaceholder} />
+                  </TouchableOpacity>
+                </View>
+                <FormError error={validation.password?.error} visible={validation.password?.touched} />
+              </View>
+
+              {/* Forgot Password */}
+              <TouchableOpacity onPress={() => router.push('/(auth)/forgot-password')} style={styles.forgotPassword} accessibilityLabel="Forgot password" accessibilityRole="link">
+                <Text style={[styles.forgotPasswordText, { color: Colors.primary.DEFAULT }]}>Forgot Password?</Text>
+              </TouchableOpacity>
+
+              {/* Login Button */}
+              <TouchableOpacity onPress={handleLogin} disabled={isLoading} style={[styles.loginButton, { backgroundColor: Colors.primary.DEFAULT }]} accessibilityLabel="Sign in" accessibilityRole="button">
+                {isLoading ? <ActivityIndicator color="white" /> : <Text style={styles.loginButtonText}>Sign In</Text>}
+              </TouchableOpacity>
+            </View>
+
+            {/* Divider */}
+            <View style={styles.divider}>
+              <View style={[styles.dividerLine, { backgroundColor: colors.border }]} />
+              <Text style={[styles.dividerText, { color: colors.textSecondary }]}>or</Text>
+              <View style={[styles.dividerLine, { backgroundColor: colors.border }]} />
+            </View>
+
+            {/* Social Login */}
+            <TouchableOpacity style={[styles.socialButton, { backgroundColor: colors.card, borderColor: colors.border }]} accessibilityLabel="Continue with Google" accessibilityRole="button">
+              <Ionicons name="logo-google" size={20} color="#DB4437" />
+              <Text style={[styles.socialButtonText, { color: colors.text }]}>Continue with Google</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={[styles.socialButton, { backgroundColor: colors.card, borderColor: colors.border }]} accessibilityLabel="Continue with Apple" accessibilityRole="button">
+              <Ionicons name="logo-apple" size={20} color={isDark ? 'white' : 'black'} />
+              <Text style={[styles.socialButtonText, { color: colors.text }]}>Continue with Apple</Text>
+            </TouchableOpacity>
+
+            {/* Sign Up Link */}
+            <View style={styles.signUpRow}>
+              <Text style={{ color: colors.textSecondary }}>Don't have an account? </Text>
+              <TouchableOpacity onPress={() => router.push('/(auth)/signup')} accessibilityLabel="Sign up" accessibilityRole="link">
+                <Text style={[styles.signUpLink, { color: Colors.primary.DEFAULT }]}>Sign Up</Text>
+              </TouchableOpacity>
+            </View>
           </View>
 
-          {/* Social Login */}
-          <TouchableOpacity
-            className={`${inputBg} mb-4 flex-row items-center justify-center rounded-xl py-4`}>
-            <Ionicons name="logo-google" size={20} color="#DB4437" />
-            <Text className={`${textColor} ml-3 font-semibold`}>Continue with Google</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            className={`${inputBg} mb-6 flex-row items-center justify-center rounded-xl py-4`}>
-            <Ionicons name="logo-apple" size={20} color={isDark ? 'white' : 'black'} />
-            <Text className={`${textColor} ml-3 font-semibold`}>Continue with Apple</Text>
-          </TouchableOpacity>
-
-          {/* Sign Up Link */}
-          <View className="mb-8 flex-row justify-center">
-            <Text className={textSecondary}>Don&apos;t have an account? </Text>
-            <TouchableOpacity onPress={() => router.push('/(auth)/signup')}>
-              <Text style={{ color: Colors.primary.DEFAULT }} className="font-bold">
-                Sign Up
-              </Text>
-            </TouchableOpacity>
+          {/* Footer */}
+          <View style={styles.footer}>
+            <Text style={[styles.footerTitle, { color: colors.text }]}>Trade Smarter, Faster, and Safer.</Text>
+            <Text style={[styles.footerSubtitle, { color: colors.textSecondary }]}>Join QicTrader to buy, sell, and resell offers using secure escrow.</Text>
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
     </SafeAreaView>
   );
 }
+
+const styles = StyleSheet.create({
+  container: { flex: 1 },
+  flex: { flex: 1 },
+  scrollContent: { flexGrow: 1 },
+  header: { alignItems: 'center', paddingHorizontal: Spacing.lg, paddingTop: Spacing.xl, paddingBottom: Spacing.md },
+  logoRow: { flexDirection: 'row', alignItems: 'center' },
+  logoIcon: { width: 40, height: 40, borderRadius: BorderRadius.lg, alignItems: 'center', justifyContent: 'center', marginRight: Spacing.sm },
+  logoText: { fontSize: FontSize.xl, fontWeight: '700', color: Colors.white },
+  logoTitle: { fontSize: FontSize['2xl'], fontWeight: '700' },
+  content: { flex: 1, paddingHorizontal: Spacing.lg },
+  welcomeSection: { marginBottom: Spacing.xl },
+  title: { fontSize: FontSize['2xl'], fontWeight: '700', marginBottom: Spacing.xs },
+  subtitle: { fontSize: FontSize.base },
+  errorBanner: { flexDirection: 'row', alignItems: 'center', padding: Spacing.md, borderRadius: BorderRadius.lg, marginBottom: Spacing.lg, gap: Spacing.sm },
+  errorBannerText: { color: Colors.danger.DEFAULT, fontSize: FontSize.sm, flex: 1 },
+  form: { marginBottom: Spacing.lg },
+  inputGroup: { marginBottom: Spacing.md },
+  label: { fontSize: FontSize.sm, fontWeight: '500', marginBottom: Spacing.sm },
+  inputContainer: { flexDirection: 'row', alignItems: 'center', borderRadius: BorderRadius.xl, paddingHorizontal: Spacing.md, borderWidth: 1, height: 52 },
+  input: { flex: 1, marginLeft: Spacing.sm, fontSize: FontSize.base },
+  forgotPassword: { alignSelf: 'flex-end', marginBottom: Spacing.lg },
+  forgotPasswordText: { fontWeight: '500' },
+  loginButton: { alignItems: 'center', borderRadius: BorderRadius.xl, paddingVertical: Spacing.md },
+  loginButtonText: { color: Colors.white, fontSize: FontSize.base, fontWeight: '700' },
+  divider: { flexDirection: 'row', alignItems: 'center', marginBottom: Spacing.lg },
+  dividerLine: { flex: 1, height: 1 },
+  dividerText: { marginHorizontal: Spacing.md },
+  socialButton: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', borderRadius: BorderRadius.xl, paddingVertical: Spacing.md, borderWidth: 1, marginBottom: Spacing.md },
+  socialButtonText: { marginLeft: Spacing.sm, fontWeight: '600' },
+  signUpRow: { flexDirection: 'row', justifyContent: 'center', marginBottom: Spacing.xl },
+  signUpLink: { fontWeight: '700' },
+  footer: { alignItems: 'center', paddingHorizontal: Spacing.lg, paddingBottom: Spacing.xl },
+  footerTitle: { fontSize: FontSize.lg, fontWeight: '600', textAlign: 'center' },
+  footerSubtitle: { fontSize: FontSize.sm, textAlign: 'center', marginTop: Spacing.xs },
+});

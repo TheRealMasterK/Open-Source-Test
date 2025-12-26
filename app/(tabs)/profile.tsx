@@ -1,31 +1,37 @@
 /**
  * Profile Screen
- * User profile and settings
+ * User profile and settings with theme switcher - Connected to backend
  */
 
 import React from 'react';
-import { View, Text, ScrollView, TouchableOpacity, useColorScheme, Alert } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, Alert, StyleSheet, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
-import { Colors } from '@/config/theme';
+import { Colors, Spacing, FontSize, BorderRadius } from '@/config/theme';
+import { useTheme } from '@/hooks/common/useTheme';
 import { useAppSelector, useAppDispatch } from '@/store';
 import { selectUser, logout } from '@/store/slices/authSlice';
+import { ThemeMode } from '@/store/slices/uiSlice';
 import { auth } from '@/config/firebase';
 import { signOut } from 'firebase/auth';
+import { useUserPerformance, useDashboard } from '@/hooks/api/useDashboard';
 
 export default function ProfileScreen() {
-  const colorScheme = useColorScheme();
-  const isDark = colorScheme === 'dark';
+  const { colors, isDark, themeMode, setTheme } = useTheme();
   const dispatch = useAppDispatch();
   const user = useAppSelector(selectUser);
 
-  const bgColor = isDark ? 'bg-slate-900' : 'bg-white';
-  const textColor = isDark ? 'text-white' : 'text-slate-900';
-  const textSecondary = isDark ? 'text-slate-400' : 'text-slate-600';
-  const cardBg = isDark ? 'bg-slate-800' : 'bg-slate-50';
+  // API Hook - Real stats from backend
+  const { dashboard, isLoading: statsLoading } = useDashboard();
+  const { rating, successRate, totalRatings, verified, kycLevel } = useUserPerformance();
 
-  console.log('[Profile] Rendering, user:', user?.displayName);
+  console.log('[Profile] Rendering, user:', user?.displayName, 'theme:', themeMode, 'stats:', { rating, successRate });
+
+  const handleThemeChange = (mode: ThemeMode) => {
+    console.log('[Profile] Changing theme to:', mode);
+    setTheme(mode);
+  };
 
   const handleLogout = async () => {
     console.log('[Profile] handleLogout: Starting logout');
@@ -56,58 +62,91 @@ export default function ProfileScreen() {
     onPress,
     color,
     showChevron = true,
+    rightElement,
   }: {
     icon: keyof typeof Ionicons.glyphMap;
     label: string;
     onPress?: () => void;
     color?: string;
     showChevron?: boolean;
+    rightElement?: React.ReactNode;
   }) => (
     <TouchableOpacity
       onPress={onPress}
-      className={`${cardBg} mb-2 flex-row items-center rounded-xl p-4`}
+      style={[styles.menuItem, { backgroundColor: colors.card }]}
       activeOpacity={0.7}>
       <View
-        className="mr-3 h-10 w-10 items-center justify-center rounded-full"
-        style={{
-          backgroundColor: `${color || Colors.primary.DEFAULT}20`,
-        }}>
+        style={[styles.menuIconContainer, { backgroundColor: `${color || Colors.primary.DEFAULT}20` }]}>
         <Ionicons name={icon} size={20} color={color || Colors.primary.DEFAULT} />
       </View>
-      <Text className={`${textColor} flex-1 font-medium`}>{label}</Text>
-      {showChevron && (
-        <Ionicons
-          name="chevron-forward"
-          size={20}
-          color={isDark ? Colors.dark.textTertiary : Colors.light.textTertiary}
-        />
+      <Text style={[styles.menuLabel, { color: colors.text }]}>{label}</Text>
+      {rightElement}
+      {showChevron && !rightElement && (
+        <Ionicons name="chevron-forward" size={20} color={colors.textTertiary} />
       )}
     </TouchableOpacity>
   );
 
+  const ThemeOption = ({
+    mode,
+    icon,
+    label,
+  }: {
+    mode: ThemeMode;
+    icon: keyof typeof Ionicons.glyphMap;
+    label: string;
+  }) => {
+    const isSelected = themeMode === mode;
+    return (
+      <TouchableOpacity
+        onPress={() => handleThemeChange(mode)}
+        style={[
+          styles.themeOption,
+          {
+            backgroundColor: isSelected ? Colors.primary.DEFAULT : colors.surfaceSecondary,
+            borderColor: isSelected ? Colors.primary.DEFAULT : colors.border,
+          },
+        ]}
+        activeOpacity={0.7}>
+        <Ionicons
+          name={icon}
+          size={18}
+          color={isSelected ? Colors.white : colors.textSecondary}
+        />
+        <Text
+          style={[
+            styles.themeOptionText,
+            { color: isSelected ? Colors.white : colors.textSecondary },
+          ]}>
+          {label}
+        </Text>
+      </TouchableOpacity>
+    );
+  };
+
   return (
-    <SafeAreaView className={`flex-1 ${bgColor}`}>
-      <ScrollView className="flex-1 px-4" showsVerticalScrollIndicator={false}>
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
+      <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
         {/* Header */}
-        <View className="py-4">
-          <Text className={`${textColor} text-2xl font-bold`}>Profile</Text>
+        <View style={styles.header}>
+          <Text style={[styles.title, { color: colors.text }]}>Profile</Text>
         </View>
 
         {/* Profile Card */}
-        <View className={`${cardBg} mb-6 rounded-2xl p-5`}>
-          <View className="flex-row items-center">
-            <View
-              className="mr-4 h-16 w-16 items-center justify-center rounded-full"
-              style={{ backgroundColor: Colors.primary.DEFAULT }}>
-              <Text className="text-2xl font-bold text-white">
+        <View style={[styles.profileCard, { backgroundColor: colors.card }]}>
+          <View style={styles.profileRow}>
+            <View style={[styles.avatar, { backgroundColor: Colors.primary.DEFAULT }]}>
+              <Text style={styles.avatarText}>
                 {user?.displayName?.charAt(0)?.toUpperCase() || 'U'}
               </Text>
             </View>
-            <View className="flex-1">
-              <Text className={`${textColor} text-xl font-bold`}>
+            <View style={styles.profileInfo}>
+              <Text style={[styles.profileName, { color: colors.text }]}>
                 {user?.displayName || 'User'}
               </Text>
-              <Text className={`${textSecondary} text-sm`}>{user?.email || 'No email'}</Text>
+              <Text style={[styles.profileEmail, { color: colors.textSecondary }]}>
+                {user?.email || 'No email'}
+              </Text>
             </View>
             <TouchableOpacity>
               <Ionicons name="create-outline" size={24} color={Colors.primary.DEFAULT} />
@@ -115,24 +154,43 @@ export default function ProfileScreen() {
           </View>
 
           {/* Stats */}
-          <View className="mt-4 flex-row border-t border-slate-700/30 pt-4">
-            <View className="flex-1 items-center">
-              <Text className={`${textColor} text-xl font-bold`}>0</Text>
-              <Text className={`${textSecondary} text-xs`}>Trades</Text>
-            </View>
-            <View className="flex-1 items-center">
-              <Text className={`${textColor} text-xl font-bold`}>0%</Text>
-              <Text className={`${textSecondary} text-xs`}>Success</Text>
-            </View>
-            <View className="flex-1 items-center">
-              <Text className={`${textColor} text-xl font-bold`}>0.0</Text>
-              <Text className={`${textSecondary} text-xs`}>Rating</Text>
-            </View>
+          <View style={[styles.statsRow, { borderTopColor: colors.border }]}>
+            {statsLoading ? (
+              <View style={styles.statsLoading}>
+                <ActivityIndicator size="small" color={colors.textSecondary} />
+              </View>
+            ) : (
+              <>
+                <View style={styles.statItem}>
+                  <Text style={[styles.statValue, { color: colors.text }]}>
+                    {dashboard?.totalTrades || 0}
+                  </Text>
+                  <Text style={[styles.statLabel, { color: colors.textSecondary }]}>Trades</Text>
+                </View>
+                <View style={styles.statItem}>
+                  <Text style={[styles.statValue, { color: colors.text }]}>
+                    {successRate || 0}%
+                  </Text>
+                  <Text style={[styles.statLabel, { color: colors.textSecondary }]}>Success</Text>
+                </View>
+                <View style={styles.statItem}>
+                  <View style={styles.ratingContainer}>
+                    <Text style={[styles.statValue, { color: colors.text }]}>
+                      {rating?.toFixed(1) || '0.0'}
+                    </Text>
+                    {totalRatings > 0 && (
+                      <Ionicons name="star" size={14} color="#F59E0B" style={styles.starIcon} />
+                    )}
+                  </View>
+                  <Text style={[styles.statLabel, { color: colors.textSecondary }]}>Rating</Text>
+                </View>
+              </>
+            )}
           </View>
         </View>
 
         {/* Menu Items */}
-        <Text className={`${textSecondary} mb-2 ml-1 text-sm`}>ACCOUNT</Text>
+        <Text style={[styles.sectionTitle, { color: colors.textSecondary }]}>ACCOUNT</Text>
         <MenuItem
           icon="person-outline"
           label="Edit Profile"
@@ -141,8 +199,15 @@ export default function ProfileScreen() {
         <MenuItem
           icon="shield-checkmark-outline"
           label="KYC Verification"
-          onPress={() => console.log('KYC')}
-          color={Colors.success.DEFAULT}
+          onPress={() => router.push('/kyc')}
+          color={verified ? Colors.success.DEFAULT : Colors.warning.DEFAULT}
+          rightElement={
+            <View style={[styles.kycBadge, { backgroundColor: verified ? `${Colors.success.DEFAULT}20` : `${Colors.warning.DEFAULT}20` }]}>
+              <Text style={[styles.kycBadgeText, { color: verified ? Colors.success.DEFAULT : Colors.warning.DEFAULT }]}>
+                {kycLevel === 'none' ? 'Not Verified' : kycLevel === 'basic' ? 'Basic' : 'Verified'}
+              </Text>
+            </View>
+          }
         />
         <MenuItem
           icon="card-outline"
@@ -150,7 +215,9 @@ export default function ProfileScreen() {
           onPress={() => console.log('Payment Methods')}
         />
 
-        <Text className={`${textSecondary} mb-2 ml-1 mt-4 text-sm`}>EARNINGS</Text>
+        <Text style={[styles.sectionTitle, styles.sectionTitleSpaced, { color: colors.textSecondary }]}>
+          EARNINGS
+        </Text>
         <MenuItem
           icon="people-outline"
           label="Affiliate Program"
@@ -163,11 +230,37 @@ export default function ProfileScreen() {
           onPress={() => console.log('My Offers')}
         />
 
-        <Text className={`${textSecondary} mb-2 ml-1 mt-4 text-sm`}>SETTINGS</Text>
+        <Text style={[styles.sectionTitle, styles.sectionTitleSpaced, { color: colors.textSecondary }]}>
+          APPEARANCE
+        </Text>
+        {/* Theme Switcher */}
+        <View style={[styles.themeCard, { backgroundColor: colors.card }]}>
+          <View style={styles.themeHeader}>
+            <View
+              style={[styles.menuIconContainer, { backgroundColor: `${Colors.info.DEFAULT}20` }]}>
+              <Ionicons name="color-palette-outline" size={20} color={Colors.info.DEFAULT} />
+            </View>
+            <Text style={[styles.menuLabel, { color: colors.text }]}>Theme</Text>
+          </View>
+          <View style={styles.themeOptions}>
+            <ThemeOption mode="light" icon="sunny-outline" label="Light" />
+            <ThemeOption mode="dark" icon="moon-outline" label="Dark" />
+            <ThemeOption mode="system" icon="phone-portrait-outline" label="System" />
+          </View>
+        </View>
+
+        <Text style={[styles.sectionTitle, styles.sectionTitleSpaced, { color: colors.textSecondary }]}>
+          SETTINGS
+        </Text>
         <MenuItem
-          icon="settings-outline"
-          label="Settings"
-          onPress={() => console.log('Settings')}
+          icon="notifications-outline"
+          label="Notifications"
+          onPress={() => console.log('Notifications')}
+        />
+        <MenuItem
+          icon="lock-closed-outline"
+          label="Security"
+          onPress={() => console.log('Security')}
         />
         <MenuItem
           icon="help-circle-outline"
@@ -183,8 +276,160 @@ export default function ProfileScreen() {
         />
 
         {/* Spacer */}
-        <View className="h-8" />
+        <View style={styles.spacer} />
       </ScrollView>
     </SafeAreaView>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+  scrollView: {
+    flex: 1,
+    paddingHorizontal: Spacing.md,
+  },
+  header: {
+    paddingVertical: Spacing.md,
+  },
+  title: {
+    fontSize: FontSize['2xl'],
+    fontWeight: '700',
+  },
+  profileCard: {
+    borderRadius: BorderRadius['2xl'],
+    padding: Spacing.lg,
+    marginBottom: Spacing.lg,
+  },
+  profileRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  avatar: {
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: Spacing.md,
+  },
+  avatarText: {
+    fontSize: FontSize['2xl'],
+    fontWeight: '700',
+    color: Colors.white,
+  },
+  profileInfo: {
+    flex: 1,
+  },
+  profileName: {
+    fontSize: FontSize.xl,
+    fontWeight: '700',
+  },
+  profileEmail: {
+    fontSize: FontSize.sm,
+    marginTop: 2,
+  },
+  statsRow: {
+    flexDirection: 'row',
+    marginTop: Spacing.md,
+    paddingTop: Spacing.md,
+    borderTopWidth: 1,
+  },
+  statItem: {
+    flex: 1,
+    alignItems: 'center',
+  },
+  statValue: {
+    fontSize: FontSize.xl,
+    fontWeight: '700',
+  },
+  statLabel: {
+    fontSize: FontSize.xs,
+    marginTop: 2,
+  },
+  statsLoading: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingVertical: Spacing.md,
+  },
+  ratingContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  starIcon: {
+    marginLeft: 4,
+  },
+  kycBadge: {
+    paddingHorizontal: Spacing.sm,
+    paddingVertical: 4,
+    borderRadius: BorderRadius.sm,
+    marginRight: Spacing.sm,
+  },
+  kycBadgeText: {
+    fontSize: FontSize.xs,
+    fontWeight: '600',
+  },
+  sectionTitle: {
+    fontSize: FontSize.xs,
+    fontWeight: '600',
+    marginBottom: Spacing.sm,
+    marginLeft: 4,
+  },
+  sectionTitleSpaced: {
+    marginTop: Spacing.md,
+  },
+  menuItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: Spacing.md,
+    borderRadius: BorderRadius.xl,
+    marginBottom: Spacing.sm,
+  },
+  menuIconContainer: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: Spacing.sm,
+  },
+  menuLabel: {
+    flex: 1,
+    fontSize: FontSize.base,
+    fontWeight: '500',
+  },
+  themeCard: {
+    borderRadius: BorderRadius.xl,
+    padding: Spacing.md,
+    marginBottom: Spacing.sm,
+  },
+  themeHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: Spacing.md,
+  },
+  themeOptions: {
+    flexDirection: 'row',
+    gap: Spacing.sm,
+  },
+  themeOption: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: Spacing.sm + 2,
+    paddingHorizontal: Spacing.sm,
+    borderRadius: BorderRadius.lg,
+    borderWidth: 1,
+    gap: 6,
+  },
+  themeOptionText: {
+    fontSize: FontSize.sm,
+    fontWeight: '500',
+  },
+  spacer: {
+    height: Spacing.xl,
+  },
+});

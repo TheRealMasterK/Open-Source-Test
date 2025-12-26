@@ -1,7 +1,9 @@
 /**
  * UI Components - Barrel Export
+ * Enterprise-grade component library
  */
 
+// Core Components
 export { Button } from './Button';
 export { Input } from './Input';
 export { Card } from './Card';
@@ -13,3 +15,10 @@ export { EmptyState } from './EmptyState';
 export { Divider } from './Divider';
 export { CryptoIcon, CryptoAmount } from './CryptoIcon';
 export { IconButton } from './IconButton';
+
+// Premium Components
+export { GlassCard } from './GlassCard';
+export { GradientButton } from './GradientButton';
+export { StatCard } from './StatCard';
+export { CryptoCard } from './CryptoCard';
+export { PremiumHeader } from './PremiumHeader';
