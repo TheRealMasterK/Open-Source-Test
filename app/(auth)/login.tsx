@@ -15,6 +15,7 @@ import {
   ActivityIndicator,
   StyleSheet,
 } from 'react-native';
+import { Logo } from '@/components/ui/Logo';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
@@ -23,7 +24,8 @@ import { auth } from '@/config/firebase';
 import { Colors, Spacing, FontSize, BorderRadius } from '@/config/theme';
 import { useTheme } from '@/hooks/common/useTheme';
 import { useAppDispatch } from '@/store';
-import { setUser, setError, setFirebaseUser } from '@/store/slices/authSlice';
+import { setUser, setError, setFirebaseUser, setBackendToken } from '@/store/slices/authSlice';
+import { authApi } from '@/services/api';
 import { useFormValidation, ValidationRules } from '@/hooks/common/useFormValidation';
 import { FormError } from '@/components/ui/FormError';
 
@@ -75,6 +77,19 @@ export default function LoginScreen() {
         emailVerified: firebaseUser.emailVerified,
       } as any));
 
+      // Sync with backend to get token (stored in SecureStore by authApi)
+      try {
+        console.log('[Login] Syncing with backend...');
+        const authResponse = await authApi.login({ email: values.email, password: values.password });
+        if (authResponse.token && authResponse.expiresAt) {
+          dispatch(setBackendToken({ token: authResponse.token, expiresAt: authResponse.expiresAt }));
+          console.log('[Login] Backend token stored successfully');
+        }
+      } catch (backendError) {
+        console.warn('[Login] Backend sync failed, but Firebase login succeeded:', backendError);
+        // Don't block navigation - AuthGate will try to sync token
+      }
+
       router.replace('/(tabs)');
     } catch (error: unknown) {
       console.error('[Login] Error', error);
@@ -104,12 +119,7 @@ export default function LoginScreen() {
         <ScrollView style={styles.flex} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled" contentContainerStyle={styles.scrollContent}>
           {/* Header */}
           <View style={styles.header}>
-            <View style={styles.logoRow}>
-              <View style={[styles.logoIcon, { backgroundColor: Colors.primary.DEFAULT }]}>
-                <Text style={styles.logoText}>Q</Text>
-              </View>
-              <Text style={[styles.logoTitle, { color: Colors.primary.DEFAULT }]}>QicTrader</Text>
-            </View>
+            <Logo width={180} height={40} />
           </View>
 
           {/* Main Content */}
@@ -209,12 +219,6 @@ export default function LoginScreen() {
               </TouchableOpacity>
             </View>
           </View>
-
-          {/* Footer */}
-          <View style={styles.footer}>
-            <Text style={[styles.footerTitle, { color: colors.text }]}>Trade Smarter, Faster, and Safer.</Text>
-            <Text style={[styles.footerSubtitle, { color: colors.textSecondary }]}>Join QicTrader to buy, sell, and resell offers using secure escrow.</Text>
-          </View>
         </ScrollView>
       </KeyboardAvoidingView>
     </SafeAreaView>
@@ -225,11 +229,7 @@ const styles = StyleSheet.create({
   container: { flex: 1 },
   flex: { flex: 1 },
   scrollContent: { flexGrow: 1 },
-  header: { alignItems: 'center', paddingHorizontal: Spacing.lg, paddingTop: Spacing.xl, paddingBottom: Spacing.md },
-  logoRow: { flexDirection: 'row', alignItems: 'center' },
-  logoIcon: { width: 40, height: 40, borderRadius: BorderRadius.lg, alignItems: 'center', justifyContent: 'center', marginRight: Spacing.sm },
-  logoText: { fontSize: FontSize.xl, fontWeight: '700', color: Colors.white },
-  logoTitle: { fontSize: FontSize['2xl'], fontWeight: '700' },
+  header: { alignItems: 'center', paddingHorizontal: Spacing.lg, paddingTop: Spacing.xl, paddingBottom: Spacing['2xl'] },
   content: { flex: 1, paddingHorizontal: Spacing.lg },
   welcomeSection: { marginBottom: Spacing.xl },
   title: { fontSize: FontSize['2xl'], fontWeight: '700', marginBottom: Spacing.xs },
@@ -252,7 +252,4 @@ const styles = StyleSheet.create({
   socialButtonText: { marginLeft: Spacing.sm, fontWeight: '600' },
   signUpRow: { flexDirection: 'row', justifyContent: 'center', marginBottom: Spacing.xl },
   signUpLink: { fontWeight: '700' },
-  footer: { alignItems: 'center', paddingHorizontal: Spacing.lg, paddingBottom: Spacing.xl },
-  footerTitle: { fontSize: FontSize.lg, fontWeight: '600', textAlign: 'center' },
-  footerSubtitle: { fontSize: FontSize.sm, textAlign: 'center', marginTop: Spacing.xs },
 });

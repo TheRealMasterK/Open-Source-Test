@@ -1,29 +1,20 @@
 /**
  * AnimatedView Component
- * Reanimated-powered entrance animations with stagger support
+ * Entrance animations with stagger support
+ * Uses a View wrapper to ensure proper ReactNode typing with React 19
  */
 
-import React, { useEffect } from 'react';
-import { ViewStyle } from 'react-native';
-import Animated, {
-  useSharedValue,
-  useAnimatedStyle,
-  withTiming,
-  withSpring,
-  withDelay,
-  Easing,
-  interpolate,
-  runOnJS,
-} from 'react-native-reanimated';
+import React, { useEffect, useRef, ReactNode } from 'react';
+import { View, Animated, ViewStyle, StyleProp } from 'react-native';
 
 export type AnimationType = 'fadeIn' | 'slideUp' | 'slideDown' | 'slideLeft' | 'slideRight' | 'scale' | 'fadeSlideUp' | 'bounce';
 
 export interface AnimatedViewProps {
-  children: React.ReactElement | React.ReactElement[];
+  children: ReactNode;
   animation?: AnimationType;
   delay?: number;
   duration?: number;
-  style?: ViewStyle;
+  style?: StyleProp<ViewStyle>;
   staggerIndex?: number;
   staggerDelay?: number;
   onAnimationComplete?: () => void;
@@ -42,86 +33,151 @@ export function AnimatedView({
   staggerDelay = STAGGER_BASE_DELAY,
   onAnimationComplete,
 }: AnimatedViewProps) {
-  const progress = useSharedValue(0);
+  const progress = useRef(new Animated.Value(0)).current;
   const totalDelay = delay + staggerIndex * staggerDelay;
 
   useEffect(() => {
     console.log('[AnimatedView] Starting animation:', animation, 'staggerIndex:', staggerIndex);
 
-    const animationConfig = animation === 'bounce'
-      ? withSpring(1, { damping: 12, stiffness: 100 })
-      : withTiming(1, { duration, easing: Easing.out(Easing.cubic) });
+    const springConfig = {
+      toValue: 1,
+      tension: animation === 'bounce' ? 40 : 50,
+      friction: animation === 'bounce' ? 3 : 7,
+      useNativeDriver: true,
+      delay: totalDelay,
+    };
 
-    progress.value = withDelay(totalDelay, animationConfig);
+    const timingConfig = {
+      toValue: 1,
+      duration,
+      delay: totalDelay,
+      useNativeDriver: true,
+    };
 
-    // Callback after animation completes
-    if (onAnimationComplete) {
-      const callbackDelay = totalDelay + duration + 50;
-      setTimeout(() => runOnJS(onAnimationComplete)(), callbackDelay);
-    }
+    const anim = animation === 'bounce'
+      ? Animated.spring(progress, springConfig)
+      : Animated.timing(progress, timingConfig);
+
+    anim.start(() => {
+      if (onAnimationComplete) {
+        onAnimationComplete();
+      }
+    });
+
+    return () => anim.stop();
   }, []);
 
-  const animatedStyle = useAnimatedStyle(() => {
+  const getAnimatedStyle = (): object => {
     switch (animation) {
       case 'fadeIn':
-        return { opacity: progress.value };
+        return { opacity: progress };
 
       case 'slideUp':
         return {
-          opacity: progress.value,
-          transform: [{ translateY: interpolate(progress.value, [0, 1], [30, 0]) }],
+          opacity: progress,
+          transform: [{
+            translateY: progress.interpolate({
+              inputRange: [0, 1],
+              outputRange: [30, 0],
+            }),
+          }],
         };
 
       case 'slideDown':
         return {
-          opacity: progress.value,
-          transform: [{ translateY: interpolate(progress.value, [0, 1], [-30, 0]) }],
+          opacity: progress,
+          transform: [{
+            translateY: progress.interpolate({
+              inputRange: [0, 1],
+              outputRange: [-30, 0],
+            }),
+          }],
         };
 
       case 'slideLeft':
         return {
-          opacity: progress.value,
-          transform: [{ translateX: interpolate(progress.value, [0, 1], [30, 0]) }],
+          opacity: progress,
+          transform: [{
+            translateX: progress.interpolate({
+              inputRange: [0, 1],
+              outputRange: [30, 0],
+            }),
+          }],
         };
 
       case 'slideRight':
         return {
-          opacity: progress.value,
-          transform: [{ translateX: interpolate(progress.value, [0, 1], [-30, 0]) }],
+          opacity: progress,
+          transform: [{
+            translateX: progress.interpolate({
+              inputRange: [0, 1],
+              outputRange: [-30, 0],
+            }),
+          }],
         };
 
       case 'scale':
         return {
-          opacity: progress.value,
-          transform: [{ scale: interpolate(progress.value, [0, 1], [0.9, 1]) }],
+          opacity: progress,
+          transform: [{
+            scale: progress.interpolate({
+              inputRange: [0, 1],
+              outputRange: [0.9, 1],
+            }),
+          }],
         };
 
       case 'bounce':
         return {
-          opacity: progress.value,
+          opacity: progress,
           transform: [
-            { scale: interpolate(progress.value, [0, 1], [0.85, 1]) },
-            { translateY: interpolate(progress.value, [0, 1], [20, 0]) },
+            {
+              scale: progress.interpolate({
+                inputRange: [0, 1],
+                outputRange: [0.85, 1],
+              }),
+            },
+            {
+              translateY: progress.interpolate({
+                inputRange: [0, 1],
+                outputRange: [20, 0],
+              }),
+            },
           ],
         };
 
       case 'fadeSlideUp':
       default:
         return {
-          opacity: interpolate(progress.value, [0, 0.5, 1], [0, 0.8, 1]),
+          opacity: progress.interpolate({
+            inputRange: [0, 0.5, 1],
+            outputRange: [0, 0.8, 1],
+          }),
           transform: [
-            { translateY: interpolate(progress.value, [0, 1], [24, 0]) },
-            { scale: interpolate(progress.value, [0, 1], [0.97, 1]) },
+            {
+              translateY: progress.interpolate({
+                inputRange: [0, 1],
+                outputRange: [24, 0],
+              }),
+            },
+            {
+              scale: progress.interpolate({
+                inputRange: [0, 1],
+                outputRange: [0.97, 1],
+              }),
+            },
           ],
         };
     }
-  });
+  };
 
   return (
-    <Animated.View style={[animatedStyle, style]}>
-      {children}
-    </Animated.View>
-  );
+    <View style={{ flex: 0 }}>
+      <Animated.View style={[getAnimatedStyle(), style]}>
+        {children}
+      </Animated.View>
+    </View>
+  ) as React.ReactElement;
 }
 
 export default AnimatedView;

@@ -23,7 +23,8 @@ import { auth } from '@/config/firebase';
 import { Colors } from '@/config/theme';
 import { useTheme } from '@/hooks/common/useTheme';
 import { useAppDispatch } from '@/store';
-import { setUser, setError, setFirebaseUser } from '@/store/slices/authSlice';
+import { setUser, setError, setFirebaseUser, setBackendToken } from '@/store/slices/authSlice';
+import { authApi } from '@/services/api';
 
 export default function SignupScreen() {
   const { colors, isDark } = useTheme();
@@ -93,6 +94,24 @@ export default function SignupScreen() {
         })
       );
       dispatch(setFirebaseUser(firebaseUser));
+
+      // Sync with backend to get token (stored in SecureStore by authApi)
+      try {
+        console.log('[Signup] Syncing with backend...');
+        const authResponse = await authApi.signup({
+          email,
+          password,
+          username,
+          displayName: username,
+        });
+        if (authResponse.token && authResponse.expiresAt) {
+          dispatch(setBackendToken({ token: authResponse.token, expiresAt: authResponse.expiresAt }));
+          console.log('[Signup] Backend token stored successfully');
+        }
+      } catch (backendError) {
+        console.warn('[Signup] Backend sync failed, but Firebase signup succeeded:', backendError);
+        // Don't block navigation - AuthGate will try to sync token
+      }
 
       router.replace('/(tabs)');
     } catch (error: unknown) {

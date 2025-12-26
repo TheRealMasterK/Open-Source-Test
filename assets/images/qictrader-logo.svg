@@ -1,0 +1,8 @@
+<svg width="180" height="40" viewBox="0 0 180 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Shield Icon -->
+  <path d="M4 8C4 6.89543 4.89543 6 6 6H26C27.1046 6 28 6.89543 28 8V22C28 28.6274 22.6274 34 16 34C9.37258 34 4 28.6274 4 22V8Z" fill="#00A3F6"/>
+  <path d="M16 12C13.2386 12 11 14.2386 11 17C11 18.5217 11.6839 19.8826 12.7574 20.8095L11.2 24.4L13.6 25.2L14.8944 22.0112C15.2495 22.1016 15.6191 22.15 16 22.15C16.3809 22.15 16.7505 22.1016 17.1056 22.0112L18.4 25.2L20.8 24.4L19.2426 20.8095C20.3161 19.8826 21 18.5217 21 17C21 14.2386 18.7614 12 16 12Z" fill="white"/>
+
+  <!-- QicTrader Text -->
+  <text x="36" y="26" font-family="Inter, -apple-system, BlinkMacSystemFont, sans-serif" font-size="20" font-weight="700" fill="#00A3F6">QicTrader</text>
+</svg>

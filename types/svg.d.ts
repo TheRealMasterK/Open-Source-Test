@@ -1,7 +1,8 @@
-// @ts-ignore
-/// <reference types="nativewind/types" />
+/**
+ * SVG Type Declarations
+ * Allows importing SVG files as React components
+ */
 
-// SVG module declaration for react-native-svg-transformer
 declare module '*.svg' {
   import React from 'react';
   import { SvgProps } from 'react-native-svg';

@@ -1,27 +1,20 @@
 /**
  * AnimatedPressable Component
- * Premium touchable with scale and haptic feedback
+ * Premium touchable with scale and haptic feedback using React Native Animated API
  */
 
-import React, { useCallback } from 'react';
-import { ViewStyle, GestureResponderEvent } from 'react-native';
-import Animated, {
-  useSharedValue,
-  useAnimatedStyle,
-  withSpring,
-  runOnJS,
-} from 'react-native-reanimated';
-import { Gesture, GestureDetector } from 'react-native-gesture-handler';
+import React, { useRef, useCallback, ReactNode } from 'react';
+import { Animated, TouchableOpacity, ViewStyle, StyleProp } from 'react-native';
 import * as Haptics from 'expo-haptics';
 
 export interface AnimatedPressableProps {
-  children: React.ReactNode;
+  children: ReactNode;
   onPress?: () => void;
   onLongPress?: () => void;
   disabled?: boolean;
   scaleAmount?: number;
   hapticFeedback?: 'light' | 'medium' | 'heavy' | 'none';
-  style?: ViewStyle;
+  style?: StyleProp<ViewStyle>;
 }
 
 export function AnimatedPressable({
@@ -33,8 +26,7 @@ export function AnimatedPressable({
   hapticFeedback = 'light',
   style,
 }: AnimatedPressableProps) {
-  const scale = useSharedValue(1);
-  const opacity = useSharedValue(1);
+  const scale = useRef(new Animated.Value(1)).current;
 
   const triggerHaptic = useCallback(() => {
     if (hapticFeedback === 'none') return;
@@ -56,6 +48,24 @@ export function AnimatedPressable({
     }
   }, [hapticFeedback]);
 
+  const handlePressIn = useCallback(() => {
+    Animated.spring(scale, {
+      toValue: scaleAmount,
+      friction: 5,
+      tension: 300,
+      useNativeDriver: true,
+    }).start();
+  }, [scaleAmount, scale]);
+
+  const handlePressOut = useCallback(() => {
+    Animated.spring(scale, {
+      toValue: 1,
+      friction: 5,
+      tension: 300,
+      useNativeDriver: true,
+    }).start();
+  }, [scale]);
+
   const handlePress = useCallback(() => {
     console.log('[AnimatedPressable] Press triggered');
     triggerHaptic();
@@ -68,44 +78,19 @@ export function AnimatedPressable({
     onLongPress?.();
   }, [onLongPress]);
 
-  const tapGesture = Gesture.Tap()
-    .enabled(!disabled)
-    .onBegin(() => {
-      scale.value = withSpring(scaleAmount, { damping: 15, stiffness: 300 });
-      opacity.value = withSpring(0.9, { damping: 15, stiffness: 300 });
-    })
-    .onFinalize(() => {
-      scale.value = withSpring(1, { damping: 15, stiffness: 300 });
-      opacity.value = withSpring(1, { damping: 15, stiffness: 300 });
-    })
-    .onEnd(() => {
-      if (onPress) {
-        runOnJS(handlePress)();
-      }
-    });
-
-  const longPressGesture = Gesture.LongPress()
-    .enabled(!disabled && !!onLongPress)
-    .minDuration(500)
-    .onStart(() => {
-      if (onLongPress) {
-        runOnJS(handleLongPress)();
-      }
-    });
-
-  const composedGesture = Gesture.Race(tapGesture, longPressGesture);
-
-  const animatedStyle = useAnimatedStyle(() => ({
-    transform: [{ scale: scale.value }],
-    opacity: disabled ? 0.5 : opacity.value,
-  }));
-
   return (
-    <GestureDetector gesture={composedGesture}>
-      <Animated.View style={[animatedStyle, style]}>
+    <TouchableOpacity
+      activeOpacity={1}
+      disabled={disabled}
+      onPress={handlePress}
+      onLongPress={onLongPress ? handleLongPress : undefined}
+      onPressIn={handlePressIn}
+      onPressOut={handlePressOut}
+    >
+      <Animated.View style={[{ transform: [{ scale }], opacity: disabled ? 0.5 : 1 }, style]}>
         {children}
       </Animated.View>
-    </GestureDetector>
+    </TouchableOpacity>
   );
 }
 

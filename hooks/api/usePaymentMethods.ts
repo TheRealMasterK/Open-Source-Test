@@ -4,8 +4,20 @@
  */
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useSelector } from 'react-redux';
 import { paymentMethodsApi } from '@/services/api';
-import { CreatePaymentMethodPayload, UpdatePaymentMethodPayload } from '@/types';
+import { selectIsAuthenticated } from '@/store/slices/authSlice';
+import { CreatePaymentMethodPayload, UpdatePaymentMethodPayload, API_ERROR_CODES } from '@/types';
+
+// Don't retry on auth errors
+const shouldRetry = (failureCount: number, error: unknown) => {
+  const apiError = error as { code?: string };
+  if (apiError?.code === API_ERROR_CODES.UNAUTHORIZED || apiError?.code === API_ERROR_CODES.FORBIDDEN) {
+    console.log('[usePaymentMethods] Not retrying due to auth error');
+    return false;
+  }
+  return failureCount < 2;
+};
 
 // Query keys
 export const paymentMethodKeys = {
@@ -15,12 +27,21 @@ export const paymentMethodKeys = {
 
 /**
  * Get all payment methods
+ * Only fetches when authenticated
  */
-export function usePaymentMethods() {
+export function usePaymentMethods(options?: { enabled?: boolean }) {
+  const isAuthenticated = useSelector(selectIsAuthenticated);
+  const enabled = options?.enabled ?? isAuthenticated;
+
   return useQuery({
     queryKey: paymentMethodKeys.list(),
-    queryFn: () => paymentMethodsApi.getPaymentMethods(),
+    queryFn: () => {
+      console.log('[usePaymentMethods] Fetching payment methods');
+      return paymentMethodsApi.getPaymentMethods();
+    },
     staleTime: 1000 * 60 * 5, // 5 minutes
+    enabled,
+    retry: shouldRetry,
   });
 }
 

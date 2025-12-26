@@ -4,8 +4,20 @@
  */
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useSelector } from 'react-redux';
 import { kycApi } from '@/services/api';
-import { SubmitKYCPayload, UploadDocumentPayload } from '@/types';
+import { selectIsAuthenticated } from '@/store/slices/authSlice';
+import { SubmitKYCPayload, UploadDocumentPayload, API_ERROR_CODES } from '@/types';
+
+// Don't retry on auth errors
+const shouldRetry = (failureCount: number, error: unknown) => {
+  const apiError = error as { code?: string };
+  if (apiError?.code === API_ERROR_CODES.UNAUTHORIZED || apiError?.code === API_ERROR_CODES.FORBIDDEN) {
+    console.log('[useKYC] Not retrying due to auth error');
+    return false;
+  }
+  return failureCount < 2;
+};
 
 // Query keys
 export const kycKeys = {
@@ -16,23 +28,41 @@ export const kycKeys = {
 
 /**
  * Get KYC status
+ * Only fetches when authenticated
  */
-export function useKYCStatus() {
+export function useKYCStatus(options?: { enabled?: boolean }) {
+  const isAuthenticated = useSelector(selectIsAuthenticated);
+  const enabled = options?.enabled ?? isAuthenticated;
+
   return useQuery({
     queryKey: kycKeys.status(),
-    queryFn: () => kycApi.getStatus(),
+    queryFn: () => {
+      console.log('[useKYCStatus] Fetching KYC status');
+      return kycApi.getStatus();
+    },
     staleTime: 1000 * 60 * 5, // 5 minutes
+    enabled,
+    retry: shouldRetry,
   });
 }
 
 /**
  * Get KYC documents
+ * Only fetches when authenticated
  */
-export function useKYCDocuments() {
+export function useKYCDocuments(options?: { enabled?: boolean }) {
+  const isAuthenticated = useSelector(selectIsAuthenticated);
+  const enabled = options?.enabled ?? isAuthenticated;
+
   return useQuery({
     queryKey: kycKeys.documents(),
-    queryFn: () => kycApi.getDocuments(),
+    queryFn: () => {
+      console.log('[useKYCDocuments] Fetching KYC documents');
+      return kycApi.getDocuments();
+    },
     staleTime: 1000 * 60 * 5, // 5 minutes
+    enabled,
+    retry: shouldRetry,
   });
 }
 

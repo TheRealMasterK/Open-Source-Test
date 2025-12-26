@@ -11,6 +11,7 @@ import { ActivityIndicator, View } from 'react-native';
 import { store, persistor } from '@/store';
 import { Colors } from '@/config/theme';
 import { AuthTokenProvider } from './AuthTokenProvider';
+import { AuthGate } from './AuthGate';
 
 // Create React Query client
 const queryClient = new QueryClient({
@@ -44,7 +45,8 @@ function LoadingFallback() {
 
 /**
  * AppProviders component
- * Wraps children with Redux Provider, PersistGate, React Query, and Auth Token Provider
+ * Wraps children with Redux Provider, PersistGate, React Query, Auth Gate, and Auth Token Provider
+ * Order: Redux -> PersistGate -> QueryClient -> AuthGate (token sync) -> AuthTokenProvider (refresh callback) -> Children
  */
 export function AppProviders({ children }: AppProvidersProps) {
   console.log('[AppProviders] Rendering providers');
@@ -53,7 +55,9 @@ export function AppProviders({ children }: AppProvidersProps) {
     <Provider store={store}>
       <PersistGate loading={<LoadingFallback />} persistor={persistor}>
         <QueryClientProvider client={queryClient}>
-          <AuthTokenProvider>{children}</AuthTokenProvider>
+          <AuthGate>
+            <AuthTokenProvider>{children}</AuthTokenProvider>
+          </AuthGate>
         </QueryClientProvider>
       </PersistGate>
     </Provider>

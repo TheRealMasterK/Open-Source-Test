@@ -27,7 +27,7 @@ import {
 import { authApi } from '@/services/api';
 import { LoginPayload, SignupPayload } from '@/types';
 import { setSentryUser, clearSentryUser } from '@/config/sentry.config';
-import { restoreTokens, setToken, getToken } from '@/services/api/token-manager';
+import { restoreTokens, setToken, getToken, getTokenExpiry } from '@/services/api/token-manager';
 
 export function useAuth() {
   const dispatch = useAppDispatch();
@@ -73,10 +73,15 @@ export function useAuth() {
           username: firebaseUser.displayName || undefined,
         });
 
-        // Sync with backend
+        // Sync with backend and store token in Redux
         try {
-          await authApi.login(payload);
+          const authResponse = await authApi.login(payload);
           console.log('[useAuth] login: Backend sync success');
+          // Store token in Redux state (also stored in SecureStore by authApi)
+          if (authResponse.token && authResponse.expiresAt) {
+            dispatch(setBackendToken({ token: authResponse.token, expiresAt: authResponse.expiresAt }));
+            console.log('[useAuth] login: Token set in Redux');
+          }
         } catch (backendError) {
           console.warn('[useAuth] login: Backend sync failed', backendError);
         }
@@ -138,10 +143,15 @@ export function useAuth() {
           username: payload.displayName || payload.username || undefined,
         });
 
-        // Sync with backend
+        // Sync with backend and store token in Redux
         try {
-          await authApi.signup(payload);
+          const authResponse = await authApi.signup(payload);
           console.log('[useAuth] signup: Backend sync success');
+          // Store token in Redux state (also stored in SecureStore by authApi)
+          if (authResponse.token && authResponse.expiresAt) {
+            dispatch(setBackendToken({ token: authResponse.token, expiresAt: authResponse.expiresAt }));
+            console.log('[useAuth] signup: Token set in Redux');
+          }
         } catch (backendError) {
           console.warn('[useAuth] signup: Backend sync failed', backendError);
         }
@@ -200,6 +210,12 @@ export function useAuth() {
       const existingToken = await getToken();
       if (existingToken) {
         console.log('[useAuth] syncBackendToken: Token restored from storage');
+        // Also update Redux with the restored token
+        const expiry = getTokenExpiry();
+        if (expiry) {
+          dispatch(setBackendToken({ token: existingToken, expiresAt: expiry }));
+          console.log('[useAuth] syncBackendToken: Token set in Redux');
+        }
         return true;
       }
 

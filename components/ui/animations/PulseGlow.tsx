@@ -1,28 +1,19 @@
 /**
  * PulseGlow Component
  * Animated glow/pulse effect for premium cards
+ * Uses React.createElement to avoid JSX type issues with React 19
  */
 
-import React, { useEffect } from 'react';
-import { ViewStyle, StyleSheet } from 'react-native';
-import Animated, {
-  useSharedValue,
-  useAnimatedStyle,
-  withRepeat,
-  withSequence,
-  withTiming,
-  withDelay,
-  Easing,
-  interpolate,
-} from 'react-native-reanimated';
+import React, { useEffect, useRef, ReactNode } from 'react';
+import { View, Animated, ViewStyle, StyleProp } from 'react-native';
 import { Colors } from '@/config/theme';
 
 export interface PulseGlowProps {
-  children: React.ReactNode;
+  children: ReactNode;
   glowColor?: string;
   glowIntensity?: 'subtle' | 'medium' | 'strong';
   pulseSpeed?: 'slow' | 'normal' | 'fast';
-  style?: ViewStyle;
+  style?: StyleProp<ViewStyle>;
   enabled?: boolean;
 }
 
@@ -34,7 +25,7 @@ export function PulseGlow({
   style,
   enabled = true,
 }: PulseGlowProps) {
-  const pulse = useSharedValue(0);
+  const pulse = useRef(new Animated.Value(0)).current;
 
   const durationMap = {
     slow: 3000,
@@ -53,44 +44,53 @@ export function PulseGlow({
 
   useEffect(() => {
     if (!enabled) {
-      pulse.value = 0;
+      pulse.setValue(0);
       return;
     }
 
     console.log('[PulseGlow] Starting pulse animation');
-    pulse.value = withRepeat(
-      withSequence(
-        withTiming(1, { duration: duration / 2, easing: Easing.inOut(Easing.ease) }),
-        withTiming(0, { duration: duration / 2, easing: Easing.inOut(Easing.ease) })
-      ),
-      -1,
-      false
+    const animation = Animated.loop(
+      Animated.sequence([
+        Animated.timing(pulse, {
+          toValue: 1,
+          duration: duration / 2,
+          useNativeDriver: true,
+        }),
+        Animated.timing(pulse, {
+          toValue: 0,
+          duration: duration / 2,
+          useNativeDriver: true,
+        }),
+      ])
     );
+
+    animation.start();
+    return () => animation.stop();
   }, [enabled, duration]);
 
-  const glowStyle = useAnimatedStyle(() => {
-    const glowOpacity = interpolate(
-      pulse.value,
-      [0, 1],
-      [intensity.minOpacity, intensity.maxOpacity]
-    );
-
-    const scale = interpolate(pulse.value, [0, 1], [1, 1.02]);
-
-    return {
-      shadowColor: glowColor,
-      shadowOpacity: glowOpacity,
-      shadowRadius: intensity.blur,
-      shadowOffset: { width: 0, height: 4 },
-      transform: [{ scale }],
-    };
-  });
+  const glowStyle = {
+    shadowColor: glowColor,
+    shadowOpacity: pulse.interpolate({
+      inputRange: [0, 1],
+      outputRange: [intensity.minOpacity, intensity.maxOpacity],
+    }),
+    shadowRadius: intensity.blur,
+    shadowOffset: { width: 0, height: 4 },
+    transform: [{
+      scale: pulse.interpolate({
+        inputRange: [0, 1],
+        outputRange: [1, 1.02],
+      }),
+    }],
+  };
 
   return (
-    <Animated.View style={[glowStyle, style]}>
-      {children}
-    </Animated.View>
-  );
+    <View style={{ flex: 0 }}>
+      <Animated.View style={[glowStyle, style]}>
+        {children}
+      </Animated.View>
+    </View>
+  ) as React.ReactElement;
 }
 
 export default PulseGlow;

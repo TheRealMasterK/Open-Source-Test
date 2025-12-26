@@ -15,6 +15,7 @@ export { EmptyState } from './EmptyState';
 export { Divider } from './Divider';
 export { CryptoIcon, CryptoAmount } from './CryptoIcon';
 export { IconButton } from './IconButton';
+export { Logo } from './Logo';
 
 // Premium Components
 export { GlassCard } from './GlassCard';
