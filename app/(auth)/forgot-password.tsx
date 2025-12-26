@@ -92,7 +92,7 @@ export default function ForgotPasswordScreen() {
           </Text>
 
           <Text className={`${textSecondary} text-center mb-8`}>
-            We've sent a password reset link to{'\n'}
+            We&apos;ve sent a password reset link to{'\n'}
             <Text className={textColor}>{email}</Text>
           </Text>
 
@@ -109,7 +109,7 @@ export default function ForgotPasswordScreen() {
             className="mt-4"
           >
             <Text style={{ color: Colors.primary.DEFAULT }}>
-              Didn't receive email? Try again
+              Didn&apos;t receive email? Try again
             </Text>
           </TouchableOpacity>
         </View>
@@ -143,7 +143,7 @@ export default function ForgotPasswordScreen() {
               Forgot Password?
             </Text>
             <Text className={`${textSecondary} text-base`}>
-              Enter your email and we'll send you a link to reset your password
+              Enter your email and we&apos;ll send you a link to reset your password
             </Text>
           </View>
 

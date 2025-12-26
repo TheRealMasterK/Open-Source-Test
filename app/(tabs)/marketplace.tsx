@@ -10,7 +10,6 @@ import {
   ScrollView,
   TouchableOpacity,
   useColorScheme,
-  FlatList,
   RefreshControl,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';

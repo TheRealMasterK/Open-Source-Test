@@ -49,6 +49,11 @@ function RootLayoutNav() {
             gestureEnabled: false,
           }}
         />
+        <Stack.Screen name="offers" options={{ headerShown: false }} />
+        <Stack.Screen name="trades" options={{ headerShown: false }} />
+        <Stack.Screen name="settings" options={{ headerShown: false }} />
+        <Stack.Screen name="kyc" options={{ headerShown: false }} />
+        <Stack.Screen name="affiliate" options={{ headerShown: false }} />
         <Stack.Screen name="+not-found" />
       </Stack>
     </>

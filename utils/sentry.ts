@@ -115,13 +115,17 @@ export function logPerformance(metric: string, value: number, unit: string = 'ms
 }
 
 /**
- * Start a performance transaction
+ * Start a performance span
+ * Note: In newer Sentry versions, use Sentry.startSpan for performance tracking
  */
-export function startTransaction(name: string, operation: string) {
-  return Sentry.startTransaction({
-    name,
-    op: operation,
-  });
+export function startPerformanceSpan(name: string, operation: string) {
+  return Sentry.startSpan(
+    {
+      name,
+      op: operation,
+    },
+    () => {}
+  );
 }
 
 export {

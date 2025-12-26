@@ -23,7 +23,7 @@ import { signInWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '@/config/firebase';
 import { Colors } from '@/config/theme';
 import { useAppDispatch } from '@/store';
-import { setUser, setError, setLoading, setFirebaseUser } from '@/store/slices/authSlice';
+import { setUser, setError, setFirebaseUser } from '@/store/slices/authSlice';
 
 export default function LoginScreen() {
   const colorScheme = useColorScheme();
@@ -221,7 +221,7 @@ export default function LoginScreen() {
 
           {/* Sign Up Link */}
           <View className="flex-row justify-center mb-8">
-            <Text className={textSecondary}>Don't have an account? </Text>
+            <Text className={textSecondary}>Don&apos;t have an account? </Text>
             <TouchableOpacity onPress={() => router.push('/(auth)/signup')}>
               <Text style={{ color: Colors.primary.DEFAULT }} className="font-bold">
                 Sign Up
