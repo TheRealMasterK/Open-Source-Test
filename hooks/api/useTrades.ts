@@ -59,7 +59,7 @@ export function useTrades(params?: TradeListParams, options?: { enabled?: boolea
     isLoading: query.isLoading,
     isFetching: query.isFetching,
     hasData: !!query.data,
-    error: query.error?.message,
+    error: (query.error as Error | null)?.message,
   });
 
   // Only show loading when shouldFetch is true AND actively fetching
@@ -94,7 +94,7 @@ export function useActiveTrades(options?: { enabled?: boolean }) {
     isLoading: query.isLoading,
     isFetching: query.isFetching,
     dataCount: query.data?.length,
-    error: query.error?.message,
+    error: (query.error as Error | null)?.message,
   });
 
   // Only show loading when shouldFetch is true AND actively fetching
@@ -128,7 +128,7 @@ export function useCompletedTrades(options?: { enabled?: boolean }) {
     isLoading: query.isLoading,
     isFetching: query.isFetching,
     dataCount: query.data?.length,
-    error: query.error?.message,
+    error: (query.error as Error | null)?.message,
   });
 
   // Only show loading when shouldFetch is true AND actively fetching

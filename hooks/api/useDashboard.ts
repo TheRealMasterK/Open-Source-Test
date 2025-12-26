@@ -89,7 +89,7 @@ export function useDashboardStats() {
     queryLoading,
     isFetching,
     hasDashboard: !!dashboard,
-    error: error?.message,
+    error: (error as Error | null)?.message,
   });
 
   // Only show loading when authenticated AND actively fetching

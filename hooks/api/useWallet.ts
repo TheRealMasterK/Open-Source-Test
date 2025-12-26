@@ -85,7 +85,7 @@ export function useBalance() {
     isLoading: query.isLoading,
     isFetching: query.isFetching,
     hasData: !!query.data,
-    error: query.error?.message,
+    error: (query.error as Error | null)?.message,
   });
 
   // Only show loading when authenticated AND actively fetching
