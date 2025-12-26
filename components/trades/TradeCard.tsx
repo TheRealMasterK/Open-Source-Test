@@ -15,6 +15,7 @@ import { Badge } from '@/components/ui/Badge';
 import { CryptoIcon } from '@/components/ui/CryptoIcon';
 import { Trade, TradeStatus } from '@/types';
 import { useAppSelector } from '@/store';
+import { selectUser } from '@/store/slices/authSlice';
 
 interface TradeCardProps {
   trade: Trade;
@@ -51,7 +52,7 @@ const getStatusLabel = (status: TradeStatus): string => {
 export function TradeCard({ trade, onPress }: TradeCardProps) {
   const router = useRouter();
   const { colors } = useTheme();
-  const { user } = useAppSelector((state) => state.auth);
+  const user = useAppSelector(selectUser);
 
   const handlePress = () => {
     if (onPress) {

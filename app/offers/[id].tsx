@@ -21,13 +21,14 @@ import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
 import { CryptoIcon } from '@/components/ui/CryptoIcon';
 import { Divider } from '@/components/ui/Divider';
 import { useAppSelector } from '@/store';
+import { selectUser } from '@/store/slices/authSlice';
 
 export default function OfferDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const { colors } = useTheme();
-  const { user } = useAppSelector((state) => state.auth);
+  const user = useAppSelector(selectUser);
 
   const [amount, setAmount] = useState('');
   const [paymentMethod, setPaymentMethod] = useState('');

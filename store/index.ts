@@ -33,6 +33,27 @@ const rootReducer = combineReducers({
   wallet: walletReducer,
 });
 
+// Transform to reset isLoading on rehydration
+// This prevents race condition where old isLoading=false causes redirect before AuthGate syncs
+import { createTransform } from 'redux-persist';
+
+const authTransform = createTransform(
+  // Transform state being persisted (outbound)
+  (inboundState: any) => {
+    console.log('[Store] Persisting auth state');
+    return inboundState;
+  },
+  // Transform state being rehydrated (inbound)
+  (outboundState: any) => {
+    console.log('[Store] Rehydrating auth state, resetting isLoading to true');
+    return {
+      ...outboundState,
+      isLoading: true, // Always start with loading=true to wait for AuthGate
+    };
+  },
+  { whitelist: ['auth'] }
+);
+
 // Persist config
 const persistConfig = {
   key: 'qic-trader-root',
@@ -40,6 +61,7 @@ const persistConfig = {
   storage: AsyncStorage,
   whitelist: ['auth', 'ui', 'offer'], // Only persist these reducers
   blacklist: ['wallet'], // Don't persist wallet (fetch fresh on load)
+  transforms: [authTransform],
 };
 
 // Create persisted reducer

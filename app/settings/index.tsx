@@ -16,6 +16,7 @@ import { Card } from '@/components/ui/Card';
 import { Avatar } from '@/components/ui/Avatar';
 import { Section } from '@/components/layout/Section';
 import { useAppSelector } from '@/store';
+import { selectUser } from '@/store/slices/authSlice';
 
 interface SettingItemProps {
   icon: keyof typeof Ionicons.glyphMap;
@@ -64,7 +65,7 @@ export default function SettingsScreen() {
   const insets = useSafeAreaInsets();
   const { colors, isDark, toggleTheme } = useTheme();
   const { logout } = useAuth();
-  const { user } = useAppSelector((state) => state.auth);
+  const user = useAppSelector(selectUser);
 
   console.log('[SettingsScreen] Rendering');
 

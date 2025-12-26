@@ -10,7 +10,7 @@ import axios, {
   InternalAxiosRequestConfig,
 } from 'axios';
 import { API_CONFIG } from '@/config/api.config';
-import { getToken, isTokenExpiringSoon } from './token-manager';
+import { getToken, isTokenExpiringSoon, removeToken } from './token-manager';
 import { ApiResponse, ApiError, API_ERROR_CODES } from '@/types';
 import { logger } from '@/utils/logger';
 import { logApiError } from '@/utils/sentry';
@@ -144,8 +144,26 @@ const httpClient: AxiosInstance = axios.create({
 // Token refresh callback (set by auth hook)
 let tokenRefreshCallback: (() => Promise<void>) | null = null;
 
+// Auth failure callback (set by AuthGate to handle logout)
+let authFailureCallback: (() => void) | null = null;
+
+// Track consecutive 401 errors
+let consecutive401Count = 0;
+const MAX_401_BEFORE_LOGOUT = 2;
+
 export function setTokenRefreshCallback(callback: () => Promise<void>): void {
   tokenRefreshCallback = callback;
+}
+
+export function setAuthFailureCallback(callback: () => void): void {
+  authFailureCallback = callback;
+}
+
+/**
+ * Reset 401 counter on successful auth
+ */
+export function resetAuthFailureCount(): void {
+  consecutive401Count = 0;
 }
 
 // Request interceptor with throttling
@@ -197,8 +215,20 @@ httpClient.interceptors.response.use(
 
     // Handle 401 Unauthorized
     if (error.response?.status === 401 && !originalRequest._retry) {
-      logger.debug('HTTP', '401 Unauthorized, attempting token refresh...');
+      consecutive401Count++;
+      logger.debug('HTTP', `401 Unauthorized (count: ${consecutive401Count}), attempting token refresh...`);
       originalRequest._retry = true;
+
+      // If we get too many 401s, clear token and trigger logout
+      if (consecutive401Count >= MAX_401_BEFORE_LOGOUT) {
+        logger.warn('HTTP', `Too many 401 errors (${consecutive401Count}), clearing auth and logging out...`);
+        await removeToken();
+        if (authFailureCallback) {
+          authFailureCallback();
+        }
+        consecutive401Count = 0;
+        return Promise.reject(formatError(error));
+      }
 
       if (tokenRefreshCallback) {
         try {
@@ -206,10 +236,16 @@ httpClient.interceptors.response.use(
           const newToken = await getToken();
           if (newToken) {
             originalRequest.headers.Authorization = `Bearer ${newToken}`;
+            consecutive401Count = 0; // Reset on successful refresh
             return httpClient(originalRequest);
           }
         } catch (refreshError) {
           logger.api.error('Token refresh failed', refreshError);
+          // Token refresh failed, clear and logout
+          await removeToken();
+          if (authFailureCallback) {
+            authFailureCallback();
+          }
         }
       }
     }

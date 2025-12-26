@@ -5,7 +5,7 @@
  */
 
 import React, { useEffect, useRef, ReactNode } from 'react';
-import { View, Animated, ViewStyle, StyleProp } from 'react-native';
+import { Animated, ViewStyle, StyleProp } from 'react-native';
 
 export type AnimationType = 'fadeIn' | 'slideUp' | 'slideDown' | 'slideLeft' | 'slideRight' | 'scale' | 'fadeSlideUp' | 'bounce';
 
@@ -171,12 +171,11 @@ export function AnimatedView({
     }
   };
 
+  // Note: Removed flex: 0 wrapper which was causing layout issues in flex containers
   return (
-    <View style={{ flex: 0 }}>
-      <Animated.View style={[getAnimatedStyle(), style]}>
-        {children}
-      </Animated.View>
-    </View>
+    <Animated.View style={[getAnimatedStyle(), style]}>
+      {children}
+    </Animated.View>
   ) as React.ReactElement;
 }
 

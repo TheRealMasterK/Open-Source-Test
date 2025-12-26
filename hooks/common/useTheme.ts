@@ -7,7 +7,7 @@
 import { useCallback, useMemo } from 'react';
 import { useColorScheme } from 'react-native';
 import { useAppSelector, useAppDispatch } from '@/store';
-import { setTheme, ThemeMode } from '@/store/slices/uiSlice';
+import { setTheme, ThemeMode, selectTheme } from '@/store/slices/uiSlice';
 import {
   Colors,
   Gradients,
@@ -31,7 +31,7 @@ import {
 
 export function useTheme() {
   const dispatch = useAppDispatch();
-  const { theme: themeMode } = useAppSelector((state) => state.ui);
+  const themeMode = useAppSelector(selectTheme);
   const systemColorScheme = useColorScheme();
 
   /**

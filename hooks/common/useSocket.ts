@@ -8,6 +8,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import socketClient from '@/services/socket/socket-client';
 import { useAppSelector, useAppDispatch } from '@/store';
 import { setOnlineStatus } from '@/store/slices/uiSlice';
+import { selectIsAuthenticated } from '@/store/slices/authSlice';
 import { tradeKeys } from '@/hooks/api/useTrades';
 import { walletKeys } from '@/hooks/api/useWallet';
 import { offerKeys } from '@/hooks/api/useOffers';
@@ -29,7 +30,7 @@ export function useSocket(options: UseSocketOptions = {}) {
 
   const queryClient = useQueryClient();
   const dispatch = useAppDispatch();
-  const { isAuthenticated } = useAppSelector((state) => state.auth);
+  const isAuthenticated = useAppSelector(selectIsAuthenticated);
   const isConnectedRef = useRef(false);
 
   /**

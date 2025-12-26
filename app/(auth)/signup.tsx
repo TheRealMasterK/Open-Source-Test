@@ -18,7 +18,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
-import { createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
+import { signInWithCustomToken } from 'firebase/auth';
 import { auth } from '@/config/firebase';
 import { Colors } from '@/config/theme';
 import { useTheme } from '@/hooks/common/useTheme';
@@ -74,57 +74,75 @@ export default function SignupScreen() {
     setIsLoading(true);
 
     try {
-      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-      const firebaseUser = userCredential.user;
+      // Step 1: Call backend signup endpoint
+      console.log('[Signup] Calling backend signup...');
+      const authResponse = await authApi.signup({
+        email,
+        password,
+        username,
+        displayName: username,
+      });
 
-      console.log('[Signup] handleSignup: Account created, UID:', firebaseUser.uid);
+      console.log('[Signup] Backend signup success, user:', authResponse.user?.id);
 
-      // Update display name
-      await updateProfile(firebaseUser, { displayName: username });
+      // Step 2: Sign into Firebase using custom token from backend
+      if (authResponse.token) {
+        console.log('[Signup] Signing into Firebase with custom token...');
+        const userCredential = await signInWithCustomToken(auth, authResponse.token);
+        const firebaseUser = userCredential.user;
+        console.log('[Signup] Firebase sign-in success, UID:', firebaseUser.uid);
 
-      console.log('[Signup] handleSignup: Profile updated');
-
-      dispatch(
-        setUser({
+        // Step 3: Update Redux state with user data
+        dispatch(setUser({
           id: firebaseUser.uid,
-          email: firebaseUser.email || '',
-          displayName: username,
+          email: firebaseUser.email || authResponse.user?.email || '',
+          displayName: username || firebaseUser.displayName || null,
+          photoURL: firebaseUser.photoURL || null,
+          emailVerified: firebaseUser.emailVerified,
+        }));
+
+        dispatch(setFirebaseUser({
+          uid: firebaseUser.uid,
+          email: firebaseUser.email,
+          displayName: firebaseUser.displayName || username,
           photoURL: firebaseUser.photoURL,
           emailVerified: firebaseUser.emailVerified,
-        })
-      );
-      dispatch(setFirebaseUser(firebaseUser));
+        } as any));
 
-      // Sync with backend to get token (stored in SecureStore by authApi)
-      try {
-        console.log('[Signup] Syncing with backend...');
-        const authResponse = await authApi.signup({
-          email,
-          password,
-          username,
-          displayName: username,
-        });
-        if (authResponse.token && authResponse.expiresAt) {
-          dispatch(setBackendToken({ token: authResponse.token, expiresAt: authResponse.expiresAt }));
-          console.log('[Signup] Backend token stored successfully');
+        // Step 4: Store backend token and refresh token
+        if (authResponse.idToken || authResponse.token) {
+          const tokenToStore = authResponse.idToken || authResponse.token;
+          dispatch(setBackendToken({
+            token: tokenToStore,
+            expiresAt: authResponse.expiresAt,
+            refreshToken: authResponse.refreshToken,
+          }));
+          console.log('[Signup] Tokens stored successfully');
+          console.log('[Signup] - ID Token:', !!authResponse.idToken);
+          console.log('[Signup] - Refresh Token:', !!authResponse.refreshToken);
+          console.log('[Signup] - Expires:', new Date(authResponse.expiresAt).toISOString());
         }
-      } catch (backendError) {
-        console.warn('[Signup] Backend sync failed, but Firebase signup succeeded:', backendError);
-        // Don't block navigation - AuthGate will try to sync token
-      }
 
-      router.replace('/(tabs)');
+        router.replace('/(tabs)');
+      } else {
+        throw new Error('No authentication token received from backend');
+      }
     } catch (error: unknown) {
       console.error('[Signup] handleSignup: Error', error);
 
       let message = 'Signup failed. Please try again.';
       if (error instanceof Error) {
-        if (error.message.includes('email-already-in-use')) {
+        const errorMsg = error.message.toLowerCase();
+        if (errorMsg.includes('email-already') || errorMsg.includes('email already')) {
           message = 'An account with this email already exists.';
-        } else if (error.message.includes('invalid-email')) {
+        } else if (errorMsg.includes('invalid-email') || errorMsg.includes('invalid email')) {
           message = 'Invalid email address.';
-        } else if (error.message.includes('weak-password')) {
+        } else if (errorMsg.includes('weak-password') || errorMsg.includes('weak password')) {
           message = 'Password is too weak.';
+        } else if (errorMsg.includes('username') && errorMsg.includes('taken')) {
+          message = 'This username is already taken.';
+        } else if (errorMsg.includes('network')) {
+          message = 'Network error. Please check your connection.';
         }
       }
 

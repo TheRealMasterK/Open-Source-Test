@@ -19,7 +19,7 @@ import { Logo } from '@/components/ui/Logo';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
-import { signInWithEmailAndPassword } from 'firebase/auth';
+import { signInWithCustomToken } from 'firebase/auth';
 import { auth } from '@/config/firebase';
 import { Colors, Spacing, FontSize, BorderRadius } from '@/config/theme';
 import { useTheme } from '@/hooks/common/useTheme';
@@ -58,48 +58,75 @@ export default function LoginScreen() {
 
     setIsLoading(true);
     try {
-      const userCredential = await signInWithEmailAndPassword(auth, values.email, values.password);
-      const firebaseUser = userCredential.user;
-      console.log('[Login] Success, UID:', firebaseUser.uid);
+      // Step 1: Call backend login endpoint
+      console.log('[Login] Calling backend login...');
+      const authResponse = await authApi.login({
+        email: values.email,
+        password: values.password,
+      });
 
-      dispatch(setUser({
-        id: firebaseUser.uid,
-        email: firebaseUser.email || '',
-        displayName: firebaseUser.displayName,
-        photoURL: firebaseUser.photoURL,
-        emailVerified: firebaseUser.emailVerified,
-      }));
-      dispatch(setFirebaseUser({
-        uid: firebaseUser.uid,
-        email: firebaseUser.email,
-        displayName: firebaseUser.displayName,
-        photoURL: firebaseUser.photoURL,
-        emailVerified: firebaseUser.emailVerified,
-      } as any));
+      console.log('[Login] Backend login success, user:', authResponse.user?.id);
 
-      // Sync with backend to get token (stored in SecureStore by authApi)
-      try {
-        console.log('[Login] Syncing with backend...');
-        const authResponse = await authApi.login({ email: values.email, password: values.password });
-        if (authResponse.token && authResponse.expiresAt) {
-          dispatch(setBackendToken({ token: authResponse.token, expiresAt: authResponse.expiresAt }));
-          console.log('[Login] Backend token stored successfully');
+      // Step 2: Sign into Firebase using custom token from backend
+      if (authResponse.token) {
+        console.log('[Login] Signing into Firebase with custom token...');
+        const userCredential = await signInWithCustomToken(auth, authResponse.token);
+        const firebaseUser = userCredential.user;
+        console.log('[Login] Firebase sign-in success, UID:', firebaseUser.uid);
+
+        // Step 3: Update Redux state with user data
+        dispatch(setUser({
+          id: firebaseUser.uid,
+          email: firebaseUser.email || authResponse.user?.email || '',
+          displayName: firebaseUser.displayName || authResponse.user?.displayName || null,
+          photoURL: firebaseUser.photoURL || null,
+          emailVerified: firebaseUser.emailVerified,
+        }));
+
+        dispatch(setFirebaseUser({
+          uid: firebaseUser.uid,
+          email: firebaseUser.email,
+          displayName: firebaseUser.displayName,
+          photoURL: firebaseUser.photoURL,
+          emailVerified: firebaseUser.emailVerified,
+        } as any));
+
+        // Step 4: Store backend token and refresh token
+        if (authResponse.idToken || authResponse.token) {
+          const tokenToStore = authResponse.idToken || authResponse.token;
+          dispatch(setBackendToken({
+            token: tokenToStore,
+            expiresAt: authResponse.expiresAt,
+            refreshToken: authResponse.refreshToken,
+          }));
+          console.log('[Login] Tokens stored successfully');
+          console.log('[Login] - ID Token:', !!authResponse.idToken);
+          console.log('[Login] - Refresh Token:', !!authResponse.refreshToken);
+          console.log('[Login] - Expires:', new Date(authResponse.expiresAt).toISOString());
         }
-      } catch (backendError) {
-        console.warn('[Login] Backend sync failed, but Firebase login succeeded:', backendError);
-        // Don't block navigation - AuthGate will try to sync token
-      }
 
-      router.replace('/(tabs)');
+        router.replace('/(tabs)');
+      } else {
+        throw new Error('No authentication token received from backend');
+      }
     } catch (error: unknown) {
       console.error('[Login] Error', error);
       let message = 'Login failed. Please try again.';
       if (error instanceof Error) {
-        if (error.message.includes('user-not-found')) message = 'No account found with this email.';
-        else if (error.message.includes('wrong-password')) message = 'Incorrect password.';
-        else if (error.message.includes('invalid-email')) message = 'Invalid email address.';
-        else if (error.message.includes('too-many-requests')) message = 'Too many attempts. Please try again later.';
-        else if (error.message.includes('invalid-credential')) message = 'Invalid email or password.';
+        const errorMsg = error.message.toLowerCase();
+        if (errorMsg.includes('user-not-found') || errorMsg.includes('email_not_found')) {
+          message = 'No account found with this email.';
+        } else if (errorMsg.includes('wrong-password') || errorMsg.includes('invalid_password')) {
+          message = 'Incorrect password.';
+        } else if (errorMsg.includes('invalid-email')) {
+          message = 'Invalid email address.';
+        } else if (errorMsg.includes('too-many') || errorMsg.includes('too_many')) {
+          message = 'Too many attempts. Please try again later.';
+        } else if (errorMsg.includes('invalid-credential') || errorMsg.includes('invalid email or password')) {
+          message = 'Invalid email or password.';
+        } else if (errorMsg.includes('network')) {
+          message = 'Network error. Please check your connection.';
+        }
       }
       dispatch(setError(message));
       setLoginError(message);

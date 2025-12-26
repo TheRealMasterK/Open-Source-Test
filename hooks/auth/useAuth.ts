@@ -64,7 +64,14 @@ export function useAuth() {
             emailVerified: firebaseUser.emailVerified,
           })
         );
-        dispatch(setFirebaseUser(firebaseUser));
+        // Only dispatch serializable fields to avoid Redux warnings
+        dispatch(setFirebaseUser({
+          uid: firebaseUser.uid,
+          email: firebaseUser.email,
+          displayName: firebaseUser.displayName,
+          photoURL: firebaseUser.photoURL,
+          emailVerified: firebaseUser.emailVerified,
+        } as any));
 
         // Set Sentry user context
         setSentryUser({
@@ -134,7 +141,14 @@ export function useAuth() {
             emailVerified: firebaseUser.emailVerified,
           })
         );
-        dispatch(setFirebaseUser(firebaseUser));
+        // Only dispatch serializable fields to avoid Redux warnings
+        dispatch(setFirebaseUser({
+          uid: firebaseUser.uid,
+          email: firebaseUser.email,
+          displayName: payload.displayName || payload.username || firebaseUser.displayName,
+          photoURL: firebaseUser.photoURL,
+          emailVerified: firebaseUser.emailVerified,
+        } as any));
 
         // Set Sentry user context
         setSentryUser({

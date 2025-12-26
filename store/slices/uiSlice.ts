@@ -83,11 +83,14 @@ export const {
   setGlobalLoading,
 } = uiSlice.actions;
 
-// Selectors
-export const selectTheme = (state: { ui: UIState }) => state.ui.theme;
-export const selectIsOnline = (state: { ui: UIState }) => state.ui.isOnline;
-export const selectToasts = (state: { ui: UIState }) => state.ui.toasts;
-export const selectIsRefreshing = (state: { ui: UIState }) => state.ui.isRefreshing;
-export const selectGlobalLoading = (state: { ui: UIState }) => state.ui.globalLoading;
+// Define RootState type for selectors (handles Redux Persist partial state)
+type RootStateWithUI = { ui?: UIState };
+
+// Selectors - handle potentially undefined state during rehydration
+export const selectTheme = (state: RootStateWithUI): ThemeMode => state.ui?.theme ?? 'dark';
+export const selectIsOnline = (state: RootStateWithUI) => state.ui?.isOnline ?? true;
+export const selectToasts = (state: RootStateWithUI): Toast[] => state.ui?.toasts ?? [];
+export const selectIsRefreshing = (state: RootStateWithUI) => state.ui?.isRefreshing ?? false;
+export const selectGlobalLoading = (state: RootStateWithUI) => state.ui?.globalLoading ?? false;
 
 export default uiSlice.reducer;

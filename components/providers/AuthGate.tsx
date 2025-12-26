@@ -4,8 +4,8 @@
  * Wraps the app to handle token restoration on startup
  */
 
-import React, { useEffect, useState, useRef, ReactNode } from 'react';
-import { View, ActivityIndicator, Text, StyleSheet } from 'react-native';
+import React, { useEffect, useState, useRef, ReactNode, useCallback } from 'react';
+import { View, ActivityIndicator, Text, StyleSheet, AppState, AppStateStatus } from 'react-native';
 import { onAuthStateChanged } from 'firebase/auth';
 import { auth } from '@/config/firebase';
 import { useAppDispatch } from '@/store';
@@ -14,10 +14,15 @@ import {
   setFirebaseUser,
   setLoading,
   setBackendToken,
+  logout as logoutAction,
+  selectRefreshToken,
 } from '@/store/slices/authSlice';
+import { useAppSelector } from '@/store';
 import { Colors, FontFamily, FontSize, Spacing } from '@/config/theme';
-import { getToken, getTokenExpiry } from '@/services/api/token-manager';
+import { getToken, getTokenExpiry, isTokenExpiringSoon, removeToken } from '@/services/api/token-manager';
 import { authApi } from '@/services/api';
+import { setAuthFailureCallback, resetAuthFailureCount } from '@/services/api/http-client';
+import { signOut } from 'firebase/auth';
 
 interface AuthGateProps {
   children: ReactNode;
@@ -29,13 +34,98 @@ interface AuthGateProps {
  */
 export function AuthGate({ children }: AuthGateProps) {
   const dispatch = useAppDispatch();
+  const storedRefreshToken = useAppSelector(selectRefreshToken);
   const [isInitializing, setIsInitializing] = useState(true);
   const [isSyncingToken, setIsSyncingToken] = useState(false);
   const [syncError, setSyncError] = useState<string | null>(null);
   const tokenSyncAttempted = useRef(false);
 
-  console.log('[AuthGate] Rendering, isInitializing:', isInitializing, 'isSyncingToken:', isSyncingToken);
+  console.log('[AuthGate] Rendering, isInitializing:', isInitializing, 'isSyncingToken:', isSyncingToken, 'hasRefreshToken:', !!storedRefreshToken);
 
+  // Track app state for background/foreground transitions
+  const appState = useRef(AppState.currentState);
+
+  /**
+   * Handle auth failure from http-client (too many 401s)
+   * Clears all auth state and signs out
+   */
+  const handleAuthFailure = useCallback(async () => {
+    console.log('[AuthGate] Auth failure triggered, logging out...');
+    try {
+      // Clear secure storage
+      await removeToken();
+      // Sign out of Firebase
+      await signOut(auth);
+      // Clear Redux state
+      dispatch(logoutAction());
+      // Reset token sync flag so we try again on next login
+      tokenSyncAttempted.current = false;
+      console.log('[AuthGate] Logout complete');
+    } catch (error) {
+      console.error('[AuthGate] Error during logout:', error);
+    }
+  }, [dispatch]);
+
+  // Set up auth failure callback for http-client
+  useEffect(() => {
+    console.log('[AuthGate] Setting up auth failure callback');
+    setAuthFailureCallback(handleAuthFailure);
+
+    return () => {
+      console.log('[AuthGate] Cleaning up auth failure callback');
+      setAuthFailureCallback(() => {});
+    };
+  }, [handleAuthFailure]);
+
+  /**
+   * Proactive token refresh when app comes to foreground
+   * Prevents 401 errors when token expired while app was in background
+   */
+  const handleAppStateChange = useCallback(async (nextAppState: AppStateStatus) => {
+    console.log('[AuthGate] AppState changed:', appState.current, '->', nextAppState);
+
+    // When app comes to foreground from background
+    if (appState.current.match(/inactive|background/) && nextAppState === 'active') {
+      console.log('[AuthGate] App resumed from background, checking token...');
+
+      // Only refresh if we have a Firebase user and token is expiring soon
+      const firebaseUser = auth.currentUser;
+      if (firebaseUser && isTokenExpiringSoon() && storedRefreshToken) {
+        console.log('[AuthGate] Token expiring soon, proactively refreshing with stored refresh token...');
+        try {
+          const response = await authApi.refreshToken(storedRefreshToken);
+          if (response.token && response.expiresAt) {
+            console.log('[AuthGate] Proactive token refresh SUCCESS');
+            dispatch(setBackendToken({
+              token: response.token,
+              expiresAt: response.expiresAt,
+              refreshToken: response.refreshToken,
+            }));
+          }
+        } catch (error) {
+          console.warn('[AuthGate] Proactive token refresh failed:', error);
+          // Don't block - http-client will retry on 401
+        }
+      } else if (firebaseUser && isTokenExpiringSoon() && !storedRefreshToken) {
+        console.warn('[AuthGate] Token expiring but no refresh token available - user may need to re-login');
+      }
+    }
+
+    appState.current = nextAppState;
+  }, [dispatch, storedRefreshToken]);
+
+  // Set up AppState listener for proactive token refresh
+  useEffect(() => {
+    console.log('[AuthGate] Setting up AppState listener');
+    const subscription = AppState.addEventListener('change', handleAppStateChange);
+
+    return () => {
+      console.log('[AuthGate] Cleaning up AppState listener');
+      subscription.remove();
+    };
+  }, [handleAppStateChange]);
+
+  // Set up Firebase auth listener
   useEffect(() => {
     console.log('[AuthGate] Setting up Firebase auth listener');
 
@@ -53,7 +143,14 @@ export function AuthGate({ children }: AuthGateProps) {
             emailVerified: firebaseUser.emailVerified,
           })
         );
-        dispatch(setFirebaseUser(firebaseUser));
+        // Only dispatch serializable fields to avoid Redux warnings
+        dispatch(setFirebaseUser({
+          uid: firebaseUser.uid,
+          email: firebaseUser.email,
+          displayName: firebaseUser.displayName,
+          photoURL: firebaseUser.photoURL,
+          emailVerified: firebaseUser.emailVerified,
+        } as any));
 
         // Sync backend token (only once per session)
         if (!tokenSyncAttempted.current) {
@@ -81,54 +178,75 @@ export function AuthGate({ children }: AuthGateProps) {
 
   /**
    * Sync backend token
-   * Tries to restore from storage first, then fetches from backend
+   * Tries to restore from storage first, then uses refresh token if available
    */
   const syncBackendToken = async (): Promise<void> => {
-    console.log('[AuthGate] Starting backend token sync...');
+    console.log('[AuthGate] ========== TOKEN SYNC START ==========');
     setIsSyncingToken(true);
     setSyncError(null);
 
     try {
       // First check if we have a valid token in storage
+      console.log('[AuthGate] Step 1: Checking SecureStore for existing token...');
       const existingToken = await getToken();
+
       if (existingToken) {
-        console.log('[AuthGate] Token restored from secure storage');
-        // IMPORTANT: Also update Redux with the restored token
+        console.log('[AuthGate] Step 2: Token FOUND in SecureStore');
         const expiry = getTokenExpiry();
-        if (expiry) {
-          console.log('[AuthGate] Setting restored token in Redux, expires:', new Date(expiry).toISOString());
-          dispatch(setBackendToken({ token: existingToken, expiresAt: expiry }));
+        const expiryValue = expiry || Date.now() + 60 * 60 * 1000;
+        console.log('[AuthGate] Token expires:', new Date(expiryValue).toISOString());
+        console.log('[AuthGate] Step 3: Dispatching setBackendToken to Redux');
+        dispatch(setBackendToken({ token: existingToken, expiresAt: expiryValue }));
+        console.log('[AuthGate] ========== TOKEN SYNC SUCCESS (from storage) ==========');
+        setIsSyncingToken(false);
+        return;
+      }
+
+      console.log('[AuthGate] Step 2: No token in SecureStore');
+
+      // Check if we have a refresh token in Redux to get new tokens
+      if (storedRefreshToken) {
+        console.log('[AuthGate] Step 3: Found refresh token in Redux, attempting refresh...');
+        try {
+          const response = await authApi.refreshToken(storedRefreshToken);
+          console.log('[AuthGate] Backend response:', {
+            hasToken: !!response.token,
+            hasIdToken: !!response.idToken,
+            hasRefreshToken: !!response.refreshToken,
+            expiresAt: response.expiresAt,
+          });
+
+          if (response.token || response.idToken) {
+            const tokenToStore = response.idToken || response.token;
+            const expiryValue = response.expiresAt || Date.now() + 60 * 60 * 1000;
+            console.log('[AuthGate] Step 4: Dispatching setBackendToken to Redux');
+            dispatch(setBackendToken({
+              token: tokenToStore,
+              expiresAt: expiryValue,
+              refreshToken: response.refreshToken,
+            }));
+            console.log('[AuthGate] ========== TOKEN SYNC SUCCESS (from backend) ==========');
+          } else {
+            console.warn('[AuthGate] Backend returned no token');
+            setSyncError('Failed to get authentication token');
+          }
+        } catch (refreshError) {
+          console.error('[AuthGate] Refresh token failed:', refreshError);
+          // The refresh token may be expired - user needs to re-login
+          setSyncError('Session expired. Please log in again.');
         }
-        setIsSyncingToken(false);
-        return;
-      }
-
-      // No stored token - get fresh one from backend using Firebase ID token
-      const firebaseUser = auth.currentUser;
-      if (!firebaseUser) {
-        console.warn('[AuthGate] No Firebase user during token sync');
-        setIsSyncingToken(false);
-        return;
-      }
-
-      console.log('[AuthGate] Getting Firebase ID token...');
-      const idToken = await firebaseUser.getIdToken(true);
-
-      console.log('[AuthGate] Calling backend /auth/refresh-token...');
-      const response = await authApi.refreshToken(idToken);
-
-      if (response.token && response.expiresAt) {
-        console.log('[AuthGate] Backend token sync SUCCESS');
-        dispatch(setBackendToken({ token: response.token, expiresAt: response.expiresAt }));
       } else {
-        console.warn('[AuthGate] Backend returned no token');
-        setSyncError('Failed to get authentication token');
+        // No token in storage and no refresh token - user needs to log in
+        console.log('[AuthGate] Step 3: No refresh token available');
+        console.log('[AuthGate] ========== TOKEN SYNC SKIPPED (no refresh token) ==========');
+        // Don't set error - this is normal for first-time login flow
+        // The login/signup screens will set up the tokens properly
       }
     } catch (error) {
       console.error('[AuthGate] Token sync error:', error);
       const errorMessage = error instanceof Error ? error.message : 'Token sync failed';
       setSyncError(errorMessage);
-      // Don't block the app - let user retry via pull-to-refresh on screens
+      console.log('[AuthGate] ========== TOKEN SYNC ERROR ==========');
     } finally {
       setIsSyncingToken(false);
     }

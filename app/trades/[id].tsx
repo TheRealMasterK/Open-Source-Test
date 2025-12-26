@@ -31,6 +31,7 @@ import { Button } from '@/components/ui/Button';
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
 import { CryptoIcon } from '@/components/ui/CryptoIcon';
 import { useAppSelector } from '@/store';
+import { selectUser } from '@/store/slices/authSlice';
 import { TradeMessage, TradeStatus } from '@/types';
 
 const getStatusVariant = (status: TradeStatus) => {
@@ -65,7 +66,7 @@ export default function TradeDetailScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const { colors, isDark } = useTheme();
-  const { user } = useAppSelector((state) => state.auth);
+  const user = useAppSelector(selectUser);
   const flatListRef = useRef<FlatList>(null);
 
   const [message, setMessage] = useState('');

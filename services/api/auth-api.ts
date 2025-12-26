@@ -9,18 +9,65 @@ import { setToken, removeToken } from './token-manager';
 import { AuthResponse, LoginPayload, SignupPayload, SocialLoginPayload } from '@/types';
 
 /**
+ * Normalize auth response to handle snake_case from backend
+ */
+function normalizeAuthResponse(data: Record<string, unknown>): AuthResponse {
+  // Handle snake_case from backend
+  const expiresAt = (data.expiresAt ?? data.expires_at ?? data.exp ?? undefined) as number | undefined;
+  const token = (data.token ?? data.access_token ?? data.accessToken) as string;
+  const idToken = (data.idToken ?? data.id_token) as string | undefined;
+  const refreshToken = (data.refreshToken ?? data.refresh_token) as string | undefined;
+
+  // Normalize user object - backend uses 'uid', frontend uses 'id'
+  const backendUser = data.user as Record<string, unknown> | undefined;
+  const user = backendUser ? {
+    id: (backendUser.id || backendUser.uid || backendUser.userId) as string,
+    email: backendUser.email as string,
+    displayName: (backendUser.displayName || backendUser.display_name || null) as string | null,
+    photoURL: (backendUser.photoURL || backendUser.photo_url || null) as string | null,
+    emailVerified: (backendUser.emailVerified ?? backendUser.email_verified ?? false) as boolean,
+  } : undefined;
+
+  // Calculate expiresAt if not provided (1 hour default for Firebase tokens)
+  let finalExpiresAt = expiresAt;
+  if (!finalExpiresAt && data.expiresIn) {
+    finalExpiresAt = Date.now() + parseInt(String(data.expiresIn), 10) * 1000;
+  }
+
+  console.log('[AuthAPI] Normalized response:', {
+    hasToken: !!token,
+    hasIdToken: !!idToken,
+    hasRefreshToken: !!refreshToken,
+    userId: user?.id,
+    expiresAt: finalExpiresAt,
+  });
+
+  return {
+    user: user as AuthResponse['user'],
+    token,
+    idToken,
+    refreshToken,
+    expiresAt: finalExpiresAt || Date.now() + 3600000, // Default 1 hour
+  };
+}
+
+/**
  * Sign up a new user
  */
 export async function signup(payload: SignupPayload): Promise<AuthResponse> {
   console.log('[AuthAPI] signup: Starting signup for', payload.email);
 
   try {
-    const response = await post<AuthResponse>(API_ENDPOINTS.AUTH.SIGNUP, payload);
+    const response = await post<Record<string, unknown>>(API_ENDPOINTS.AUTH.SIGNUP, payload);
 
     if (response.success && response.data) {
       console.log('[AuthAPI] signup: Success, storing token');
-      await setToken(response.data.token, response.data.expiresAt);
-      return response.data;
+      const normalized = normalizeAuthResponse(response.data);
+      // Store the ID token (for API calls), not the custom token (which is for Firebase sign-in)
+      const apiToken = normalized.idToken || normalized.token;
+      await setToken(apiToken, normalized.expiresAt || undefined);
+      console.log('[AuthAPI] signup: Stored API token, hasRefreshToken:', !!normalized.refreshToken);
+      return normalized;
     }
 
     throw new Error(response.message || 'Signup failed');
@@ -37,12 +84,16 @@ export async function login(payload: LoginPayload): Promise<AuthResponse> {
   console.log('[AuthAPI] login: Starting login for', payload.email);
 
   try {
-    const response = await post<AuthResponse>(API_ENDPOINTS.AUTH.LOGIN, payload);
+    const response = await post<Record<string, unknown>>(API_ENDPOINTS.AUTH.LOGIN, payload);
 
     if (response.success && response.data) {
       console.log('[AuthAPI] login: Success, storing token');
-      await setToken(response.data.token, response.data.expiresAt);
-      return response.data;
+      const normalized = normalizeAuthResponse(response.data);
+      // Store the ID token (for API calls), not the custom token (which is for Firebase sign-in)
+      const apiToken = normalized.idToken || normalized.token;
+      await setToken(apiToken, normalized.expiresAt || undefined);
+      console.log('[AuthAPI] login: Stored API token, hasRefreshToken:', !!normalized.refreshToken);
+      return normalized;
     }
 
     throw new Error(response.message || 'Login failed');
@@ -53,20 +104,27 @@ export async function login(payload: LoginPayload): Promise<AuthResponse> {
 }
 
 /**
- * Refresh authentication token
+ * Refresh authentication token using Firebase refresh token
+ * @param firebaseRefreshToken - The Firebase refresh token (NOT the ID token)
  */
-export async function refreshToken(firebaseIdToken: string): Promise<AuthResponse> {
-  console.log('[AuthAPI] refreshToken: Refreshing token');
+export async function refreshToken(firebaseRefreshToken: string): Promise<AuthResponse> {
+  console.log('[AuthAPI] refreshToken: Refreshing token with Firebase refresh token');
+
+  if (!firebaseRefreshToken) {
+    console.error('[AuthAPI] refreshToken: No refresh token provided');
+    throw new Error('Refresh token is required');
+  }
 
   try {
-    const response = await post<AuthResponse>(API_ENDPOINTS.AUTH.REFRESH, {
-      idToken: firebaseIdToken,
+    const response = await post<Record<string, unknown>>(API_ENDPOINTS.AUTH.REFRESH, {
+      refreshToken: firebaseRefreshToken,
     });
 
     if (response.success && response.data) {
       console.log('[AuthAPI] refreshToken: Success, storing new token');
-      await setToken(response.data.token, response.data.expiresAt);
-      return response.data;
+      const normalized = normalizeAuthResponse(response.data);
+      await setToken(normalized.token, normalized.expiresAt || undefined);
+      return normalized;
     }
 
     throw new Error(response.message || 'Token refresh failed');
@@ -110,12 +168,13 @@ export async function socialLoginSync(payload: SocialLoginPayload): Promise<Auth
   console.log('[AuthAPI] socialLoginSync: Syncing', payload.provider, 'login');
 
   try {
-    const response = await post<AuthResponse>(API_ENDPOINTS.AUTH.SOCIAL_SYNC, payload);
+    const response = await post<Record<string, unknown>>(API_ENDPOINTS.AUTH.SOCIAL_SYNC, payload);
 
     if (response.success && response.data) {
       console.log('[AuthAPI] socialLoginSync: Success, storing token');
-      await setToken(response.data.token, response.data.expiresAt);
-      return response.data;
+      const normalized = normalizeAuthResponse(response.data);
+      await setToken(normalized.token, normalized.expiresAt || undefined);
+      return normalized;
     }
 
     throw new Error(response.message || 'Social login sync failed');

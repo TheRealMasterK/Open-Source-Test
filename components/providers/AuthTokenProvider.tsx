@@ -4,10 +4,11 @@
  */
 
 import React, { useEffect, ReactNode } from 'react';
-import { auth } from '@/config/firebase';
 import { setTokenRefreshCallback } from '@/services/api/http-client';
 import { setToken } from '@/services/api/token-manager';
 import { authApi } from '@/services/api';
+import { useAppSelector, useAppDispatch } from '@/store';
+import { selectRefreshToken, setBackendToken } from '@/store/slices/authSlice';
 
 interface AuthTokenProviderProps {
   children: ReactNode;
@@ -18,32 +19,38 @@ interface AuthTokenProviderProps {
  * Initializes the token refresh mechanism for API calls
  */
 export function AuthTokenProvider({ children }: AuthTokenProviderProps) {
+  const storedRefreshToken = useAppSelector(selectRefreshToken);
+  const dispatch = useAppDispatch();
+
   useEffect(() => {
-    console.log('[AuthTokenProvider] Setting up token refresh callback');
+    console.log('[AuthTokenProvider] Setting up token refresh callback, hasRefreshToken:', !!storedRefreshToken);
 
     // Register the token refresh callback with HTTP client
     setTokenRefreshCallback(async () => {
       console.log('[AuthTokenProvider] Token refresh callback triggered');
 
-      const firebaseUser = auth.currentUser;
-      if (!firebaseUser) {
-        console.log('[AuthTokenProvider] No Firebase user for token refresh');
-        throw new Error('No authenticated user');
+      if (!storedRefreshToken) {
+        console.log('[AuthTokenProvider] No refresh token available');
+        throw new Error('No refresh token available - please log in again');
       }
 
       try {
-        // Get fresh Firebase ID token
-        console.log('[AuthTokenProvider] Getting Firebase ID token...');
-        const idToken = await firebaseUser.getIdToken(true);
+        console.log('[AuthTokenProvider] Calling backend refresh with refresh token...');
+        const response = await authApi.refreshToken(storedRefreshToken);
 
-        // Sync with backend
-        console.log('[AuthTokenProvider] Calling backend refresh...');
-        const response = await authApi.refreshToken(idToken);
-
-        if (response.token && response.expiresAt) {
+        if ((response.token || response.idToken) && response.expiresAt) {
+          const tokenToStore = response.idToken || response.token;
           console.log('[AuthTokenProvider] Token refresh successful');
-          // Token is already stored by authApi.refreshToken, but let's ensure
-          await setToken(response.token, response.expiresAt);
+
+          // Store the new token in SecureStore
+          await setToken(tokenToStore, response.expiresAt);
+
+          // Update Redux state with new tokens
+          dispatch(setBackendToken({
+            token: tokenToStore,
+            expiresAt: response.expiresAt,
+            refreshToken: response.refreshToken,
+          }));
         } else {
           throw new Error('Invalid token response');
         }
@@ -56,7 +63,7 @@ export function AuthTokenProvider({ children }: AuthTokenProviderProps) {
     return () => {
       console.log('[AuthTokenProvider] Cleaning up token refresh callback');
     };
-  }, []);
+  }, [storedRefreshToken, dispatch]);
 
   return <>{children}</>;
 }

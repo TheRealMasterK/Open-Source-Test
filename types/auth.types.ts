@@ -20,6 +20,7 @@ export interface AuthState {
   error: string | null;
   backendToken: string | null;
   tokenExpiresAt: number | null;
+  refreshToken: string | null;
 }
 
 export interface LoginPayload {
@@ -37,6 +38,8 @@ export interface SignupPayload {
 export interface AuthResponse {
   user: User;
   token: string;
+  idToken?: string;
+  refreshToken?: string;
   expiresAt: number;
 }
 

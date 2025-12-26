@@ -15,6 +15,7 @@ const initialState: AuthState = {
   error: null,
   backendToken: null,
   tokenExpiresAt: null,
+  refreshToken: null,
 };
 
 const authSlice = createSlice({
@@ -57,16 +58,26 @@ const authSlice = createSlice({
 
     setBackendToken: (
       state,
-      action: PayloadAction<{ token: string; expiresAt: number } | null>
+      action: PayloadAction<{ token: string; expiresAt: number; refreshToken?: string } | null>
     ) => {
       console.log('[AuthSlice] setBackendToken:', action.payload ? 'token set' : 'cleared');
       if (action.payload) {
         state.backendToken = action.payload.token;
         state.tokenExpiresAt = action.payload.expiresAt;
+        if (action.payload.refreshToken) {
+          state.refreshToken = action.payload.refreshToken;
+          console.log('[AuthSlice] refreshToken stored');
+        }
       } else {
         state.backendToken = null;
         state.tokenExpiresAt = null;
+        state.refreshToken = null;
       }
+    },
+
+    setRefreshToken: (state, action: PayloadAction<string | null>) => {
+      console.log('[AuthSlice] setRefreshToken:', action.payload ? 'set' : 'cleared');
+      state.refreshToken = action.payload;
     },
 
     clearError: (state) => {
@@ -82,6 +93,7 @@ const authSlice = createSlice({
       state.error = null;
       state.backendToken = null;
       state.tokenExpiresAt = null;
+      state.refreshToken = null;
     },
   },
 });
@@ -92,19 +104,25 @@ export const {
   setLoading,
   setError,
   setBackendToken,
+  setRefreshToken,
   clearError,
   logout,
 } = authSlice.actions;
 
-// Selectors
-export const selectUser = (state: { auth: AuthState }) => state.auth.user;
-export const selectFirebaseUser = (state: { auth: AuthState }) => state.auth.firebaseUser;
+// Define RootState type for selectors (handles Redux Persist partial state)
+type RootStateWithAuth = { auth?: AuthState };
+
+// Selectors - handle potentially undefined state during rehydration
+export const selectUser = (state: RootStateWithAuth) => state.auth?.user ?? null;
+export const selectFirebaseUser = (state: RootStateWithAuth) => state.auth?.firebaseUser ?? null;
 
 /**
  * Check if user is truly authenticated - must have user AND valid token
  * This prevents API calls when token is missing but user data persists
  */
-export const selectIsAuthenticated = (state: { auth: AuthState }) => {
+export const selectIsAuthenticated = (state: RootStateWithAuth): boolean => {
+  if (!state.auth) return false;
+
   const hasUser = state.auth.isAuthenticated && !!state.auth.user;
   const hasToken = !!state.auth.backendToken;
   const tokenNotExpired = !state.auth.tokenExpiresAt || state.auth.tokenExpiresAt > Date.now();
@@ -123,9 +141,10 @@ export const selectIsAuthenticated = (state: { auth: AuthState }) => {
   return isAuth;
 };
 
-export const selectIsLoading = (state: { auth: AuthState }) => state.auth.isLoading;
-export const selectAuthError = (state: { auth: AuthState }) => state.auth.error;
-export const selectBackendToken = (state: { auth: AuthState }) => state.auth.backendToken;
-export const selectTokenExpiresAt = (state: { auth: AuthState }) => state.auth.tokenExpiresAt;
+export const selectIsLoading = (state: RootStateWithAuth) => state.auth?.isLoading ?? true;
+export const selectAuthError = (state: RootStateWithAuth) => state.auth?.error ?? null;
+export const selectBackendToken = (state: RootStateWithAuth) => state.auth?.backendToken ?? null;
+export const selectTokenExpiresAt = (state: RootStateWithAuth) => state.auth?.tokenExpiresAt ?? null;
+export const selectRefreshToken = (state: RootStateWithAuth) => state.auth?.refreshToken ?? null;
 
 export default authSlice.reducer;

@@ -13,18 +13,28 @@ const REFRESH_TOKEN_KEY = 'qic_trader_refresh_token';
 let cachedToken: string | null = null;
 let cachedExpiry: number | null = null;
 
+// Default token expiry: 1 hour from now (in milliseconds)
+const DEFAULT_TOKEN_EXPIRY_MS = 60 * 60 * 1000;
+
 /**
  * Store the authentication token securely
+ * @param token - The authentication token
+ * @param expiresAt - Optional expiry timestamp in milliseconds. If not provided, defaults to 1 hour from now.
  */
-export async function setToken(token: string, expiresAt: number): Promise<void> {
+export async function setToken(token: string, expiresAt?: number): Promise<void> {
   try {
     console.log('[TokenManager] Storing token...');
+
+    // Handle missing expiry - use default of 1 hour from now
+    const expiry = expiresAt && !isNaN(expiresAt) ? expiresAt : Date.now() + DEFAULT_TOKEN_EXPIRY_MS;
+    console.log('[TokenManager] Token expiry:', new Date(expiry).toISOString());
+
     await SecureStore.setItemAsync(TOKEN_KEY, token);
-    await SecureStore.setItemAsync(TOKEN_EXPIRY_KEY, expiresAt.toString());
+    await SecureStore.setItemAsync(TOKEN_EXPIRY_KEY, expiry.toString());
 
     // Update cache
     cachedToken = token;
-    cachedExpiry = expiresAt;
+    cachedExpiry = expiry;
 
     console.log('[TokenManager] Token stored successfully');
   } catch (error) {

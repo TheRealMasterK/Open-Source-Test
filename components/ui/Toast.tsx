@@ -9,7 +9,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { Colors, Spacing, FontSize, BorderRadius, Shadows } from '@/config/theme';
 import { useTheme } from '@/hooks/common/useTheme';
 import { useAppDispatch, useAppSelector } from '@/store';
-import { removeToast, Toast as ToastType } from '@/store/slices/uiSlice';
+import { removeToast, Toast as ToastType, selectToasts } from '@/store/slices/uiSlice';
 
 interface ToastItemProps {
   toast: ToastType;
@@ -113,7 +113,7 @@ function ToastItem({ toast, onDismiss }: ToastItemProps) {
 
 export function ToastContainer() {
   const dispatch = useAppDispatch();
-  const { toasts } = useAppSelector((state) => state.ui);
+  const toasts = useAppSelector(selectToasts);
 
   const handleDismiss = (id: string) => {
     dispatch(removeToast(id));
@@ -123,7 +123,7 @@ export function ToastContainer() {
 
   return (
     <View style={styles.container} pointerEvents="box-none">
-      {toasts.map((toast) => (
+      {toasts.map((toast: ToastType) => (
         <ToastItem key={toast.id} toast={toast} onDismiss={() => handleDismiss(toast.id)} />
       ))}
     </View>

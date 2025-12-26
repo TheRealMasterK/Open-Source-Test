@@ -124,6 +124,19 @@ export default function MarketplaceScreen() {
               );
             })}
           </View>
+
+          {/* Create Offer Button */}
+          <TouchableOpacity
+            style={[styles.createOfferBtn, { backgroundColor: colors.card, borderColor: colors.border }]}
+            onPress={() => router.push('/offers/create')}
+            activeOpacity={0.8}
+          >
+            <View style={styles.createOfferIcon}>
+              <Ionicons name="add-circle" size={20} color={Colors.primary.DEFAULT} />
+            </View>
+            <Text style={[styles.createOfferText, { color: colors.text }]}>Create Offer</Text>
+            <Ionicons name="chevron-forward" size={18} color={colors.textTertiary} />
+          </TouchableOpacity>
         </View>
 
         {/* Search */}
@@ -214,4 +227,7 @@ const styles = StyleSheet.create({
   affiliateSubtitle: { color: 'rgba(255,255,255,0.8)', fontFamily: FontFamily.regular, fontSize: FontSize.xs },
   affiliateBtn: { backgroundColor: Colors.white, paddingHorizontal: Spacing.md, paddingVertical: Spacing.sm, borderRadius: BorderRadius.lg },
   affiliateBtnText: { color: Colors.success.DEFAULT, fontFamily: FontFamily.semiBold, fontSize: FontSize.sm },
+  createOfferBtn: { flexDirection: 'row', alignItems: 'center', marginTop: Spacing.md, paddingVertical: Spacing.md, paddingHorizontal: Spacing.md, borderRadius: BorderRadius.xl, borderWidth: 1 },
+  createOfferIcon: { marginRight: Spacing.sm },
+  createOfferText: { flex: 1, fontFamily: FontFamily.semiBold, fontSize: FontSize.base },
 });

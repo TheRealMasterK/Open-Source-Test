@@ -96,12 +96,17 @@ export const {
   setActiveTab,
 } = offerSlice.actions;
 
-// Selectors
-export const selectCurrentOffer = (state: { offer: OfferState }) => state.offer.currentOffer;
-export const selectDraftOffer = (state: { offer: OfferState }) => state.offer.draftOffer;
-export const selectEscrowFlow = (state: { offer: OfferState }) => state.offer.escrowFlow;
-export const selectSelectedCurrency = (state: { offer: OfferState }) =>
-  state.offer.selectedCurrency;
-export const selectActiveTab = (state: { offer: OfferState }) => state.offer.activeTab;
+// Define RootState type for selectors (handles Redux Persist partial state)
+type RootStateWithOffer = { offer?: OfferState };
+
+// Default escrow flow state
+const defaultEscrowFlow: EscrowFlowState = { step: 'idle' };
+
+// Selectors - handle potentially undefined state during rehydration
+export const selectCurrentOffer = (state: RootStateWithOffer) => state.offer?.currentOffer ?? null;
+export const selectDraftOffer = (state: RootStateWithOffer) => state.offer?.draftOffer ?? {};
+export const selectEscrowFlow = (state: RootStateWithOffer) => state.offer?.escrowFlow ?? defaultEscrowFlow;
+export const selectSelectedCurrency = (state: RootStateWithOffer) => state.offer?.selectedCurrency ?? 'USDT';
+export const selectActiveTab = (state: RootStateWithOffer): 'buy' | 'sell' => state.offer?.activeTab ?? 'buy';
 
 export default offerSlice.reducer;
