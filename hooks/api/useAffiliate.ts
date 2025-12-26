@@ -4,14 +4,27 @@
  */
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useSelector } from 'react-redux';
 import { affiliateApi } from '@/services/api';
+import { selectIsAuthenticated } from '@/store/slices/authSlice';
 import {
   RequestPayoutPayload,
   GenerateLinkPayload,
   ReferralListParams,
   EarningListParams,
   PayoutListParams,
+  API_ERROR_CODES,
 } from '@/types';
+
+// Don't retry on auth errors
+const shouldRetry = (failureCount: number, error: unknown) => {
+  const apiError = error as { code?: string };
+  if (apiError?.code === API_ERROR_CODES.UNAUTHORIZED || apiError?.code === API_ERROR_CODES.FORBIDDEN) {
+    console.log('[useAffiliate] Not retrying due to auth error');
+    return false;
+  }
+  return failureCount < 2;
+};
 
 // Query keys
 export const affiliateKeys = {
@@ -28,56 +41,101 @@ export const affiliateKeys = {
 
 /**
  * Get affiliate stats
+ * Only fetches when authenticated
  */
-export function useAffiliateStats() {
+export function useAffiliateStats(options?: { enabled?: boolean }) {
+  const isAuthenticated = useSelector(selectIsAuthenticated);
+  const enabled = options?.enabled ?? isAuthenticated;
+
   return useQuery({
     queryKey: affiliateKeys.stats(),
-    queryFn: () => affiliateApi.getStats(),
+    queryFn: () => {
+      console.log('[useAffiliateStats] Fetching stats');
+      return affiliateApi.getStats();
+    },
     staleTime: 1000 * 60 * 5, // 5 minutes
+    enabled,
+    retry: shouldRetry,
   });
 }
 
 /**
  * Get referrals list
+ * Only fetches when authenticated
  */
-export function useReferrals(params?: ReferralListParams) {
+export function useReferrals(params?: ReferralListParams, options?: { enabled?: boolean }) {
+  const isAuthenticated = useSelector(selectIsAuthenticated);
+  const enabled = options?.enabled ?? isAuthenticated;
+
   return useQuery({
     queryKey: affiliateKeys.referralList(params),
-    queryFn: () => affiliateApi.getReferrals(params),
+    queryFn: () => {
+      console.log('[useReferrals] Fetching referrals');
+      return affiliateApi.getReferrals(params);
+    },
     staleTime: 1000 * 60 * 5, // 5 minutes
+    enabled,
+    retry: shouldRetry,
   });
 }
 
 /**
  * Get earnings list
+ * Only fetches when authenticated
  */
-export function useEarnings(params?: EarningListParams) {
+export function useEarnings(params?: EarningListParams, options?: { enabled?: boolean }) {
+  const isAuthenticated = useSelector(selectIsAuthenticated);
+  const enabled = options?.enabled ?? isAuthenticated;
+
   return useQuery({
     queryKey: affiliateKeys.earningList(params),
-    queryFn: () => affiliateApi.getEarnings(params),
+    queryFn: () => {
+      console.log('[useEarnings] Fetching earnings');
+      return affiliateApi.getEarnings(params);
+    },
     staleTime: 1000 * 60 * 5, // 5 minutes
+    enabled,
+    retry: shouldRetry,
   });
 }
 
 /**
  * Get affiliate tiers
+ * Only fetches when authenticated
  */
-export function useTiers() {
+export function useTiers(options?: { enabled?: boolean }) {
+  const isAuthenticated = useSelector(selectIsAuthenticated);
+  const enabled = options?.enabled ?? isAuthenticated;
+
   return useQuery({
     queryKey: affiliateKeys.tiers(),
-    queryFn: () => affiliateApi.getTiers(),
+    queryFn: () => {
+      console.log('[useTiers] Fetching tiers');
+      return affiliateApi.getTiers();
+    },
     staleTime: 1000 * 60 * 60, // 1 hour (tiers don't change often)
+    enabled,
+    retry: shouldRetry,
   });
 }
 
 /**
  * Get payouts list
+ * Only fetches when authenticated
  */
-export function usePayouts(params?: PayoutListParams) {
+export function usePayouts(params?: PayoutListParams, options?: { enabled?: boolean }) {
+  const isAuthenticated = useSelector(selectIsAuthenticated);
+  const enabled = options?.enabled ?? isAuthenticated;
+
   return useQuery({
     queryKey: affiliateKeys.payoutList(params),
-    queryFn: () => affiliateApi.getPayouts(params),
+    queryFn: () => {
+      console.log('[usePayouts] Fetching payouts');
+      return affiliateApi.getPayouts(params);
+    },
     staleTime: 1000 * 60 * 5, // 5 minutes
+    enabled,
+    retry: shouldRetry,
   });
 }
 

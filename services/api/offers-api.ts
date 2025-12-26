@@ -128,19 +128,22 @@ function extractPaginatedResponse(response: unknown): PaginatedResponse<Offer> {
   const transformedOffers = offers.map(transformOffer);
 
   // Convert backend pagination to mobile app pagination format
-  const mobilePagination = pagination
-    ? {
-        page: Math.floor((pagination.offset || 0) / (pagination.limit || 20)) + 1,
-        limit: pagination.limit || 20,
-        total: pagination.total || transformedOffers.length,
-        totalPages: Math.ceil((pagination.total || transformedOffers.length) / (pagination.limit || 20)),
-      }
-    : {
-        page: 1,
-        limit: 20,
-        total: transformedOffers.length,
-        totalPages: 1,
-      };
+  // Use 'total' from normalizeResponse or pagination object
+  const totalCount = total ?? pagination?.total ?? transformedOffers.length;
+  const limitCount = pagination?.limit ?? 20;
+
+  const currentPage = pagination
+    ? Math.floor((pagination.offset || 0) / limitCount) + 1
+    : 1;
+  const totalPages = Math.ceil(totalCount / (pagination?.limit ?? 20));
+
+  const mobilePagination = {
+    page: currentPage,
+    limit: pagination?.limit ?? 20,
+    total: totalCount,
+    totalPages: totalPages,
+    hasMore: currentPage < totalPages,
+  };
 
   console.log('[OffersAPI] Extracted', transformedOffers.length, 'offers');
 
@@ -152,23 +155,45 @@ function extractPaginatedResponse(response: unknown): PaginatedResponse<Offer> {
 
 // Helper to extract single offer from API wrapper
 function extractOffer(response: unknown): Offer {
+  console.log('[OffersAPI] extractOffer: Raw response:', JSON.stringify(response, null, 2).slice(0, 500));
+
   const resp = response as {
     success?: boolean;
-    data?: BackendOffer;
+    data?: BackendOffer | { offer?: BackendOffer; data?: BackendOffer };
     offer?: BackendOffer;
   };
 
   let backendOffer: BackendOffer | undefined;
 
-  if (resp.data && resp.data.id) {
-    backendOffer = resp.data;
-  } else if (resp.offer && resp.offer.id) {
+  // Check various response structures
+  if (resp.data) {
+    if ('id' in resp.data && resp.data.id) {
+      // data is the offer directly
+      console.log('[OffersAPI] extractOffer: Found offer in data');
+      backendOffer = resp.data as BackendOffer;
+    } else if ('offer' in resp.data && (resp.data as { offer?: BackendOffer }).offer?.id) {
+      // data.offer contains the offer
+      console.log('[OffersAPI] extractOffer: Found offer in data.offer');
+      backendOffer = (resp.data as { offer: BackendOffer }).offer;
+    } else if ('data' in resp.data && (resp.data as { data?: BackendOffer }).data?.id) {
+      // data.data contains the offer (from normalizeResponse)
+      console.log('[OffersAPI] extractOffer: Found offer in data.data');
+      backendOffer = (resp.data as { data: BackendOffer }).data;
+    }
+  }
+
+  if (!backendOffer && resp.offer?.id) {
+    console.log('[OffersAPI] extractOffer: Found offer in offer field');
     backendOffer = resp.offer;
-  } else if ((response as BackendOffer).id) {
+  }
+
+  if (!backendOffer && (response as BackendOffer).id) {
+    console.log('[OffersAPI] extractOffer: Response is offer directly');
     backendOffer = response as BackendOffer;
   }
 
   if (!backendOffer) {
+    console.error('[OffersAPI] extractOffer: Could not find offer in response structure');
     throw new Error('Invalid offer response');
   }
 
@@ -248,8 +273,19 @@ export async function getBuyOffers(params?: OfferListParams): Promise<PaginatedR
   try {
     const response = await get<unknown>(API_ENDPOINTS.OFFERS.BUY, { params });
     const result = extractPaginatedResponse(response);
-    console.log('[OffersAPI] getBuyOffers: Found', result.data?.length || 0, 'offers');
-    return result;
+
+    // Client-side filter to ensure only buy offers are returned (backend sometimes returns mixed)
+    const filteredOffers = result.data.filter(offer => offer.offerType === 'buy');
+    console.log('[OffersAPI] getBuyOffers: Found', result.data.length, 'offers, filtered to', filteredOffers.length, 'buy offers');
+
+    return {
+      ...result,
+      data: filteredOffers,
+      pagination: {
+        ...result.pagination,
+        total: filteredOffers.length,
+      },
+    };
   } catch (error) {
     console.error('[OffersAPI] getBuyOffers: Error', error);
     throw error;
@@ -265,8 +301,19 @@ export async function getSellOffers(params?: OfferListParams): Promise<Paginated
   try {
     const response = await get<unknown>(API_ENDPOINTS.OFFERS.SELL, { params });
     const result = extractPaginatedResponse(response);
-    console.log('[OffersAPI] getSellOffers: Found', result.data?.length || 0, 'offers');
-    return result;
+
+    // Client-side filter to ensure only sell offers are returned (backend sometimes returns mixed)
+    const filteredOffers = result.data.filter(offer => offer.offerType === 'sell');
+    console.log('[OffersAPI] getSellOffers: Found', result.data.length, 'offers, filtered to', filteredOffers.length, 'sell offers');
+
+    return {
+      ...result,
+      data: filteredOffers,
+      pagination: {
+        ...result.pagination,
+        total: filteredOffers.length,
+      },
+    };
   } catch (error) {
     console.error('[OffersAPI] getSellOffers: Error', error);
     throw error;

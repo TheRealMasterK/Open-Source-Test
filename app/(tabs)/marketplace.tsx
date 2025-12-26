@@ -3,7 +3,7 @@
  * Premium P2P trading marketplace with crypto offers
  */
 
-import React, { useState, useCallback, useMemo } from 'react';
+import React, { useState, useCallback, useMemo, useEffect } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, RefreshControl, TextInput, StyleSheet, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -31,18 +31,40 @@ export default function MarketplaceScreen() {
   const { data: buyOffersData, isLoading: buyLoading, error: buyError, refetch: refetchBuy } = useBuyOffers(undefined, { enabled: activeTab === 'buy' });
   const { data: sellOffersData, isLoading: sellLoading, error: sellError, refetch: refetchSell } = useSellOffers(undefined, { enabled: activeTab === 'sell' });
 
+  // Refetch data when tab changes to ensure fresh data
+  useEffect(() => {
+    console.log('[Marketplace] Tab changed to:', activeTab, '- triggering refetch');
+    if (activeTab === 'buy') {
+      refetchBuy();
+    } else {
+      refetchSell();
+    }
+  }, [activeTab, refetchBuy, refetchSell]);
+
   const { offers, isLoading, error } = useMemo(() => {
     console.log('[Marketplace] Processing offers:', {
       activeTab,
       buyOffersData: buyOffersData ? { hasData: !!buyOffersData.data, count: buyOffersData.data?.length } : null,
       sellOffersData: sellOffersData ? { hasData: !!sellOffersData.data, count: sellOffersData.data?.length } : null,
+      buyLoading,
+      sellLoading,
     });
+
     const rawOffers = activeTab === 'buy' ? buyOffersData?.data || [] : sellOffersData?.data || [];
+
+    // Debug: Log offer types to verify filtering
+    if (rawOffers.length > 0) {
+      const offerTypes = rawOffers.map((o: Offer) => ({ id: o.id, type: o.offerType }));
+      console.log('[Marketplace] Raw offers for', activeTab, 'tab:', offerTypes);
+    }
+
     let filtered = rawOffers;
     if (searchQuery.trim()) {
       const query = searchQuery.toLowerCase();
       filtered = rawOffers.filter((o: Offer) => o.creatorDisplayName?.toLowerCase().includes(query) || o.cryptocurrency.toLowerCase().includes(query) || o.paymentMethods.some((pm: string) => pm.toLowerCase().includes(query)));
     }
+
+    console.log('[Marketplace] Final offers count:', filtered.length, 'for tab:', activeTab);
     return { offers: filtered, isLoading: activeTab === 'buy' ? buyLoading : sellLoading, error: activeTab === 'buy' ? buyError : sellError };
   }, [activeTab, buyOffersData, sellOffersData, searchQuery, buyLoading, sellLoading, buyError, sellError]);
 
