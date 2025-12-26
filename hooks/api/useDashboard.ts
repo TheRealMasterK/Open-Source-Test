@@ -81,7 +81,20 @@ export function useTradingSummary(options?: { enabled?: boolean }) {
  * Hook to get dashboard data formatted as stat cards for UI
  */
 export function useDashboardStats() {
-  const { data: dashboard, isLoading, error, refetch } = useDashboard();
+  const isAuthenticated = useSelector(selectIsAuthenticated);
+  const { data: dashboard, isLoading: queryLoading, isFetching, error, refetch } = useDashboard();
+
+  console.log('[useDashboardStats] State:', {
+    isAuthenticated,
+    queryLoading,
+    isFetching,
+    hasDashboard: !!dashboard,
+    error: error?.message,
+  });
+
+  // Only show loading when authenticated AND actively fetching
+  // Don't show loading if not authenticated (query is disabled)
+  const isLoading = isAuthenticated && (queryLoading || isFetching);
 
   // Transform dashboard data to stat cards
   const stats: DashboardStatCard[] = dashboard
@@ -134,7 +147,18 @@ export function useDashboardStats() {
  * Hook to get recent activity
  */
 export function useRecentActivity() {
-  const { data: dashboard, isLoading, error } = useDashboard();
+  const isAuthenticated = useSelector(selectIsAuthenticated);
+  const { data: dashboard, isLoading: queryLoading, isFetching, error } = useDashboard();
+
+  console.log('[useRecentActivity] State:', {
+    isAuthenticated,
+    queryLoading,
+    isFetching,
+    hasActivities: !!dashboard?.recentActivity?.length,
+  });
+
+  // Only show loading when authenticated AND actively fetching
+  const isLoading = isAuthenticated && (queryLoading || isFetching);
 
   return {
     activities: dashboard?.recentActivity || [],

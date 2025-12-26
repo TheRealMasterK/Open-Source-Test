@@ -5,7 +5,7 @@
 
 import { API_ENDPOINTS } from '@/config/api.config';
 import { post, del } from './http-client';
-import { setToken, removeToken } from './token-manager';
+import { setToken, removeToken, setRefreshToken } from './token-manager';
 import { AuthResponse, LoginPayload, SignupPayload, SocialLoginPayload } from '@/types';
 
 /**
@@ -66,6 +66,11 @@ export async function signup(payload: SignupPayload): Promise<AuthResponse> {
       // Store the ID token (for API calls), not the custom token (which is for Firebase sign-in)
       const apiToken = normalized.idToken || normalized.token;
       await setToken(apiToken, normalized.expiresAt || undefined);
+      // Store refresh token for session persistence
+      if (normalized.refreshToken) {
+        await setRefreshToken(normalized.refreshToken);
+        console.log('[AuthAPI] signup: Stored refresh token to SecureStore');
+      }
       console.log('[AuthAPI] signup: Stored API token, hasRefreshToken:', !!normalized.refreshToken);
       return normalized;
     }
@@ -92,6 +97,11 @@ export async function login(payload: LoginPayload): Promise<AuthResponse> {
       // Store the ID token (for API calls), not the custom token (which is for Firebase sign-in)
       const apiToken = normalized.idToken || normalized.token;
       await setToken(apiToken, normalized.expiresAt || undefined);
+      // Store refresh token for session persistence
+      if (normalized.refreshToken) {
+        await setRefreshToken(normalized.refreshToken);
+        console.log('[AuthAPI] login: Stored refresh token to SecureStore');
+      }
       console.log('[AuthAPI] login: Stored API token, hasRefreshToken:', !!normalized.refreshToken);
       return normalized;
     }
@@ -124,6 +134,11 @@ export async function refreshToken(firebaseRefreshToken: string): Promise<AuthRe
       console.log('[AuthAPI] refreshToken: Success, storing new token');
       const normalized = normalizeAuthResponse(response.data);
       await setToken(normalized.token, normalized.expiresAt || undefined);
+      // Store new refresh token if provided (token rotation)
+      if (normalized.refreshToken) {
+        await setRefreshToken(normalized.refreshToken);
+        console.log('[AuthAPI] refreshToken: Stored new refresh token to SecureStore');
+      }
       return normalized;
     }
 

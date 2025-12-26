@@ -121,6 +121,14 @@ export default function WalletScreen() {
             onPress={() => router.push('/wallet/eth' as never)}
             style={styles.cryptoCard}
           />
+          <CryptoCard
+            crypto="SOL"
+            balance={`${formatBalance(balances?.SOL, 4)} SOL`}
+            fiatValue="$0.00"
+            change24h={{ value: '+5.8%', isPositive: true }}
+            onPress={() => router.push('/wallet/sol' as never)}
+            style={styles.cryptoCard}
+          />
         </View>
 
         {/* Quick Actions */}
@@ -179,6 +187,7 @@ export default function WalletScreen() {
               { color: Colors.crypto.USDT, label: 'USDT', pct: balances?.USDT ? Math.round((balances.USDT / (totalBalance || 1)) * 100) : 0 },
               { color: Colors.crypto.BTC, label: 'BTC', pct: 0 },
               { color: Colors.crypto.ETH, label: 'ETH', pct: 0 },
+              { color: Colors.crypto.SOL, label: 'SOL', pct: 0 },
             ].map((item) => (
               <View key={item.label} style={styles.legendItem}>
                 <View style={[styles.legendDot, { backgroundColor: item.color }]} />

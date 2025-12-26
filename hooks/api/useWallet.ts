@@ -64,7 +64,7 @@ export function useBalance() {
 
   console.log('[useBalance] Hook called, isAuthenticated:', isAuthenticated);
 
-  return useQuery({
+  const query = useQuery({
     queryKey: walletKeys.balance(),
     queryFn: async () => {
       console.log('[useBalance] queryFn executing - this should only run if enabled');
@@ -79,6 +79,22 @@ export function useBalance() {
     refetchOnWindowFocus: false, // Disabled to prevent rate limiting
     retry: shouldRetry,
   });
+
+  console.log('[useBalance] Query state:', {
+    isAuthenticated,
+    isLoading: query.isLoading,
+    isFetching: query.isFetching,
+    hasData: !!query.data,
+    error: query.error?.message,
+  });
+
+  // Only show loading when authenticated AND actively fetching
+  const isLoading = isAuthenticated && (query.isLoading || query.isFetching);
+
+  return {
+    ...query,
+    isLoading,
+  };
 }
 
 /**

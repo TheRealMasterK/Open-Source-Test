@@ -19,7 +19,7 @@ import {
 } from '@/store/slices/authSlice';
 import { useAppSelector } from '@/store';
 import { Colors, FontFamily, FontSize, Spacing } from '@/config/theme';
-import { getToken, getTokenExpiry, isTokenExpiringSoon, removeToken } from '@/services/api/token-manager';
+import { getToken, getTokenExpiry, isTokenExpiringSoon, removeToken, getRefreshToken } from '@/services/api/token-manager';
 import { authApi } from '@/services/api';
 import { setAuthFailureCallback, resetAuthFailureCount } from '@/services/api/http-client';
 import { signOut } from 'firebase/auth';
@@ -204,11 +204,20 @@ export function AuthGate({ children }: AuthGateProps) {
 
       console.log('[AuthGate] Step 2: No token in SecureStore');
 
-      // Check if we have a refresh token in Redux to get new tokens
-      if (storedRefreshToken) {
-        console.log('[AuthGate] Step 3: Found refresh token in Redux, attempting refresh...');
+      // Check if we have a refresh token (Redux first, then SecureStore fallback)
+      let refreshTokenToUse = storedRefreshToken;
+      if (!refreshTokenToUse) {
+        console.log('[AuthGate] Step 2b: No refresh token in Redux, checking SecureStore...');
+        refreshTokenToUse = await getRefreshToken();
+        if (refreshTokenToUse) {
+          console.log('[AuthGate] Step 2c: Found refresh token in SecureStore');
+        }
+      }
+
+      if (refreshTokenToUse) {
+        console.log('[AuthGate] Step 3: Found refresh token, attempting refresh...');
         try {
-          const response = await authApi.refreshToken(storedRefreshToken);
+          const response = await authApi.refreshToken(refreshTokenToUse);
           console.log('[AuthGate] Backend response:', {
             hasToken: !!response.token,
             hasIdToken: !!response.idToken,
@@ -237,7 +246,7 @@ export function AuthGate({ children }: AuthGateProps) {
         }
       } else {
         // No token in storage and no refresh token - user needs to log in
-        console.log('[AuthGate] Step 3: No refresh token available');
+        console.log('[AuthGate] Step 3: No refresh token available in Redux or SecureStore');
         console.log('[AuthGate] ========== TOKEN SYNC SKIPPED (no refresh token) ==========');
         // Don't set error - this is normal for first-time login flow
         // The login/signup screens will set up the tokens properly

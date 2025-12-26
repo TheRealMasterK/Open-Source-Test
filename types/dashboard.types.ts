@@ -5,7 +5,7 @@
 
 export interface RecentActivity {
   id: string;
-  type: 'trade' | 'escrow' | 'rating' | 'offer';
+  type: 'trade' | 'escrow' | 'rating' | 'offer' | 'wallet';
   description: string;
   amount?: number;
   currency?: string;

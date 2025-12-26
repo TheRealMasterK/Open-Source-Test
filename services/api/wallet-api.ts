@@ -66,14 +66,52 @@ export async function getTransactions(
   console.log('[WalletAPI] getTransactions: Fetching transactions', params);
 
   try {
-    const response = await get<PaginatedResponse<WalletTransaction>>(
+    const response = await get<unknown>(
       API_ENDPOINTS.WALLET.TRANSACTIONS,
       { params }
     );
 
     if (response.success && response.data) {
-      console.log('[WalletAPI] getTransactions: Found', response.data.data.length, 'transactions');
-      return response.data;
+      const data = response.data as Record<string, unknown>;
+      console.log('[WalletAPI] getTransactions: Raw response structure:', {
+        hasData: !!data.data,
+        hasTransactions: !!data.transactions,
+        keys: Object.keys(data),
+      });
+
+      // Handle different response formats
+      let transactions: WalletTransaction[] = [];
+      let pagination = { page: 1, limit: params?.limit || 10, total: 0, totalPages: 1, hasMore: false };
+
+      // Check for transactions in different locations
+      if (Array.isArray(data.data)) {
+        transactions = data.data as WalletTransaction[];
+      } else if (Array.isArray(data.transactions)) {
+        transactions = data.transactions as WalletTransaction[];
+      } else if (Array.isArray(data)) {
+        transactions = data as unknown as WalletTransaction[];
+      }
+
+      // Extract pagination if available
+      if (data.pagination && typeof data.pagination === 'object') {
+        const pag = data.pagination as Record<string, unknown>;
+        const page = (pag.page as number) || (pag.currentPage as number) || 1;
+        const totalPages = (pag.totalPages as number) || (pag.pages as number) || 1;
+        pagination = {
+          page,
+          limit: (pag.limit as number) || (pag.perPage as number) || params?.limit || 10,
+          total: (pag.total as number) || (pag.totalCount as number) || transactions.length,
+          totalPages,
+          hasMore: page < totalPages,
+        };
+      }
+
+      console.log('[WalletAPI] getTransactions: Found', transactions.length, 'transactions');
+
+      return {
+        data: transactions,
+        pagination,
+      };
     }
 
     throw new Error(response.message || 'Failed to fetch transactions');

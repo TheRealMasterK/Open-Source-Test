@@ -99,12 +99,21 @@ export default function TradesScreen() {
   const [refreshing, setRefreshing] = useState(false);
   const isAuthenticated = useAppSelector(selectIsAuthenticated);
 
-  console.log('[Trades] Rendering, activeTab:', activeTab, 'isAuthenticated:', isAuthenticated);
-
   // API Hooks - Only fetch data for the active tab AND when authenticated to reduce API calls
-  const { data: activeTradesData, isLoading: activeLoading, refetch: refetchActive } = useActiveTrades({ enabled: isAuthenticated && activeTab === 'active' });
-  const { data: completedTradesData, isLoading: completedLoading, refetch: refetchCompleted } = useCompletedTrades({ enabled: isAuthenticated && activeTab === 'completed' });
-  const { data: allTradesData, isLoading: allLoading, refetch: refetchAll } = useTrades({ status: 'disputed' }, { enabled: isAuthenticated && activeTab === 'disputed' });
+  const { data: activeTradesData, isLoading: activeLoading, error: activeError, refetch: refetchActive } = useActiveTrades({ enabled: isAuthenticated && activeTab === 'active' });
+  const { data: completedTradesData, isLoading: completedLoading, error: completedError, refetch: refetchCompleted } = useCompletedTrades({ enabled: isAuthenticated && activeTab === 'completed' });
+  const { data: allTradesData, isLoading: allLoading, error: allError, refetch: refetchAll } = useTrades({ status: 'disputed' }, { enabled: isAuthenticated && activeTab === 'disputed' });
+
+  console.log('[Trades] Rendering:', {
+    activeTab,
+    isAuthenticated,
+    activeLoading,
+    activeCount: activeTradesData?.length,
+    activeError: activeError?.message,
+    completedLoading,
+    completedCount: completedTradesData?.length,
+    completedError: completedError?.message,
+  });
 
   // Get trades for current tab
   const { trades, isLoading, count } = useMemo(() => {

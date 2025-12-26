@@ -44,9 +44,9 @@ export function useTrades(params?: TradeListParams, options?: { enabled?: boolea
   const isAuthenticated = useAppSelector(selectIsAuthenticated);
   const shouldFetch = (options?.enabled ?? true) && isAuthenticated;
 
-  console.log('[useTrades] Hook called, isAuthenticated:', isAuthenticated, 'enabled:', options?.enabled ?? true);
+  console.log('[useTrades] Hook called, isAuthenticated:', isAuthenticated, 'shouldFetch:', shouldFetch);
 
-  return useQuery({
+  const query = useQuery({
     queryKey: tradeKeys.list(params),
     queryFn: () => tradesApi.getTrades(params),
     enabled: shouldFetch,
@@ -54,6 +54,21 @@ export function useTrades(params?: TradeListParams, options?: { enabled?: boolea
     gcTime: 1000 * 60 * 10, // 10 minutes
     retry: shouldRetry,
   });
+
+  console.log('[useTrades] Query state:', {
+    isLoading: query.isLoading,
+    isFetching: query.isFetching,
+    hasData: !!query.data,
+    error: query.error?.message,
+  });
+
+  // Only show loading when shouldFetch is true AND actively fetching
+  const isLoading = shouldFetch && (query.isLoading || query.isFetching);
+
+  return {
+    ...query,
+    isLoading,
+  };
 }
 
 /**
@@ -63,9 +78,9 @@ export function useActiveTrades(options?: { enabled?: boolean }) {
   const isAuthenticated = useAppSelector(selectIsAuthenticated);
   const shouldFetch = (options?.enabled ?? true) && isAuthenticated;
 
-  console.log('[useActiveTrades] Hook called, isAuthenticated:', isAuthenticated, 'enabled:', options?.enabled ?? true);
+  console.log('[useActiveTrades] Hook called, isAuthenticated:', isAuthenticated, 'shouldFetch:', shouldFetch);
 
-  return useQuery({
+  const query = useQuery({
     queryKey: tradeKeys.active(),
     queryFn: () => tradesApi.getActiveTrades(),
     enabled: shouldFetch,
@@ -74,6 +89,21 @@ export function useActiveTrades(options?: { enabled?: boolean }) {
     refetchInterval: false, // Disable auto-refetch to reduce API calls
     retry: shouldRetry,
   });
+
+  console.log('[useActiveTrades] Query state:', {
+    isLoading: query.isLoading,
+    isFetching: query.isFetching,
+    dataCount: query.data?.length,
+    error: query.error?.message,
+  });
+
+  // Only show loading when shouldFetch is true AND actively fetching
+  const isLoading = shouldFetch && (query.isLoading || query.isFetching);
+
+  return {
+    ...query,
+    isLoading,
+  };
 }
 
 /**
@@ -83,9 +113,9 @@ export function useCompletedTrades(options?: { enabled?: boolean }) {
   const isAuthenticated = useAppSelector(selectIsAuthenticated);
   const shouldFetch = (options?.enabled ?? true) && isAuthenticated;
 
-  console.log('[useCompletedTrades] Hook called, isAuthenticated:', isAuthenticated, 'enabled:', options?.enabled ?? true);
+  console.log('[useCompletedTrades] Hook called, isAuthenticated:', isAuthenticated, 'shouldFetch:', shouldFetch);
 
-  return useQuery({
+  const query = useQuery({
     queryKey: tradeKeys.completed(),
     queryFn: () => tradesApi.getCompletedTrades(),
     enabled: shouldFetch,
@@ -93,6 +123,21 @@ export function useCompletedTrades(options?: { enabled?: boolean }) {
     gcTime: 1000 * 60 * 10, // 10 minutes
     retry: shouldRetry,
   });
+
+  console.log('[useCompletedTrades] Query state:', {
+    isLoading: query.isLoading,
+    isFetching: query.isFetching,
+    dataCount: query.data?.length,
+    error: query.error?.message,
+  });
+
+  // Only show loading when shouldFetch is true AND actively fetching
+  const isLoading = shouldFetch && (query.isLoading || query.isFetching);
+
+  return {
+    ...query,
+    isLoading,
+  };
 }
 
 /**

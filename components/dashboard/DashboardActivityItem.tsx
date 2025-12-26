@@ -19,6 +19,7 @@ const ACTIVITY_CONFIG: Record<RecentActivity['type'], {
   escrow: { icon: 'lock-closed', color: '#F59E0B' },
   rating: { icon: 'star', color: '#10B981' },
   offer: { icon: 'pricetag', color: '#8B5CF6' },
+  wallet: { icon: 'wallet', color: '#06B6D4' },
 };
 
 export interface DashboardActivityItemProps {

@@ -19,8 +19,10 @@ export interface WalletBalances {
   USDT: number;
   BTC: number;
   ETH: number;
+  SOL: number;
   estimatedValueUSD: number;
   estimatedValueZAR?: number;
+  [key: string]: number | undefined; // Allow dynamic crypto access
 }
 
 export interface Wallet {

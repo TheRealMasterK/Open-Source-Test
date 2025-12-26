@@ -63,10 +63,21 @@ export default function OfferDetailScreen() {
     }
 
     try {
-      console.log('[OfferDetailScreen] Creating trade...');
+      // Calculate crypto amount from fiat amount
+      const fiatAmount = amountNum;
+      const calculatedCryptoAmount = fiatAmount / offer.pricePerUnit;
+
+      console.log('[OfferDetailScreen] Creating trade...', {
+        offerId: offer.id,
+        fiatAmount,
+        cryptoAmount: calculatedCryptoAmount,
+        paymentMethod: paymentMethod || offer.paymentMethods[0],
+      });
+
       await createTrade.mutateAsync({
         offerId: offer.id,
-        amount: amountNum,
+        cryptoAmount: calculatedCryptoAmount,
+        fiatAmount: fiatAmount,
         paymentMethod: paymentMethod || offer.paymentMethods[0],
       });
 

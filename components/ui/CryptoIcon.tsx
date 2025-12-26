@@ -41,6 +41,10 @@ const getCryptoColor = (currency: CryptoSymbol): string => {
       return Colors.crypto.BTC;
     case 'ETH':
       return Colors.crypto.ETH;
+    case 'SOL':
+      return Colors.crypto.SOL;
+    default:
+      return Colors.primary.DEFAULT;
   }
 };
 
@@ -52,6 +56,11 @@ const getCryptoSymbol = (currency: CryptoSymbol): string => {
       return '₿';
     case 'ETH':
       return 'Ξ';
+    case 'SOL':
+      return '◎';
+    default:
+      // Exhaustive check - return first character as fallback
+      return (currency as string).charAt(0);
   }
 };
 

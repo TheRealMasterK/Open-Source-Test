@@ -83,11 +83,15 @@ export function useAuth() {
         // Sync with backend and store token in Redux
         try {
           const authResponse = await authApi.login(payload);
-          console.log('[useAuth] login: Backend sync success');
+          console.log('[useAuth] login: Backend sync success, hasRefreshToken:', !!authResponse.refreshToken);
           // Store token in Redux state (also stored in SecureStore by authApi)
           if (authResponse.token && authResponse.expiresAt) {
-            dispatch(setBackendToken({ token: authResponse.token, expiresAt: authResponse.expiresAt }));
-            console.log('[useAuth] login: Token set in Redux');
+            dispatch(setBackendToken({
+              token: authResponse.token,
+              expiresAt: authResponse.expiresAt,
+              refreshToken: authResponse.refreshToken, // Store refresh token for persistence
+            }));
+            console.log('[useAuth] login: Token and refreshToken set in Redux');
           }
         } catch (backendError) {
           console.warn('[useAuth] login: Backend sync failed', backendError);
@@ -160,11 +164,15 @@ export function useAuth() {
         // Sync with backend and store token in Redux
         try {
           const authResponse = await authApi.signup(payload);
-          console.log('[useAuth] signup: Backend sync success');
+          console.log('[useAuth] signup: Backend sync success, hasRefreshToken:', !!authResponse.refreshToken);
           // Store token in Redux state (also stored in SecureStore by authApi)
           if (authResponse.token && authResponse.expiresAt) {
-            dispatch(setBackendToken({ token: authResponse.token, expiresAt: authResponse.expiresAt }));
-            console.log('[useAuth] signup: Token set in Redux');
+            dispatch(setBackendToken({
+              token: authResponse.token,
+              expiresAt: authResponse.expiresAt,
+              refreshToken: authResponse.refreshToken, // Store refresh token for persistence
+            }));
+            console.log('[useAuth] signup: Token and refreshToken set in Redux');
           }
         } catch (backendError) {
           console.warn('[useAuth] signup: Backend sync failed', backendError);

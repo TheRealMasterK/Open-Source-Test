@@ -37,7 +37,17 @@ export default function DashboardScreen() {
   const { data: balances, isLoading: balancesLoading, refetch: refetchBalances } = useBalance();
   const { refresh: refreshDashboard } = useRefreshDashboard();
 
-  console.log('[Dashboard] Rendering, user:', user?.displayName, 'isAuthenticated:', isAuthenticated);
+  console.log('[Dashboard] Rendering:', {
+    user: user?.displayName,
+    isAuthenticated,
+    statsLoading,
+    statsCount: stats?.length,
+    statsError: statsError?.message,
+    activitiesLoading,
+    activitiesCount: activities?.length,
+    balancesLoading,
+    hasBalances: !!balances,
+  });
 
   const onRefresh = useCallback(async () => {
     if (!isAuthenticated) {

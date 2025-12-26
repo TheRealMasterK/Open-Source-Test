@@ -3,7 +3,7 @@
  * Centralized crypto settings and constants
  */
 
-export type CryptoSymbol = 'USDT' | 'BTC' | 'ETH';
+export type CryptoSymbol = 'USDT' | 'BTC' | 'ETH' | 'SOL';
 export type FiatCurrency = 'ZAR' | 'USD' | 'EUR' | 'GBP' | 'NGN';
 
 export interface CryptoConfig {
@@ -54,6 +54,14 @@ export const CRYPTOCURRENCIES: Record<CryptoSymbol, CryptoConfig> = {
       { id: 'bsc', name: 'BSC', chainId: 56, isTestnet: false },
     ],
   },
+  SOL: {
+    symbol: 'SOL',
+    name: 'Solana',
+    color: '#9945FF',
+    decimals: 9,
+    icon: 'sol',
+    networks: [{ id: 'solana', name: 'Solana', chainId: 0, isTestnet: false }],
+  },
 };
 
 export const FIAT_CURRENCIES: Record<FiatCurrency, { symbol: string; name: string }> = {
@@ -64,7 +72,7 @@ export const FIAT_CURRENCIES: Record<FiatCurrency, { symbol: string; name: strin
   NGN: { symbol: '₦', name: 'Nigerian Naira' },
 };
 
-export const CRYPTO_SYMBOLS: CryptoSymbol[] = ['USDT', 'BTC', 'ETH'];
+export const CRYPTO_SYMBOLS: CryptoSymbol[] = ['USDT', 'BTC', 'ETH', 'SOL'];
 export const FIAT_SYMBOLS: FiatCurrency[] = ['ZAR', 'USD', 'EUR', 'GBP', 'NGN'];
 
 /**

@@ -48,8 +48,10 @@ export interface Trade {
 
 export interface CreateTradePayload {
   offerId: string;
-  amount: number;
-  paymentMethod: string;
+  cryptoAmount: number;
+  fiatAmount: number;
+  paymentMethod?: string;
+  buyerWalletAddress?: string;
 }
 
 export interface TradeMessage {
