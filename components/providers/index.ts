@@ -3,3 +3,4 @@
  */
 
 export { AppProviders, default } from './AppProviders';
+export { AuthTokenProvider } from './AuthTokenProvider';

@@ -22,13 +22,16 @@ export async function getDashboard(): Promise<UserDashboardStats> {
   try {
     const response = await get<DashboardResponse>(API_ENDPOINTS.DASHBOARD.BASE);
 
+    // Extract dashboard from API response wrapper
+    const dashboardData = response.data?.dashboard || response as unknown as UserDashboardStats;
+
     console.log('[DashboardAPI] Dashboard retrieved:', {
-      totalTrades: response.dashboard?.totalTrades,
-      activeTrades: response.dashboard?.activeTrades,
-      rating: response.dashboard?.rating,
+      totalTrades: dashboardData?.totalTrades,
+      activeTrades: dashboardData?.activeTrades,
+      rating: dashboardData?.rating,
     });
 
-    return response.dashboard;
+    return dashboardData;
   } catch (error) {
     console.error('[DashboardAPI] Error getting dashboard:', error);
     throw error;
@@ -45,12 +48,15 @@ export async function getTradingSummary(): Promise<TradingSummary> {
   try {
     const response = await get<TradingSummaryResponse>(API_ENDPOINTS.DASHBOARD.SUMMARY);
 
+    // Extract summary from API response wrapper
+    const summaryData = response.data?.summary || response as unknown as TradingSummary;
+
     console.log('[DashboardAPI] Trading summary retrieved:', {
-      totalTrades: response.summary?.overall?.totalTrades,
-      completed: response.summary?.overall?.completed,
+      totalTrades: summaryData?.overall?.totalTrades,
+      completed: summaryData?.overall?.completed,
     });
 
-    return response.summary;
+    return summaryData;
   } catch (error) {
     console.error('[DashboardAPI] Error getting trading summary:', error);
     throw error;

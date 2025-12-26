@@ -16,6 +16,7 @@ export const ENV = {
     STORAGE_BUCKET: process.env.EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET || '',
     MESSAGING_SENDER_ID: process.env.EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID || '',
     APP_ID: process.env.EXPO_PUBLIC_FIREBASE_APP_ID || '',
+    MEASUREMENT_ID: process.env.EXPO_PUBLIC_FIREBASE_MEASUREMENT_ID || '',
   },
 
   // Sentry Configuration
@@ -30,12 +31,16 @@ export const ENV = {
  * Validate required environment variables
  */
 export function validateEnv(): { valid: boolean; missing: string[] } {
-  const required = ['EXPO_PUBLIC_API_BASE_URL'];
+  const required = [
+    'EXPO_PUBLIC_API_BASE_URL',
+    'EXPO_PUBLIC_FIREBASE_API_KEY',
+    'EXPO_PUBLIC_FIREBASE_PROJECT_ID',
+  ];
 
   const missing = required.filter((key) => !process.env[key]);
 
   if (missing.length > 0) {
-    console.warn('[ENV] Missing environment variables:', missing);
+    console.warn('[ENV] Missing required environment variables:', missing);
   }
 
   return {

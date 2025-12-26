@@ -12,7 +12,6 @@ import {
   TouchableOpacityProps,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { BlurView } from 'expo-blur';
 import { Colors, Spacing, BorderRadius, Gradients } from '@/config/theme';
 import { useTheme } from '@/hooks/common/useTheme';
 

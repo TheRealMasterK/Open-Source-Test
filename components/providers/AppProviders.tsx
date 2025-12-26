@@ -44,7 +44,7 @@ function LoadingFallback() {
 
 /**
  * AppProviders component
- * Wraps children with Redux Provider, PersistGate, and React Query
+ * Wraps children with Redux Provider, PersistGate, React Query, and Auth Token Provider
  */
 export function AppProviders({ children }: AppProvidersProps) {
   console.log('[AppProviders] Rendering providers');
@@ -52,7 +52,9 @@ export function AppProviders({ children }: AppProvidersProps) {
   return (
     <Provider store={store}>
       <PersistGate loading={<LoadingFallback />} persistor={persistor}>
-        <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+        <QueryClientProvider client={queryClient}>
+          <AuthTokenProvider>{children}</AuthTokenProvider>
+        </QueryClientProvider>
       </PersistGate>
     </Provider>
   );

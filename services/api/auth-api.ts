@@ -79,11 +79,16 @@ export async function refreshToken(firebaseIdToken: string): Promise<AuthRespons
 /**
  * Delete user account
  */
-export async function deleteUser(): Promise<void> {
-  console.log('[AuthAPI] deleteUser: Starting account deletion');
+export async function deleteUser(userId: string): Promise<void> {
+  console.log('[AuthAPI] deleteUser: Starting account deletion for user:', userId);
+
+  if (!userId) {
+    console.error('[AuthAPI] deleteUser: No userId provided');
+    throw new Error('User ID is required for account deletion');
+  }
 
   try {
-    const response = await del<void>(API_ENDPOINTS.AUTH.DELETE);
+    const response = await del<void>(API_ENDPOINTS.AUTH.DELETE(userId));
 
     if (response.success) {
       console.log('[AuthAPI] deleteUser: Success, clearing tokens');

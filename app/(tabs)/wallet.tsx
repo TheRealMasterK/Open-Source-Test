@@ -10,6 +10,8 @@ import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { Colors, Spacing, FontSize, FontFamily, BorderRadius } from '@/config/theme';
 import { useTheme } from '@/hooks/common/useTheme';
+import { useAppSelector } from '@/store';
+import { selectIsAuthenticated } from '@/store/slices/authSlice';
 import { CryptoCard, GlassCard, GradientButton, LoadingSpinner } from '@/components/ui';
 import { TransactionItem } from '@/components/features/wallet';
 import { useBalance, useTransactions } from '@/hooks/api/useWallet';
@@ -17,15 +19,21 @@ import { useBalance, useTransactions } from '@/hooks/api/useWallet';
 export default function WalletScreen() {
   const { colors, shadows, isDark } = useTheme();
   const [refreshing, setRefreshing] = useState(false);
+  const isAuthenticated = useAppSelector(selectIsAuthenticated);
 
   const { data: balances, isLoading: balancesLoading, error: balancesError, refetch: refetchBalances } = useBalance();
   const { data: transactionsData, isLoading: txLoading, refetch: refetchTx } = useTransactions({ page: 1, limit: 5 });
 
-  console.log('[Wallet] Rendering, balances:', balances);
+  console.log('[Wallet] Rendering, isAuthenticated:', isAuthenticated, 'balances:', balances);
 
   const totalBalance = balances?.estimatedValueUSD || 0;
 
   const onRefresh = useCallback(async () => {
+    // Don't refetch if not authenticated
+    if (!isAuthenticated) {
+      console.log('[Wallet] Skipping refresh - not authenticated');
+      return;
+    }
     console.log('[Wallet] Refreshing...');
     setRefreshing(true);
     try {
@@ -35,7 +43,7 @@ export default function WalletScreen() {
     } finally {
       setRefreshing(false);
     }
-  }, [refetchBalances, refetchTx]);
+  }, [isAuthenticated, refetchBalances, refetchTx]);
 
   const transactions = useMemo(() => {
     if (!transactionsData?.data) return [];
@@ -66,7 +74,7 @@ export default function WalletScreen() {
           </View>
           <TouchableOpacity
             style={[styles.historyBtn, { backgroundColor: isDark ? colors.surface : colors.surfaceSecondary }]}
-            onPress={() => router.push('/wallet/history')}
+            onPress={() => router.push('/wallet/history' as never)}
           >
             <Ionicons name="time-outline" size={22} color={colors.text} />
           </TouchableOpacity>
@@ -90,8 +98,8 @@ export default function WalletScreen() {
             fiatValue={`$${formatBalance(balances?.USDT)}`}
             change24h={{ value: '+0.01%', isPositive: true }}
             featured
-            onSend={() => router.push('/wallet/withdraw')}
-            onReceive={() => router.push('/wallet/deposit')}
+            onSend={() => router.push('/wallet/withdraw' as never)}
+            onReceive={() => router.push('/wallet/deposit' as never)}
             style={styles.featuredCard}
           />
         )}
@@ -103,27 +111,27 @@ export default function WalletScreen() {
             balance={`${formatBalance(balances?.BTC, 6)} BTC`}
             fiatValue="$0.00"
             change24h={{ value: '+2.4%', isPositive: true }}
-            onPress={() => router.push('/wallet/btc')}
+            onPress={() => router.push('/wallet/btc' as never)}
           />
           <CryptoCard
             crypto="ETH"
             balance={`${formatBalance(balances?.ETH, 5)} ETH`}
             fiatValue="$0.00"
             change24h={{ value: '-1.2%', isPositive: false }}
-            onPress={() => router.push('/wallet/eth')}
+            onPress={() => router.push('/wallet/eth' as never)}
             style={styles.cryptoCard}
           />
         </View>
 
         {/* Quick Actions */}
         <View style={styles.actionsRow}>
-          <GradientButton title="Deposit" variant="primary" size="md" onPress={() => router.push('/wallet/deposit')} style={styles.actionBtn} glow={false} />
-          <GradientButton title="Withdraw" variant="sell" size="md" onPress={() => router.push('/wallet/withdraw')} style={styles.actionBtn} glow={false} />
+          <GradientButton title="Deposit" variant="primary" size="sm" onPress={() => router.push('/wallet/deposit' as never)} style={styles.actionBtn} glow={false} />
+          <GradientButton title="Withdraw" variant="sell" size="sm" onPress={() => router.push('/wallet/withdraw' as never)} style={styles.actionBtn} glow={false} />
           <TouchableOpacity
             style={[styles.outlineBtn, { borderColor: colors.border, backgroundColor: colors.card }]}
-            onPress={() => router.push('/wallet/transfer')}
+            onPress={() => router.push('/wallet/transfer' as never)}
           >
-            <Ionicons name="swap-horizontal" size={20} color={colors.text} />
+            <Ionicons name="swap-horizontal" size={18} color={colors.text} />
             <Text style={[styles.outlineBtnText, { color: colors.text }]}>Transfer</Text>
           </TouchableOpacity>
         </View>
@@ -132,7 +140,7 @@ export default function WalletScreen() {
         <View style={styles.transactionsSection}>
           <View style={styles.sectionHeader}>
             <Text style={[styles.sectionTitle, { color: colors.text }]}>Recent Transactions</Text>
-            <TouchableOpacity onPress={() => router.push('/wallet/history')}>
+            <TouchableOpacity onPress={() => router.push('/wallet/history' as never)}>
               <Text style={[styles.seeAll, { color: Colors.primary.DEFAULT }]}>See All</Text>
             </TouchableOpacity>
           </View>
@@ -212,8 +220,8 @@ const styles = StyleSheet.create({
   cryptoCard: { marginTop: Spacing.sm },
   actionsRow: { flexDirection: 'row', gap: Spacing.sm, marginBottom: Spacing.lg },
   actionBtn: { flex: 1 },
-  outlineBtn: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', height: 44, borderRadius: BorderRadius.lg, borderWidth: 1, gap: Spacing.xs },
-  outlineBtnText: { fontFamily: FontFamily.semiBold, fontSize: FontSize.base },
+  outlineBtn: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', height: 40, borderRadius: BorderRadius.lg, borderWidth: 1, gap: Spacing.xs },
+  outlineBtnText: { fontFamily: FontFamily.semiBold, fontSize: FontSize.sm },
   transactionsSection: { marginBottom: Spacing.lg },
   sectionHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: Spacing.md },
   sectionTitle: { fontSize: FontSize.lg, fontFamily: FontFamily.semiBold },

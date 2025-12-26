@@ -14,10 +14,8 @@ import { useTheme } from '@/hooks/common/useTheme';
 import { useAppSelector, useAppDispatch } from '@/store';
 import { selectActiveTab, setActiveTab } from '@/store/slices/offerSlice';
 import { useBuyOffers, useSellOffers } from '@/hooks/api/useOffers';
-import { usePriceTickers } from '@/hooks/api/usePrices';
 import { Offer } from '@/types/offer.types';
 import OfferCard from '@/components/marketplace/OfferCard';
-import { CryptoTicker } from '@/components/marketplace/CryptoTicker';
 import { GlassCard, GradientButton, Badge } from '@/components/ui';
 
 export default function MarketplaceScreen() {
@@ -29,11 +27,16 @@ export default function MarketplaceScreen() {
 
   console.log('[Marketplace] Rendering, activeTab:', activeTab);
 
-  const { data: buyOffersData, isLoading: buyLoading, error: buyError, refetch: refetchBuy } = useBuyOffers();
-  const { data: sellOffersData, isLoading: sellLoading, error: sellError, refetch: refetchSell } = useSellOffers();
-  const { tickers, isLoading: tickersLoading, refetch: refetchTickers } = usePriceTickers();
+  // Only fetch data for the active tab to reduce API calls
+  const { data: buyOffersData, isLoading: buyLoading, error: buyError, refetch: refetchBuy } = useBuyOffers(undefined, { enabled: activeTab === 'buy' });
+  const { data: sellOffersData, isLoading: sellLoading, error: sellError, refetch: refetchSell } = useSellOffers(undefined, { enabled: activeTab === 'sell' });
 
   const { offers, isLoading, error } = useMemo(() => {
+    console.log('[Marketplace] Processing offers:', {
+      activeTab,
+      buyOffersData: buyOffersData ? { hasData: !!buyOffersData.data, count: buyOffersData.data?.length } : null,
+      sellOffersData: sellOffersData ? { hasData: !!sellOffersData.data, count: sellOffersData.data?.length } : null,
+    });
     const rawOffers = activeTab === 'buy' ? buyOffersData?.data || [] : sellOffersData?.data || [];
     let filtered = rawOffers;
     if (searchQuery.trim()) {
@@ -44,10 +47,21 @@ export default function MarketplaceScreen() {
   }, [activeTab, buyOffersData, sellOffersData, searchQuery, buyLoading, sellLoading, buyError, sellError]);
 
   const onRefresh = useCallback(async () => {
-    console.log('[Marketplace] Refreshing...');
+    console.log('[Marketplace] Refreshing active tab:', activeTab);
     setRefreshing(true);
-    try { await Promise.all([refetchBuy(), refetchSell(), refetchTickers()]); } catch (err) { console.error('[Marketplace] Refresh error:', err); } finally { setRefreshing(false); }
-  }, [refetchBuy, refetchSell, refetchTickers]);
+    try {
+      // Only refresh the active tab to reduce API calls
+      if (activeTab === 'buy') {
+        await refetchBuy();
+      } else {
+        await refetchSell();
+      }
+    } catch (err) {
+      console.error('[Marketplace] Refresh error:', err);
+    } finally {
+      setRefreshing(false);
+    }
+  }, [activeTab, refetchBuy, refetchSell]);
 
   const transformOfferToCardProps = (offer: Offer) => ({
     id: offer.id, traderName: offer.creatorDisplayName || 'Anonymous', traderInitials: (offer.creatorDisplayName || 'A').slice(0, 2).toUpperCase(), isVerified: offer.creatorVerified || false, rating: offer.creatorRating || 0, tradeCount: offer.creatorTotalTrades || 0, cryptoType: offer.cryptocurrency as 'BTC' | 'ETH' | 'USDT', price: offer.pricePerUnit.toLocaleString(), currency: offer.fiatCurrency, available: `${offer.amount} ${offer.cryptocurrency}`, minLimit: offer.minAmount.toLocaleString(), maxLimit: offer.maxAmount.toLocaleString(), paymentMethods: offer.paymentMethods, lastSeen: formatLastSeen(offer.updatedAt), offerType: offer.offerType,
@@ -62,30 +76,28 @@ export default function MarketplaceScreen() {
           <Text style={[styles.subtitle, { color: colors.textSecondary }]}>Trade crypto securely with escrow protection</Text>
         </View>
 
-        {/* Crypto Tickers */}
-        {!tickersLoading && tickers.length > 0 && (
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.tickersContainer}>
-            {tickers.map((t) => <CryptoTicker key={t.id} symbol={t.symbol} name={t.name} price={`$${t.price.toLocaleString(undefined, { minimumFractionDigits: 2 })}`} change={`${t.changePercent.toFixed(2)}%`} isPositive={t.isPositive} trades={0} color={t.color} />)}
-          </ScrollView>
-        )}
+        {/* Affiliate Banner */}
+        <LinearGradient colors={Gradients.success as unknown as readonly [string, string, ...string[]]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={[styles.affiliateBanner, shadows.lg]}>
+          <View style={styles.affiliateIcon}><Ionicons name="gift" size={24} color={Colors.white} /></View>
+          <View style={styles.affiliateContent}><Text style={styles.affiliateTitle}>Boost Your Earning!</Text><Text style={styles.affiliateSubtitle}>Join our Affiliate Program and earn up to 10% commission</Text></View>
+          <TouchableOpacity style={styles.affiliateBtn} onPress={() => router.push('/affiliate')}><Text style={styles.affiliateBtnText}>Join Now</Text></TouchableOpacity>
+        </LinearGradient>
 
-        {/* Buy/Sell Toggle */}
-        <View style={styles.toggleSection}>
-          <View style={[styles.toggleContainer, { backgroundColor: isDark ? colors.surface : colors.surfaceSecondary }]}>
+        {/* Tab Selector */}
+        <View style={styles.tabSection}>
+          <View style={[styles.tabContainer, { backgroundColor: isDark ? colors.surface : colors.surfaceSecondary }]}>
             {(['buy', 'sell'] as const).map((tab) => {
               const isActive = activeTab === tab;
               const gradient = tab === 'buy' ? Gradients.buy : Gradients.sell;
               return isActive ? (
                 <LinearGradient key={tab} colors={gradient as unknown as readonly [string, string, ...string[]]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={styles.activeTab}>
                   <TouchableOpacity onPress={() => dispatch(setActiveTab(tab))} style={styles.tabInner}>
-                    <Ionicons name={tab === 'buy' ? 'arrow-down-circle' : 'arrow-up-circle'} size={18} color={Colors.white} />
-                    <Text style={styles.activeTabText}>{tab === 'buy' ? 'Buy' : 'Sell'}</Text>
+                    <Text style={styles.activeTabText}>{tab === 'buy' ? 'Buy Offers' : 'Sell Offers'}</Text>
                   </TouchableOpacity>
                 </LinearGradient>
               ) : (
                 <TouchableOpacity key={tab} onPress={() => dispatch(setActiveTab(tab))} style={styles.inactiveTab}>
-                  <Ionicons name={tab === 'buy' ? 'arrow-down-circle-outline' : 'arrow-up-circle-outline'} size={18} color={colors.textSecondary} />
-                  <Text style={[styles.inactiveTabText, { color: colors.textSecondary }]}>{tab === 'buy' ? 'Buy' : 'Sell'}</Text>
+                  <Text style={[styles.inactiveTabText, { color: colors.textSecondary }]}>{tab === 'buy' ? 'Buy Offers' : 'Sell Offers'}</Text>
                 </TouchableOpacity>
               );
             })}
@@ -124,13 +136,6 @@ export default function MarketplaceScreen() {
           </GlassCard>
         )}
 
-        {/* Affiliate Banner */}
-        <LinearGradient colors={Gradients.success as unknown as readonly [string, string, ...string[]]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={[styles.affiliateBanner, shadows.lg]}>
-          <View style={styles.affiliateIcon}><Ionicons name="gift" size={24} color={Colors.white} /></View>
-          <View style={styles.affiliateContent}><Text style={styles.affiliateTitle}>Earn 10% Commission</Text><Text style={styles.affiliateSubtitle}>Join our affiliate program</Text></View>
-          <TouchableOpacity style={styles.affiliateBtn} onPress={() => router.push('/affiliate')}><Text style={styles.affiliateBtnText}>Join</Text></TouchableOpacity>
-        </LinearGradient>
-
         <View style={{ height: Spacing['2xl'] }} />
       </ScrollView>
     </SafeAreaView>
@@ -157,9 +162,8 @@ const styles = StyleSheet.create({
   header: { paddingHorizontal: Spacing.md, paddingTop: Spacing.lg, paddingBottom: Spacing.sm },
   title: { fontSize: FontSize['2xl'], fontFamily: FontFamily.bold },
   subtitle: { fontSize: FontSize.sm, fontFamily: FontFamily.regular, marginTop: 4 },
-  tickersContainer: { paddingHorizontal: Spacing.md, marginBottom: Spacing.md },
-  toggleSection: { paddingHorizontal: Spacing.md, marginBottom: Spacing.md },
-  toggleContainer: { flexDirection: 'row', padding: 4, borderRadius: BorderRadius.xl },
+  tabSection: { paddingHorizontal: Spacing.md, marginBottom: Spacing.md },
+  tabContainer: { flexDirection: 'row', padding: 4, borderRadius: BorderRadius.xl },
   activeTab: { flex: 1, borderRadius: BorderRadius.lg, overflow: 'hidden' },
   tabInner: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingVertical: Spacing.sm, gap: Spacing.xs },
   activeTabText: { color: Colors.white, fontFamily: FontFamily.semiBold, fontSize: FontSize.sm },

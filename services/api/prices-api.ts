@@ -26,8 +26,11 @@ export async function getPrices(coins?: string[]): Promise<CryptoPrice[]> {
     const params = coins ? `?coins=${coins.join(',')}` : '';
     const response = await get<PricesResponse>(`${API_ENDPOINTS.PRICES.BASE}${params}`);
 
-    console.log('[PricesAPI] Received', response.prices?.length || 0, 'prices');
-    return response.prices || [];
+    // Extract prices from API response wrapper - handle both wrapped and direct response
+    const pricesData = response.data?.prices || (response as unknown as PricesResponse).prices || [];
+
+    console.log('[PricesAPI] Received', pricesData.length, 'prices');
+    return pricesData;
   } catch (error) {
     console.error('[PricesAPI] Error getting prices:', error);
     throw error;
@@ -44,8 +47,11 @@ export async function getPrice(coinId: string): Promise<CryptoPrice | null> {
   try {
     const response = await get<SinglePriceResponse>(API_ENDPOINTS.PRICES.BY_COIN(coinId));
 
-    console.log('[PricesAPI] Price for', coinId, ':', response.price?.current_price);
-    return response.price || null;
+    // Extract price from API response wrapper
+    const priceData = response.data?.price || (response as unknown as SinglePriceResponse).price || null;
+
+    console.log('[PricesAPI] Price for', coinId, ':', priceData?.current_price);
+    return priceData;
   } catch (error) {
     console.error('[PricesAPI] Error getting price for', coinId, ':', error);
     throw error;
@@ -67,8 +73,11 @@ export async function convertToUSD(coinId: string, amount: number): Promise<Conv
       payload
     );
 
-    console.log('[PricesAPI] Converted to USD:', response.usdAmount);
-    return response;
+    // Extract from API response wrapper
+    const conversionData = response.data || response as unknown as ConvertToUSDResponse;
+
+    console.log('[PricesAPI] Converted to USD:', conversionData.usdAmount);
+    return conversionData;
   } catch (error) {
     console.error('[PricesAPI] Error converting to USD:', error);
     throw error;
@@ -90,8 +99,11 @@ export async function convertFromUSD(coinId: string, usdAmount: number): Promise
       payload
     );
 
-    console.log('[PricesAPI] Converted to crypto:', response.cryptoAmount);
-    return response;
+    // Extract from API response wrapper
+    const conversionData = response.data || response as unknown as ConvertFromUSDResponse;
+
+    console.log('[PricesAPI] Converted to crypto:', conversionData.cryptoAmount);
+    return conversionData;
   } catch (error) {
     console.error('[PricesAPI] Error converting from USD:', error);
     throw error;

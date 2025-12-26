@@ -8,10 +8,11 @@ import React, { useEffect } from 'react';
 import * as SplashScreen from 'expo-splash-screen';
 import { useFonts } from 'expo-font';
 import { Stack } from 'expo-router';
-import { ActivityIndicator, View, useColorScheme } from 'react-native';
+import { ActivityIndicator, View } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { AppProviders } from '@/components/providers';
 import { Colors } from '@/config/theme';
+import { useTheme } from '@/hooks/common/useTheme';
 import { initSentry } from '@/config/sentry.config';
 
 // Initialize Sentry
@@ -23,10 +24,9 @@ SplashScreen.preventAutoHideAsync();
 console.log('[App] Root layout initializing...');
 
 function RootLayoutNav() {
-  const colorScheme = useColorScheme();
-  const isDark = colorScheme === 'dark';
+  const { colors, isDark } = useTheme();
 
-  const backgroundColor = isDark ? Colors.dark.background : Colors.light.background;
+  console.log('[RootLayoutNav] Rendering, isDark:', isDark);
 
   return (
     <>
@@ -35,7 +35,7 @@ function RootLayoutNav() {
         screenOptions={{
           headerShown: false,
           contentStyle: {
-            backgroundColor,
+            backgroundColor: colors.background,
           },
           animation: 'slide_from_right',
         }}>

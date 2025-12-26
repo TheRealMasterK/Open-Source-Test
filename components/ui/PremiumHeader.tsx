@@ -120,9 +120,9 @@ export function PremiumHeader({
             >
               <Avatar
                 name={userName || 'User'}
-                imageUrl={userImage}
+                source={userImage}
                 size="md"
-                showStatus
+                showOnlineStatus
                 isOnline
               />
             </TouchableOpacity>

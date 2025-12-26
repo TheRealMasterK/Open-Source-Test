@@ -25,6 +25,7 @@ export const API_ENDPOINTS = {
     REFRESH: '/auth/refresh-token',
     DELETE: (userId: string) => `/auth/delete/${userId}`,
     OAUTH_SYNC: '/auth/oauth-sync',
+    SOCIAL_SYNC: '/auth/social-sync',
     VERIFY: '/auth/verify',
   },
 
@@ -105,6 +106,7 @@ export const API_ENDPOINTS = {
     PUBLIC_PROFILE: (id: string) => `/users/${id}/public`,
     SETTINGS: '/users/settings',
     RATINGS: (id: string) => `/users/${id}/ratings`,
+    RATE: (id: string) => `/users/${id}/rate`,
     TOP_TRADERS: '/users/top',
     CHECK_USERNAME: (username: string) => `/users/check-username/${username}`,
     WALLET: '/users/wallet',

@@ -48,6 +48,7 @@ export default function CreateOfferScreen() {
   // Form state
   const [step, setStep] = useState<Step>('type');
   const [offerType, setOfferType] = useState<OfferType | null>(null);
+  const [currencyMode, setCurrencyMode] = useState<'crypto' | 'fiat'>('crypto'); // Choose between crypto or fiat
   const [cryptocurrency, setCryptocurrency] = useState<CryptoSymbol>('USDT');
   const [fiatCurrency, setFiatCurrency] = useState<FiatCurrency>('NGN');
   const [amount, setAmount] = useState('');
@@ -118,7 +119,8 @@ export default function CreateOfferScreen() {
       case 'type':
         return offerType !== null;
       case 'crypto':
-        return !!cryptocurrency && !!fiatCurrency;
+        // Must have selected either crypto or fiat based on mode
+        return currencyMode === 'crypto' ? !!cryptocurrency : !!fiatCurrency;
       case 'pricing':
         return !!amount && !!pricePerUnit && !!minAmount && !!maxAmount;
       case 'payment':
@@ -128,6 +130,11 @@ export default function CreateOfferScreen() {
       default:
         return false;
     }
+  };
+
+  // Get the selected currency label for display
+  const getSelectedCurrency = () => {
+    return currencyMode === 'crypto' ? cryptocurrency : fiatCurrency;
   };
 
   // Render step content
@@ -196,65 +203,130 @@ export default function CreateOfferScreen() {
       case 'crypto':
         return (
           <View style={styles.stepContent}>
-            <Text style={[styles.stepTitle, { color: colors.text }]}>Select Cryptocurrency</Text>
-
-            <View style={styles.cryptoOptions}>
-              {CRYPTO_SYMBOLS.map((crypto) => (
-                <TouchableOpacity
-                  key={crypto}
-                  style={[
-                    styles.cryptoOption,
-                    {
-                      backgroundColor: colors.surface,
-                      borderColor:
-                        cryptocurrency === crypto ? Colors.primary.DEFAULT : colors.border,
-                      borderWidth: cryptocurrency === crypto ? 2 : 1,
-                    },
-                  ]}
-                  onPress={() => setCryptocurrency(crypto)}>
-                  <CryptoIcon currency={crypto} size="lg" />
-                  <Text style={[styles.cryptoName, { color: colors.text }]}>{crypto}</Text>
-                </TouchableOpacity>
-              ))}
-            </View>
-
-            <Text style={[styles.sectionLabel, { color: colors.text, marginTop: Spacing.lg }]}>
-              Fiat Currency
+            <Text style={[styles.stepTitle, { color: colors.text }]}>
+              {offerType === 'sell' ? 'What are you selling?' : 'What do you want to buy?'}
+            </Text>
+            <Text style={[styles.stepSubtitle, { color: colors.textSecondary }]}>
+              Choose between cryptocurrency or fiat currency
             </Text>
 
-            <View style={styles.fiatOptions}>
-              {FIAT_SYMBOLS.map((fiat) => (
-                <TouchableOpacity
-                  key={fiat}
+            {/* Currency Mode Toggle */}
+            <View style={[styles.modeToggle, { backgroundColor: colors.surface }]}>
+              <TouchableOpacity
+                style={[
+                  styles.modeOption,
+                  currencyMode === 'crypto' && { backgroundColor: Colors.primary.DEFAULT },
+                ]}
+                onPress={() => setCurrencyMode('crypto')}>
+                <Ionicons
+                  name="logo-bitcoin"
+                  size={20}
+                  color={currencyMode === 'crypto' ? Colors.white : colors.textSecondary}
+                />
+                <Text
                   style={[
-                    styles.fiatOption,
-                    {
-                      backgroundColor:
-                        fiatCurrency === fiat ? Colors.primary.DEFAULT : colors.surface,
-                      borderColor: fiatCurrency === fiat ? Colors.primary.DEFAULT : colors.border,
-                    },
-                  ]}
-                  onPress={() => setFiatCurrency(fiat)}>
-                  <Text
-                    style={[
-                      styles.fiatText,
-                      { color: fiatCurrency === fiat ? Colors.white : colors.text },
-                    ]}>
-                    {fiat}
-                  </Text>
-                </TouchableOpacity>
-              ))}
+                    styles.modeText,
+                    { color: currencyMode === 'crypto' ? Colors.white : colors.text },
+                  ]}>
+                  Cryptocurrency
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[
+                  styles.modeOption,
+                  currencyMode === 'fiat' && { backgroundColor: Colors.primary.DEFAULT },
+                ]}
+                onPress={() => setCurrencyMode('fiat')}>
+                <Ionicons
+                  name="cash-outline"
+                  size={20}
+                  color={currencyMode === 'fiat' ? Colors.white : colors.textSecondary}
+                />
+                <Text
+                  style={[
+                    styles.modeText,
+                    { color: currencyMode === 'fiat' ? Colors.white : colors.text },
+                  ]}>
+                  Fiat Currency
+                </Text>
+              </TouchableOpacity>
             </View>
+
+            {/* Show crypto options if crypto mode selected */}
+            {currencyMode === 'crypto' && (
+              <>
+                <Text style={[styles.sectionLabel, { color: colors.text, marginTop: Spacing.lg }]}>
+                  Select Cryptocurrency
+                </Text>
+                <View style={styles.cryptoOptions}>
+                  {CRYPTO_SYMBOLS.map((crypto) => (
+                    <TouchableOpacity
+                      key={crypto}
+                      style={[
+                        styles.cryptoOption,
+                        {
+                          backgroundColor: colors.surface,
+                          borderColor:
+                            cryptocurrency === crypto ? Colors.primary.DEFAULT : colors.border,
+                          borderWidth: cryptocurrency === crypto ? 2 : 1,
+                        },
+                      ]}
+                      onPress={() => setCryptocurrency(crypto)}>
+                      <CryptoIcon currency={crypto} size="lg" />
+                      <Text style={[styles.cryptoName, { color: colors.text }]}>{crypto}</Text>
+                    </TouchableOpacity>
+                  ))}
+                </View>
+              </>
+            )}
+
+            {/* Show fiat options if fiat mode selected */}
+            {currencyMode === 'fiat' && (
+              <>
+                <Text style={[styles.sectionLabel, { color: colors.text, marginTop: Spacing.lg }]}>
+                  Select Fiat Currency
+                </Text>
+                <View style={styles.fiatOptions}>
+                  {FIAT_SYMBOLS.map((fiat) => (
+                    <TouchableOpacity
+                      key={fiat}
+                      style={[
+                        styles.fiatOption,
+                        {
+                          backgroundColor:
+                            fiatCurrency === fiat ? Colors.primary.DEFAULT : colors.surface,
+                          borderColor: fiatCurrency === fiat ? Colors.primary.DEFAULT : colors.border,
+                        },
+                      ]}
+                      onPress={() => setFiatCurrency(fiat)}>
+                      <Text
+                        style={[
+                          styles.fiatText,
+                          { color: fiatCurrency === fiat ? Colors.white : colors.text },
+                        ]}>
+                        {fiat}
+                      </Text>
+                    </TouchableOpacity>
+                  ))}
+                </View>
+              </>
+            )}
           </View>
         );
 
       case 'pricing':
+        const currency = getSelectedCurrency();
         return (
           <View style={styles.stepContent}>
             <Text style={[styles.stepTitle, { color: colors.text }]}>Set Your Pricing</Text>
+            <Text style={[styles.stepSubtitle, { color: colors.textSecondary }]}>
+              {currencyMode === 'crypto'
+                ? `Set the amount and price for your ${currency} offer`
+                : `Set the amount and rate for your ${currency} offer`}
+            </Text>
 
             <Input
-              label={`Amount of ${cryptocurrency}`}
+              label={`Amount of ${currency}`}
               placeholder="Enter amount"
               value={amount}
               onChangeText={setAmount}
@@ -262,8 +334,10 @@ export default function CreateOfferScreen() {
             />
 
             <Input
-              label={`Price per ${cryptocurrency} (${fiatCurrency})`}
-              placeholder="Enter price"
+              label={currencyMode === 'crypto'
+                ? `Price per ${currency} (in fiat)`
+                : `Exchange rate per unit`}
+              placeholder="Enter price/rate"
               value={pricePerUnit}
               onChangeText={setPricePerUnit}
               keyboardType="numeric"
@@ -272,7 +346,7 @@ export default function CreateOfferScreen() {
             <View style={styles.row}>
               <View style={styles.halfInput}>
                 <Input
-                  label={`Min (${fiatCurrency})`}
+                  label="Min Amount"
                   placeholder="Min"
                   value={minAmount}
                   onChangeText={setMinAmount}
@@ -281,7 +355,7 @@ export default function CreateOfferScreen() {
               </View>
               <View style={styles.halfInput}>
                 <Input
-                  label={`Max (${fiatCurrency})`}
+                  label="Max Amount"
                   placeholder="Max"
                   value={maxAmount}
                   onChangeText={setMaxAmount}
@@ -396,6 +470,7 @@ export default function CreateOfferScreen() {
         );
 
       case 'review':
+        const reviewCurrency = getSelectedCurrency();
         return (
           <View style={styles.stepContent}>
             <Text style={[styles.stepTitle, { color: colors.text }]}>Review Your Offer</Text>
@@ -404,25 +479,31 @@ export default function CreateOfferScreen() {
               <View style={styles.reviewRow}>
                 <Text style={[styles.reviewLabel, { color: colors.textSecondary }]}>Type</Text>
                 <Text style={[styles.reviewValue, { color: colors.text }]}>
-                  {offerType === 'buy' ? 'Buy' : 'Sell'} {cryptocurrency}
+                  {offerType === 'buy' ? 'Buy' : 'Sell'}
+                </Text>
+              </View>
+              <View style={styles.reviewRow}>
+                <Text style={[styles.reviewLabel, { color: colors.textSecondary }]}>Currency</Text>
+                <Text style={[styles.reviewValue, { color: colors.text }]}>
+                  {reviewCurrency} ({currencyMode === 'crypto' ? 'Crypto' : 'Fiat'})
                 </Text>
               </View>
               <View style={styles.reviewRow}>
                 <Text style={[styles.reviewLabel, { color: colors.textSecondary }]}>Amount</Text>
                 <Text style={[styles.reviewValue, { color: colors.text }]}>
-                  {amount} {cryptocurrency}
+                  {amount} {reviewCurrency}
                 </Text>
               </View>
               <View style={styles.reviewRow}>
-                <Text style={[styles.reviewLabel, { color: colors.textSecondary }]}>Price</Text>
+                <Text style={[styles.reviewLabel, { color: colors.textSecondary }]}>Price/Rate</Text>
                 <Text style={[styles.reviewValue, { color: colors.text }]}>
-                  {pricePerUnit} {fiatCurrency}
+                  {pricePerUnit}
                 </Text>
               </View>
               <View style={styles.reviewRow}>
                 <Text style={[styles.reviewLabel, { color: colors.textSecondary }]}>Limits</Text>
                 <Text style={[styles.reviewValue, { color: colors.text }]}>
-                  {minAmount} - {maxAmount} {fiatCurrency}
+                  {minAmount} - {maxAmount}
                 </Text>
               </View>
               <View style={styles.reviewRow}>
@@ -582,6 +663,25 @@ const styles = StyleSheet.create({
     fontSize: FontSize.base,
     fontWeight: '600',
     marginBottom: Spacing.sm,
+  },
+  modeToggle: {
+    flexDirection: 'row',
+    borderRadius: BorderRadius.lg,
+    padding: Spacing.xs,
+    marginBottom: Spacing.md,
+  },
+  modeOption: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: Spacing.md,
+    borderRadius: BorderRadius.md,
+    gap: Spacing.xs,
+  },
+  modeText: {
+    fontSize: FontSize.sm,
+    fontWeight: '600',
   },
   fiatOptions: {
     flexDirection: 'row',

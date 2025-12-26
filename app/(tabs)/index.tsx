@@ -19,7 +19,7 @@ import { router } from 'expo-router';
 import { Colors, Spacing, FontSize, FontFamily, BorderRadius, Gradients } from '@/config/theme';
 import { useTheme } from '@/hooks/common/useTheme';
 import { useAppSelector } from '@/store';
-import { selectUser } from '@/store/slices/authSlice';
+import { selectUser, selectIsAuthenticated } from '@/store/slices/authSlice';
 import { useDashboardStats, useRecentActivity, useRefreshDashboard } from '@/hooks/api/useDashboard';
 import { useBalance } from '@/hooks/api/useWallet';
 import { StatCard, GlassCard, GradientButton, LoadingSpinner } from '@/components/ui';
@@ -28,6 +28,7 @@ import { DashboardActivityItem } from '@/components/dashboard';
 export default function DashboardScreen() {
   const { colors, shadows, isDark } = useTheme();
   const user = useAppSelector(selectUser);
+  const isAuthenticated = useAppSelector(selectIsAuthenticated);
   const [refreshing, setRefreshing] = React.useState(false);
 
   const { stats, isLoading: statsLoading, error: statsError, refetch: refetchStats } = useDashboardStats();
@@ -35,9 +36,14 @@ export default function DashboardScreen() {
   const { data: balances, isLoading: balancesLoading, refetch: refetchBalances } = useBalance();
   const { refresh: refreshDashboard } = useRefreshDashboard();
 
-  console.log('[Dashboard] Rendering, user:', user?.displayName, 'isDark:', isDark);
+  console.log('[Dashboard] Rendering, user:', user?.displayName, 'isAuthenticated:', isAuthenticated, 'isDark:', isDark);
 
   const onRefresh = React.useCallback(async () => {
+    // Don't refetch if not authenticated
+    if (!isAuthenticated) {
+      console.log('[Dashboard] Skipping refresh - not authenticated');
+      return;
+    }
     console.log('[Dashboard] Refreshing...');
     setRefreshing(true);
     try {
@@ -48,7 +54,7 @@ export default function DashboardScreen() {
     } finally {
       setRefreshing(false);
     }
-  }, [refetchStats, refetchBalances, refreshDashboard]);
+  }, [isAuthenticated, refetchStats, refetchBalances, refreshDashboard]);
 
   const getGreeting = () => {
     const hour = new Date().getHours();
@@ -86,7 +92,7 @@ export default function DashboardScreen() {
             <Text style={[styles.userName, { color: colors.text }]}>{user?.displayName || 'Trader'}</Text>
           </View>
           <TouchableOpacity
-            onPress={() => router.push('/notifications')}
+            onPress={() => router.push('/notifications' as never)}
             style={[styles.notificationBtn, { backgroundColor: isDark ? colors.surface : colors.surfaceSecondary }]}
           >
             <Ionicons name="notifications-outline" size={22} color={colors.text} />
@@ -123,8 +129,8 @@ export default function DashboardScreen() {
             ${balancesLoading ? '...' : (parseFloat(formatBalance(balances?.USDT)) * 1).toFixed(2)}
           </Text>
           <View style={styles.balanceActions}>
-            <GradientButton title="Deposit" size="sm" variant="buy" onPress={() => router.push('/wallet/deposit')} glow={false} />
-            <GradientButton title="Withdraw" size="sm" variant="sell" onPress={() => router.push('/wallet/withdraw')} glow={false} />
+            <GradientButton title="Deposit" size="sm" variant="buy" onPress={() => router.push('/wallet/deposit' as never)} glow={false} />
+            <GradientButton title="Withdraw" size="sm" variant="sell" onPress={() => router.push('/wallet/withdraw' as never)} glow={false} />
           </View>
         </LinearGradient>
 

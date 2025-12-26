@@ -1,13 +1,13 @@
 /**
- * Tabs Layout
- * Main tab navigation for authenticated users
+ * Tabs Layout - Enterprise Grade
+ * Premium tab navigation for authenticated users
  */
 
 import React from 'react';
 import { Tabs } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import { Platform } from 'react-native';
-import { Colors } from '@/config/theme';
+import { Platform, View, StyleSheet } from 'react-native';
+import { Colors, Spacing, BorderRadius, FontFamily } from '@/config/theme';
 import { useTheme } from '@/hooks/common/useTheme';
 
 type IconName = keyof typeof Ionicons.glyphMap;
@@ -21,25 +21,33 @@ interface TabIconProps {
 
 function TabIcon({ name, color, size, focused }: TabIconProps) {
   const iconName = focused ? name : (`${name}-outline` as IconName);
-  return <Ionicons name={iconName} size={size} color={color} />;
+
+  return (
+    <View style={[styles.iconContainer, focused && styles.iconContainerActive]}>
+      <Ionicons name={iconName} size={size} color={color} />
+      {focused && <View style={[styles.activeIndicator, { backgroundColor: Colors.primary.DEFAULT }]} />}
+    </View>
+  );
 }
 
 export default function TabsLayout() {
-  const { colors, isDark } = useTheme();
+  const { colors, isDark, shadows } = useTheme();
+
+  console.log('[TabsLayout] Rendering tabs, isDark:', isDark);
 
   const tabBarStyle = {
-    backgroundColor: colors.surface,
-    borderTopColor: colors.border,
+    backgroundColor: isDark ? colors.tabBarBg : colors.tabBarBg,
+    borderTopColor: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)',
     borderTopWidth: 1,
-    height: Platform.OS === 'ios' ? 88 : 64,
-    paddingBottom: Platform.OS === 'ios' ? 28 : 8,
-    paddingTop: 8,
+    height: Platform.OS === 'ios' ? 88 : 68,
+    paddingBottom: Platform.OS === 'ios' ? 28 : 10,
+    paddingTop: 10,
+    paddingHorizontal: Spacing.sm,
+    ...shadows.sm,
   };
 
   const activeColor = Colors.primary.DEFAULT;
-  const inactiveColor = colors.textSecondary;
-
-  console.log('[TabsLayout] Rendering tabs, isDark:', isDark);
+  const inactiveColor = colors.textTertiary;
 
   return (
     <Tabs
@@ -49,10 +57,15 @@ export default function TabsLayout() {
         tabBarActiveTintColor: activeColor,
         tabBarInactiveTintColor: inactiveColor,
         tabBarLabelStyle: {
-          fontFamily: 'Poppins-Medium',
+          fontFamily: FontFamily.medium,
           fontSize: 11,
+          marginTop: 2,
         },
-      }}>
+        tabBarItemStyle: {
+          paddingTop: 4,
+        },
+      }}
+    >
       <Tabs.Screen
         name="index"
         options={{
@@ -101,3 +114,22 @@ export default function TabsLayout() {
     </Tabs>
   );
 }
+
+const styles = StyleSheet.create({
+  iconContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    minWidth: 48,
+    minHeight: 28,
+  },
+  iconContainerActive: {
+    // Active state styling handled by indicator
+  },
+  activeIndicator: {
+    position: 'absolute',
+    bottom: -6,
+    width: 4,
+    height: 4,
+    borderRadius: 2,
+  },
+});

@@ -24,7 +24,9 @@ export const SENTRY_CONFIG = {
  */
 export function initSentry() {
   if (!ENV.SENTRY_DSN) {
-    console.warn('[Sentry] DSN not configured. Skipping initialization.');
+    if (__DEV__) {
+      console.warn('[Sentry] DSN not configured. Skipping initialization.');
+    }
     return;
   }
 
@@ -35,7 +37,9 @@ export function initSentry() {
 
   Sentry.init(SENTRY_CONFIG);
 
-  console.log('[Sentry] Initialized successfully');
+  if (__DEV__) {
+    console.log('[Sentry] Initialized successfully');
+  }
 }
 
 /**

@@ -8,6 +8,16 @@ import { getDashboard, getTradingSummary } from '@/services/api/dashboard-api';
 import { UserDashboardStats, TradingSummary, DashboardStatCard, RecentActivity } from '@/types/dashboard.types';
 import { useSelector } from 'react-redux';
 import { selectIsAuthenticated } from '@/store/slices/authSlice';
+import { API_ERROR_CODES } from '@/types';
+
+// Don't retry on auth errors
+const shouldRetry = (failureCount: number, error: unknown) => {
+  const apiError = error as { code?: string };
+  if (apiError?.code === API_ERROR_CODES.UNAUTHORIZED || apiError?.code === API_ERROR_CODES.FORBIDDEN) {
+    return false;
+  }
+  return failureCount < 2;
+};
 
 // Query keys for caching
 export const dashboardKeys = {
@@ -36,9 +46,9 @@ export function useDashboard(options?: { enabled?: boolean }) {
       });
       return dashboard;
     },
-    staleTime: 30 * 1000, // 30 seconds
+    staleTime: 60 * 1000, // 1 minute - increased to reduce API calls
     enabled,
-    retry: 2,
+    retry: shouldRetry,
   });
 }
 
@@ -61,9 +71,9 @@ export function useTradingSummary(options?: { enabled?: boolean }) {
       });
       return summary;
     },
-    staleTime: 30 * 1000,
+    staleTime: 60 * 1000, // 1 minute - increased to reduce API calls
     enabled,
-    retry: 2,
+    retry: shouldRetry,
   });
 }
 

@@ -5,13 +5,25 @@
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { tradesApi } from '@/services/api';
+import { useAppSelector } from '@/store';
+import { selectIsAuthenticated } from '@/store/slices/authSlice';
 import {
   CreateTradePayload,
   SendMessagePayload,
   TradeListParams,
   TradeStatus,
   TradeMessage,
+  API_ERROR_CODES,
 } from '@/types';
+
+// Don't retry on auth errors
+const shouldRetry = (failureCount: number, error: unknown) => {
+  const apiError = error as { code?: string };
+  if (apiError?.code === API_ERROR_CODES.UNAUTHORIZED || apiError?.code === API_ERROR_CODES.FORBIDDEN) {
+    return false;
+  }
+  return failureCount < 2;
+};
 
 // Query keys
 export const tradeKeys = {
@@ -28,34 +40,58 @@ export const tradeKeys = {
 /**
  * Get all trades
  */
-export function useTrades(params?: TradeListParams) {
+export function useTrades(params?: TradeListParams, options?: { enabled?: boolean }) {
+  const isAuthenticated = useAppSelector(selectIsAuthenticated);
+  const shouldFetch = (options?.enabled ?? true) && isAuthenticated;
+
+  console.log('[useTrades] Hook called, isAuthenticated:', isAuthenticated, 'enabled:', options?.enabled ?? true);
+
   return useQuery({
     queryKey: tradeKeys.list(params),
     queryFn: () => tradesApi.getTrades(params),
-    staleTime: 1000 * 60, // 1 minute
+    enabled: shouldFetch,
+    staleTime: 1000 * 60 * 5, // 5 minutes
+    gcTime: 1000 * 60 * 10, // 10 minutes
+    retry: shouldRetry,
   });
 }
 
 /**
  * Get active trades
  */
-export function useActiveTrades() {
+export function useActiveTrades(options?: { enabled?: boolean }) {
+  const isAuthenticated = useAppSelector(selectIsAuthenticated);
+  const shouldFetch = (options?.enabled ?? true) && isAuthenticated;
+
+  console.log('[useActiveTrades] Hook called, isAuthenticated:', isAuthenticated, 'enabled:', options?.enabled ?? true);
+
   return useQuery({
     queryKey: tradeKeys.active(),
     queryFn: () => tradesApi.getActiveTrades(),
-    staleTime: 1000 * 30, // 30 seconds
-    refetchInterval: 1000 * 60, // Refetch every minute
+    enabled: shouldFetch,
+    staleTime: 1000 * 60 * 2, // 2 minutes
+    gcTime: 1000 * 60 * 10, // 10 minutes
+    refetchInterval: false, // Disable auto-refetch to reduce API calls
+    retry: shouldRetry,
   });
 }
 
 /**
  * Get completed trades
  */
-export function useCompletedTrades() {
+export function useCompletedTrades(options?: { enabled?: boolean }) {
+  const isAuthenticated = useAppSelector(selectIsAuthenticated);
+  const shouldFetch = (options?.enabled ?? true) && isAuthenticated;
+
+  console.log('[useCompletedTrades] Hook called, isAuthenticated:', isAuthenticated, 'enabled:', options?.enabled ?? true);
+
   return useQuery({
     queryKey: tradeKeys.completed(),
     queryFn: () => tradesApi.getCompletedTrades(),
+    enabled: shouldFetch,
     staleTime: 1000 * 60 * 5, // 5 minutes
+    gcTime: 1000 * 60 * 10, // 10 minutes
+    retry: shouldRetry,
   });
 }
 
@@ -63,12 +99,15 @@ export function useCompletedTrades() {
  * Get single trade by ID
  */
 export function useTrade(tradeId: string) {
+  const isAuthenticated = useAppSelector(selectIsAuthenticated);
+
   return useQuery({
     queryKey: tradeKeys.detail(tradeId),
     queryFn: () => tradesApi.getTrade(tradeId),
-    enabled: !!tradeId,
+    enabled: isAuthenticated && !!tradeId,
     staleTime: 1000 * 30, // 30 seconds
-    refetchInterval: 1000 * 30, // Refetch every 30 seconds for active trades
+    refetchInterval: isAuthenticated ? 1000 * 30 : false,
+    retry: shouldRetry,
   });
 }
 
@@ -76,12 +115,15 @@ export function useTrade(tradeId: string) {
  * Get trade messages
  */
 export function useTradeMessages(tradeId: string) {
+  const isAuthenticated = useAppSelector(selectIsAuthenticated);
+
   return useQuery({
     queryKey: tradeKeys.messages(tradeId),
     queryFn: () => tradesApi.getMessages(tradeId),
-    enabled: !!tradeId,
+    enabled: isAuthenticated && !!tradeId,
     staleTime: 1000 * 10, // 10 seconds
-    refetchInterval: 1000 * 10, // Refetch every 10 seconds
+    refetchInterval: isAuthenticated ? 1000 * 10 : false,
+    retry: shouldRetry,
   });
 }
 

@@ -32,22 +32,32 @@ export function useOffers(params?: OfferListParams) {
 /**
  * Get buy offers
  */
-export function useBuyOffers(params?: OfferListParams) {
+export function useBuyOffers(params?: OfferListParams, options?: { enabled?: boolean }) {
+  console.log('[useBuyOffers] Hook called, enabled:', options?.enabled ?? true);
   return useQuery({
     queryKey: offerKeys.buy(params),
     queryFn: () => offersApi.getBuyOffers(params),
-    staleTime: 1000 * 60 * 2,
+    staleTime: 1000 * 60 * 5, // 5 minutes - increased to reduce refetches
+    gcTime: 1000 * 60 * 10, // 10 minutes - keep in cache longer
+    enabled: options?.enabled ?? true,
+    retry: 1, // Only retry once on failure
+    retryDelay: 5000, // Wait 5 seconds before retry
   });
 }
 
 /**
  * Get sell offers
  */
-export function useSellOffers(params?: OfferListParams) {
+export function useSellOffers(params?: OfferListParams, options?: { enabled?: boolean }) {
+  console.log('[useSellOffers] Hook called, enabled:', options?.enabled ?? true);
   return useQuery({
     queryKey: offerKeys.sell(params),
     queryFn: () => offersApi.getSellOffers(params),
-    staleTime: 1000 * 60 * 2,
+    staleTime: 1000 * 60 * 5, // 5 minutes - increased to reduce refetches
+    gcTime: 1000 * 60 * 10, // 10 minutes - keep in cache longer
+    enabled: options?.enabled ?? true,
+    retry: 1, // Only retry once on failure
+    retryDelay: 5000, // Wait 5 seconds before retry
   });
 }
 

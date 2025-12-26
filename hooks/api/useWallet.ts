@@ -5,9 +5,19 @@
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { walletApi } from '@/services/api';
-import { useAppDispatch } from '@/store';
+import { useAppDispatch, useAppSelector } from '@/store';
+import { selectIsAuthenticated } from '@/store/slices/authSlice';
 import { setBalances } from '@/store/slices/walletSlice';
-import { DepositPayload, WithdrawPayload, TransactionListParams } from '@/types';
+import { DepositPayload, WithdrawPayload, TransactionListParams, API_ERROR_CODES } from '@/types';
+
+// Don't retry on auth errors
+const shouldRetry = (failureCount: number, error: unknown) => {
+  const apiError = error as { code?: string };
+  if (apiError?.code === API_ERROR_CODES.UNAUTHORIZED || apiError?.code === API_ERROR_CODES.FORBIDDEN) {
+    return false;
+  }
+  return failureCount < 2;
+};
 
 // Query keys
 export const walletKeys = {
@@ -21,47 +31,75 @@ export const walletKeys = {
 
 /**
  * Get wallet info
+ * Rate limit protected: longer stale time
  */
 export function useWallet() {
   const dispatch = useAppDispatch();
+  const isAuthenticated = useAppSelector(selectIsAuthenticated);
 
   return useQuery({
     queryKey: walletKeys.wallet(),
     queryFn: async () => {
+      console.log('[useWallet] Fetching wallet from API...');
       const wallet = await walletApi.getWallet();
       dispatch(setBalances(wallet.balances));
       return wallet;
     },
-    staleTime: 1000 * 60, // 1 minute
+    enabled: isAuthenticated,
+    staleTime: 1000 * 60 * 2, // 2 minutes
+    gcTime: 1000 * 60 * 5, // Keep in cache for 5 minutes
+    refetchOnMount: false,
+    refetchOnWindowFocus: false,
+    retry: shouldRetry,
   });
 }
 
 /**
  * Get wallet balances
+ * Rate limit protected: longer stale time, no auto-refetch
  */
 export function useBalance() {
   const dispatch = useAppDispatch();
+  const isAuthenticated = useAppSelector(selectIsAuthenticated);
+
+  console.log('[useBalance] Hook called, isAuthenticated:', isAuthenticated);
 
   return useQuery({
     queryKey: walletKeys.balance(),
     queryFn: async () => {
+      console.log('[useBalance] queryFn executing - this should only run if enabled');
       const balances = await walletApi.getBalance();
       dispatch(setBalances(balances));
       return balances;
     },
-    staleTime: 1000 * 30, // 30 seconds
-    refetchInterval: 1000 * 60, // Refetch every minute
+    enabled: isAuthenticated,
+    staleTime: 1000 * 60 * 2, // 2 minutes - reduce API calls
+    gcTime: 1000 * 60 * 5, // Keep in cache for 5 minutes
+    refetchOnMount: false, // Don't refetch on every mount
+    refetchOnWindowFocus: false, // Disabled to prevent rate limiting
+    retry: shouldRetry,
   });
 }
 
 /**
  * Get transaction history
+ * Rate limit protected: longer stale time
  */
 export function useTransactions(params?: TransactionListParams) {
+  const isAuthenticated = useAppSelector(selectIsAuthenticated);
+
   return useQuery({
     queryKey: walletKeys.transactionList(params),
-    queryFn: () => walletApi.getTransactions(params),
-    staleTime: 1000 * 60, // 1 minute
+    queryFn: () => {
+      console.log('[useTransactions] Fetching transactions from API...');
+      return walletApi.getTransactions(params);
+    },
+    enabled: isAuthenticated,
+    staleTime: 1000 * 60 * 2, // 2 minutes
+    gcTime: 1000 * 60 * 5, // Keep in cache for 5 minutes
+    refetchOnMount: false,
+    refetchOnWindowFocus: false,
+    retry: shouldRetry,
   });
 }
 

@@ -99,7 +99,30 @@ export const {
 // Selectors
 export const selectUser = (state: { auth: AuthState }) => state.auth.user;
 export const selectFirebaseUser = (state: { auth: AuthState }) => state.auth.firebaseUser;
-export const selectIsAuthenticated = (state: { auth: AuthState }) => state.auth.isAuthenticated;
+
+/**
+ * Check if user is truly authenticated - must have user AND valid token
+ * This prevents API calls when token is missing but user data persists
+ */
+export const selectIsAuthenticated = (state: { auth: AuthState }) => {
+  const hasUser = state.auth.isAuthenticated && !!state.auth.user;
+  const hasToken = !!state.auth.backendToken;
+  const tokenNotExpired = !state.auth.tokenExpiresAt || state.auth.tokenExpiresAt > Date.now();
+
+  const isAuth = hasUser && hasToken && tokenNotExpired;
+
+  // Log when there's a mismatch for debugging
+  if (state.auth.isAuthenticated && !isAuth) {
+    console.warn('[AuthSlice] Auth state mismatch - user exists but token missing/expired', {
+      hasUser,
+      hasToken,
+      tokenNotExpired,
+    });
+  }
+
+  return isAuth;
+};
+
 export const selectIsLoading = (state: { auth: AuthState }) => state.auth.isLoading;
 export const selectAuthError = (state: { auth: AuthState }) => state.auth.error;
 export const selectBackendToken = (state: { auth: AuthState }) => state.auth.backendToken;

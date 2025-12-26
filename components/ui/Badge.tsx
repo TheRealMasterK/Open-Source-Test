@@ -12,7 +12,8 @@ type BadgeVariant = 'default' | 'success' | 'danger' | 'warning' | 'info' | 'pri
 type BadgeSize = 'sm' | 'md';
 
 interface BadgeProps {
-  text: string;
+  text?: string;
+  children?: React.ReactNode;
   variant?: BadgeVariant;
   size?: BadgeSize;
   style?: ViewStyle;
@@ -22,12 +23,14 @@ interface BadgeProps {
 
 export function Badge({
   text,
+  children,
   variant = 'default',
   size = 'sm',
   style,
   textStyle,
   outline = false,
 }: BadgeProps) {
+  const displayText = text ?? (typeof children === 'string' || typeof children === 'number' ? String(children) : '');
   const { colors } = useTheme();
 
   const getColors = (): { bg: string; text: string; border: string } => {
@@ -109,7 +112,7 @@ export function Badge({
           },
           textStyle,
         ]}>
-        {text}
+        {displayText}
       </Text>
     </View>
   );

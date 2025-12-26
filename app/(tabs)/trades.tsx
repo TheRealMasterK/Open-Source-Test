@@ -18,6 +18,8 @@ import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { Colors, Spacing, FontSize, BorderRadius } from '@/config/theme';
 import { useTheme } from '@/hooks/common/useTheme';
+import { useAppSelector } from '@/store';
+import { selectIsAuthenticated } from '@/store/slices/authSlice';
 import { useActiveTrades, useCompletedTrades, useTrades } from '@/hooks/api/useTrades';
 import { Trade } from '@/types/trade.types';
 
@@ -95,13 +97,14 @@ export default function TradesScreen() {
   const { colors } = useTheme();
   const [activeTab, setActiveTab] = useState<TradeTab>('active');
   const [refreshing, setRefreshing] = useState(false);
+  const isAuthenticated = useAppSelector(selectIsAuthenticated);
 
-  // API Hooks - Real data from backend
-  const { data: activeTradesData, isLoading: activeLoading, refetch: refetchActive } = useActiveTrades();
-  const { data: completedTradesData, isLoading: completedLoading, refetch: refetchCompleted } = useCompletedTrades();
-  const { data: allTradesData, isLoading: allLoading, refetch: refetchAll } = useTrades({ status: 'disputed' });
+  console.log('[Trades] Rendering, activeTab:', activeTab, 'isAuthenticated:', isAuthenticated);
 
-  console.log('[Trades] Rendering, activeTab:', activeTab);
+  // API Hooks - Only fetch data for the active tab AND when authenticated to reduce API calls
+  const { data: activeTradesData, isLoading: activeLoading, refetch: refetchActive } = useActiveTrades({ enabled: isAuthenticated && activeTab === 'active' });
+  const { data: completedTradesData, isLoading: completedLoading, refetch: refetchCompleted } = useCompletedTrades({ enabled: isAuthenticated && activeTab === 'completed' });
+  const { data: allTradesData, isLoading: allLoading, refetch: refetchAll } = useTrades({ status: 'disputed' }, { enabled: isAuthenticated && activeTab === 'disputed' });
 
   // Get trades for current tab
   const { trades, isLoading, count } = useMemo(() => {
@@ -137,16 +140,32 @@ export default function TradesScreen() {
   };
 
   const onRefresh = useCallback(async () => {
-    console.log('[Trades] Refreshing...');
+    // Don't refetch if not authenticated
+    if (!isAuthenticated) {
+      console.log('[Trades] Skipping refresh - not authenticated');
+      return;
+    }
+    console.log('[Trades] Refreshing active tab:', activeTab);
     setRefreshing(true);
     try {
-      await Promise.all([refetchActive(), refetchCompleted(), refetchAll()]);
+      // Only refresh the active tab to reduce API calls
+      switch (activeTab) {
+        case 'active':
+          await refetchActive();
+          break;
+        case 'completed':
+          await refetchCompleted();
+          break;
+        case 'disputed':
+          await refetchAll();
+          break;
+      }
     } catch (error) {
       console.error('[Trades] Refresh error:', error);
     } finally {
       setRefreshing(false);
     }
-  }, [refetchActive, refetchCompleted, refetchAll]);
+  }, [isAuthenticated, activeTab, refetchActive, refetchCompleted, refetchAll]);
 
   const handleTradePress = (tradeId: string) => {
     console.log('[Trades] Trade pressed:', tradeId);

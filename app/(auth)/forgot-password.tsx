@@ -30,7 +30,12 @@ export default function ForgotPasswordScreen() {
   const [isLoading, setIsLoading] = useState(false);
   const [emailSent, setEmailSent] = useState(false);
 
-  // Theme colors
+  // Theme color mappings for NativeWind classes
+  const bgColor = isDark ? 'bg-[#0A0E17]' : 'bg-white';
+  const textColor = isDark ? 'text-white' : 'text-gray-900';
+  const textSecondary = isDark ? 'text-gray-400' : 'text-gray-600';
+  const inputBg = isDark ? 'bg-[#151B28]' : 'bg-gray-50';
+  const inputText = isDark ? 'text-white' : 'text-gray-900';
   const placeholderColor = colors.textPlaceholder;
 
   console.log('[ForgotPassword] Rendering, emailSent:', emailSent);

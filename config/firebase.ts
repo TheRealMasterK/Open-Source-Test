@@ -17,6 +17,7 @@ const firebaseConfig = {
   storageBucket: ENV.FIREBASE.STORAGE_BUCKET,
   messagingSenderId: ENV.FIREBASE.MESSAGING_SENDER_ID,
   appId: ENV.FIREBASE.APP_ID,
+  measurementId: ENV.FIREBASE.MEASUREMENT_ID,
 };
 
 // Initialize Firebase
@@ -27,11 +28,17 @@ let storage: FirebaseStorage;
 
 try {
   if (!getApps().length) {
-    console.log('[Firebase] Initializing Firebase app...');
+    if (__DEV__) {
+      console.log('[Firebase] Initializing Firebase app...');
+    }
     app = initializeApp(firebaseConfig);
-    console.log('[Firebase] Firebase app initialized successfully');
+    if (__DEV__) {
+      console.log('[Firebase] Firebase app initialized successfully');
+    }
   } else {
-    console.log('[Firebase] Using existing Firebase app');
+    if (__DEV__) {
+      console.log('[Firebase] Using existing Firebase app');
+    }
     app = getApp();
   }
 
@@ -40,8 +47,10 @@ try {
   db = getFirestore(app);
   storage = getStorage(app);
 
-  console.log('[Firebase] Firebase services initialized successfully');
-  console.log('[Firebase] Project ID:', ENV.FIREBASE.PROJECT_ID);
+  if (__DEV__) {
+    console.log('[Firebase] Firebase services initialized successfully');
+    console.log('[Firebase] Project ID:', ENV.FIREBASE.PROJECT_ID);
+  }
 } catch (error) {
   console.error('[Firebase] Error initializing Firebase:', error);
   throw error;
