@@ -1,42 +1,28 @@
 /**
  * Profile Screen - Enterprise Grade
- * Premium user profile with stats and settings
+ * User profile focused on trading stats, performance, and activity
  */
 
 import React from 'react';
-import { View, Text, ScrollView, TouchableOpacity, Alert, StyleSheet, ActivityIndicator } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, StyleSheet, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { Colors, Spacing, FontSize, FontFamily, BorderRadius, Gradients } from '@/config/theme';
 import { useTheme } from '@/hooks/common/useTheme';
-import { useAppSelector, useAppDispatch } from '@/store';
-import { selectUser, logout } from '@/store/slices/authSlice';
-import { ThemeMode } from '@/store/slices/uiSlice';
-import { auth } from '@/config/firebase';
-import { signOut } from 'firebase/auth';
+import { useAppSelector } from '@/store';
+import { selectUser } from '@/store/slices/authSlice';
 import { useUserPerformance, useDashboard } from '@/hooks/api/useDashboard';
 import { GlassCard, Badge } from '@/components/ui';
 
 export default function ProfileScreen() {
-  const { colors, isDark, themeMode, setTheme, shadows } = useTheme();
-  const dispatch = useAppDispatch();
+  const { colors, isDark, shadows } = useTheme();
   const user = useAppSelector(selectUser);
   const { data: dashboard, isLoading: statsLoading } = useDashboard();
   const { rating, successRate, verified, kycLevel } = useUserPerformance();
 
-  console.log('[Profile] Rendering, user:', user?.displayName, 'theme:', themeMode);
-
-  const handleLogout = async () => {
-    Alert.alert('Logout', 'Are you sure you want to logout?', [
-      { text: 'Cancel', style: 'cancel' },
-      { text: 'Logout', style: 'destructive', onPress: async () => {
-        try { await signOut(auth); dispatch(logout()); router.replace('/(auth)/login'); }
-        catch (e) { console.error('[Profile] Logout error:', e); Alert.alert('Error', 'Failed to logout'); }
-      }},
-    ]);
-  };
+  console.log('[Profile] Rendering, user:', user?.displayName);
 
   const MenuItem = ({ icon, label, onPress, color, rightElement, danger }: { icon: keyof typeof Ionicons.glyphMap; label: string; onPress?: () => void; color?: string; rightElement?: React.ReactNode; danger?: boolean }) => (
     <TouchableOpacity onPress={onPress} style={[styles.menuItem, { backgroundColor: colors.card }]} activeOpacity={0.7}>
@@ -52,7 +38,7 @@ export default function ProfileScreen() {
         {/* Header */}
         <View style={styles.header}>
           <Text style={[styles.title, { color: colors.text }]}>Profile</Text>
-          <TouchableOpacity style={[styles.settingsBtn, { backgroundColor: isDark ? colors.surface : colors.surfaceSecondary }]}>
+          <TouchableOpacity style={[styles.settingsBtn, { backgroundColor: isDark ? colors.surface : colors.surfaceSecondary }]} onPress={() => router.push('/settings')}>
             <Ionicons name="settings-outline" size={22} color={colors.text} />
           </TouchableOpacity>
         </View>
@@ -68,7 +54,7 @@ export default function ProfileScreen() {
               </View>
               <Text style={styles.profileEmail}>{user?.email || 'No email'}</Text>
             </View>
-            <TouchableOpacity style={styles.editBtn}><Ionicons name="create-outline" size={20} color={Colors.white} /></TouchableOpacity>
+            <TouchableOpacity style={styles.editBtn} onPress={() => router.push('/settings')}><Ionicons name="create-outline" size={20} color={Colors.white} /></TouchableOpacity>
           </View>
           <View style={styles.statsRow}>
             {statsLoading ? <ActivityIndicator color={Colors.white} /> : (<>
@@ -93,35 +79,19 @@ export default function ProfileScreen() {
         )}
 
         {/* Account Section */}
-        <Text style={[styles.sectionTitle, { color: colors.textSecondary }]}>ACCOUNT</Text>
-        <MenuItem icon="person-outline" label="Edit Profile" onPress={() => console.log('Edit')} />
-        <MenuItem icon="card-outline" label="Payment Methods" onPress={() => console.log('Payment')} />
+        <Text style={[styles.sectionTitle, { color: colors.textSecondary }]}>ACTIVITY</Text>
         <MenuItem icon="shield-checkmark-outline" label="KYC Verification" onPress={() => router.push('/kyc')} color={verified ? Colors.success.DEFAULT : Colors.warning.DEFAULT} rightElement={<Badge variant={verified ? 'success' : 'warning'} size="sm">{kycLevel === 'none' ? 'Required' : kycLevel === 'basic' ? 'Basic' : 'Verified'}</Badge>} />
+        <MenuItem icon="time-outline" label="Trade History" onPress={() => router.push('/(tabs)/trades')} />
+        <MenuItem icon="wallet-outline" label="Wallet" onPress={() => router.push('/(tabs)/wallet')} />
 
         <Text style={[styles.sectionTitle, styles.sectionSpaced, { color: colors.textSecondary }]}>EARNINGS</Text>
         <MenuItem icon="people-outline" label="Affiliate Program" onPress={() => router.push('/affiliate')} color={Colors.warning.DEFAULT} />
-        <MenuItem icon="storefront-outline" label="My Offers" onPress={() => console.log('Offers')} />
-
-        <Text style={[styles.sectionTitle, styles.sectionSpaced, { color: colors.textSecondary }]}>APPEARANCE</Text>
-        <GlassCard variant="default" style={styles.themeCard}>
-          <View style={styles.themeHeader}><View style={[styles.menuIconBg, { backgroundColor: `${Colors.accent.purple}15` }]}><Ionicons name="color-palette" size={20} color={Colors.accent.purple} /></View><Text style={[styles.menuLabel, { color: colors.text }]}>Theme</Text></View>
-          <View style={styles.themeOptions}>
-            {([{ mode: 'light', icon: 'sunny-outline', label: 'Light' }, { mode: 'dark', icon: 'moon-outline', label: 'Dark' }, { mode: 'system', icon: 'phone-portrait-outline', label: 'Auto' }] as const).map((opt) => {
-              const isSelected = themeMode === opt.mode;
-              return <TouchableOpacity key={opt.mode} onPress={() => setTheme(opt.mode as ThemeMode)} style={[styles.themeOption, { backgroundColor: isSelected ? Colors.primary.DEFAULT : isDark ? colors.surface : colors.surfaceSecondary, borderColor: isSelected ? Colors.primary.DEFAULT : colors.border }]}>
-                <Ionicons name={opt.icon} size={16} color={isSelected ? Colors.white : colors.textSecondary} />
-                <Text style={[styles.themeOptionText, { color: isSelected ? Colors.white : colors.textSecondary }]}>{opt.label}</Text>
-              </TouchableOpacity>;
-            })}
-          </View>
-        </GlassCard>
+        <MenuItem icon="storefront-outline" label="My Offers" onPress={() => router.push('/offers/create')} />
+        <MenuItem icon="analytics-outline" label="Performance Stats" onPress={() => router.push('/(tabs)')} color={Colors.accent.purple} />
 
         <Text style={[styles.sectionTitle, styles.sectionSpaced, { color: colors.textSecondary }]}>SETTINGS</Text>
-        <MenuItem icon="notifications-outline" label="Notifications" onPress={() => console.log('Notif')} />
-        <MenuItem icon="lock-closed-outline" label="Security" onPress={() => console.log('Security')} />
-        <MenuItem icon="help-circle-outline" label="Help & Support" onPress={() => console.log('Help')} />
-        <MenuItem icon="log-out-outline" label="Logout" onPress={handleLogout} color={Colors.danger.DEFAULT} danger />
-
+        <MenuItem icon="settings-outline" label="Account Settings" onPress={() => router.push('/settings')} />
+        
         <View style={{ height: Spacing['2xl'] }} />
       </ScrollView>
     </SafeAreaView>
@@ -159,9 +129,4 @@ const styles = StyleSheet.create({
   menuItem: { flexDirection: 'row', alignItems: 'center', padding: Spacing.md, borderRadius: BorderRadius.xl, marginBottom: Spacing.sm },
   menuIconBg: { width: 40, height: 40, borderRadius: 20, alignItems: 'center', justifyContent: 'center', marginRight: Spacing.md },
   menuLabel: { flex: 1, fontSize: FontSize.base, fontFamily: FontFamily.medium },
-  themeCard: { marginBottom: Spacing.sm },
-  themeHeader: { flexDirection: 'row', alignItems: 'center', marginBottom: Spacing.md },
-  themeOptions: { flexDirection: 'row', gap: Spacing.sm },
-  themeOption: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingVertical: Spacing.sm, borderRadius: BorderRadius.lg, borderWidth: 1, gap: 6 },
-  themeOptionText: { fontSize: FontSize.sm, fontFamily: FontFamily.medium },
 });

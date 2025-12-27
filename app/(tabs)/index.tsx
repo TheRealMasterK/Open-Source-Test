@@ -42,7 +42,7 @@ export default function DashboardScreen() {
     isAuthenticated,
     statsLoading,
     statsCount: stats?.length,
-    statsError: statsError?.message,
+    statsError: (statsError as Error | null)?.message,
     activitiesLoading,
     activitiesCount: activities?.length,
     balancesLoading,

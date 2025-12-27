@@ -109,10 +109,10 @@ export default function TradesScreen() {
     isAuthenticated,
     activeLoading,
     activeCount: activeTradesData?.length,
-    activeError: activeError?.message,
+    activeError: (activeError as Error | null)?.message,
     completedLoading,
     completedCount: completedTradesData?.length,
-    completedError: completedError?.message,
+    completedError: (completedError as Error | null)?.message,
   });
 
   // Get trades for current tab
